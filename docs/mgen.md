@@ -40,7 +40,9 @@ coefficient = (MIN(tb, PMSS + TPP) + TPP) / brut moyen
 
 où `tb` est le traitement brut indiciaire du mois, `PMSS` le plafond mensuel de la
 sécurité sociale (4 005 € en 2026), `TPP` le transfert primes-points mensuel (389 / 12 =
-32,42 €) et `brut moyen` 3 107 €, relevé sur les bulletins : aucun texte lu ne le donne.
+32,42 €) et `brut moyen` le brut mensuel moyen des agents de l’EN (3 107 € en
+2024, valeur utilisée pour 2026), obtenu de source syndicale : aucun texte lu
+ne le donne.
 
 Pour un traitement de 4 100 € :
 

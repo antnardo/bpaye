@@ -415,8 +415,11 @@ values = [
 
 # ──────────────────────────────────────────────
 # MGEN PSC (Protection Sociale Complémentaire – depuis mai 2026)
-# Montants relevés sur les bulletins de mai à septembre 2026 : le contrat MGEN – CNP qui
-# les fixe n'a pas été trouvé. Formule de 720577 : docs/mgen.md.
+# Montants et taux obtenus des communications ministérielles et d’une source
+# syndicale qui siège à la commission paritaire de pilotage et de suivi du
+# régime de protection sociale complémentaire : le contrat MGEN – CNP qui les
+# fixe n’a pas été trouvé.
+# Formule de 720577 : docs/mgen.md.
 # ──────────────────────────────────────────────
 [mgen.base]
 # Cotisation d’équilibre pour l’ensemble, servant à calculer les différentes parts
@@ -425,6 +428,8 @@ unite = "mensuel"
 values = [
   { date = 2000-01-01, valeur = 0.0   },
   { date = 2026-05-01, valeur = 75.40 },
+  { date = 2027-01-01, valeur = 78.70 }, # Source syndicale
+  { date = 2028-01-01, valeur = 82.43 }, # Source syndicale
 ]
 
 [mgen.taux_employeur]
@@ -455,8 +460,8 @@ values = [
 ]
 
 [mgen.brut_moyen]
-# Traitement brut moyen national retenu par l'administration (base 720577) : relevé sur
-# les bulletins depuis mai 2026, aucun texte lu ne le donne.
+# Traitement brut moyen national de l’EN retenu par l'administration (base 720577)
+# Source syndicale, aucun texte lu ne le donne.
 type  = "Fixe"
 unite = "mensuel"
 values = [
