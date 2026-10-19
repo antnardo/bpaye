@@ -17,11 +17,11 @@ paie, pas ce que dit un texte. Les montants de cette page sont fictifs.
 
 | Code | Ligne | Dans bpaye (`mgen.py`) |
 | --- | --- | --- |
-| 720576 | part forfaitaire | fixe (`taux.toml`, `mgen.part_forfaitaire`) |
-| 720577 | part solidaire | 22,62 × coefficient de rémunération (ci-dessous) |
+| 720576 | part forfaitaire | fixe (20 % × (`taux.toml`, `mgen.base`)) |
+| 720577 | part solidaire | variable (30 % (`taux.toml`, `mgen.base`) × coefficient de rémunération (ci-dessous)) |
 | 720578 | action sociale | variable (2 % × (720576 + 720577) HT), arrondi |
 | 720579 | aide aux retraités | variable (3 % × (720576 + 720577) HT), arrondi |
-| 720580 | part employeur | fixe ; soumise à CSG et CRDS sans abattement |
+| 720580 | part employeur | fixe (50 % × (`taux.toml`, `mgen.base)) ; soumise à CSG et CRDS sans abattement |
 
 Les codes et leurs libellés sont ceux de la nomenclature de la DGFiP de janvier 2026
 (PSC santé, IR 0976 à 0980 ; `codes.toml`). 720578 et 720579 restent dans le montant
@@ -35,7 +35,7 @@ bpaye calcule :
 
 ```text
 coefficient = (MIN(tb, PMSS + TPP) + TPP) / brut moyen
-720577      = arrondi(22,62 × coefficient, 2)
+720577      = arrondi(30 % × (`taux.toml`, `mgen.base`) × coefficient, 2)
 ```
 
 où `tb` est le traitement brut indiciaire du mois, `PMSS` le plafond mensuel de la
@@ -46,7 +46,7 @@ Pour un traitement de 4 100 € :
 
 ```text
 MIN(4 100,00 ; 4 005 + 32,42) + 32,42 = 4 037,42 + 32,42 = 4 069,84
-22,62 × 4 069,84 / 3 107 = 29,629…  → 29,63 €
+0,3 × 75,40 × 4 069,84 / 3 107 = 29,629…  → 29,63 €
 ```
 
 Le TPP y compte deux fois : une fois dans le plafond, une fois ajouté. On attendrait

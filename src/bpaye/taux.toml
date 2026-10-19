@@ -418,31 +418,40 @@ values = [
 # Montants relevés sur les bulletins de mai à septembre 2026 : le contrat MGEN – CNP qui
 # les fixe n'a pas été trouvé. Formule de 720577 : docs/mgen.md.
 # ──────────────────────────────────────────────
-[mgen.part_employeur]
+[mgen.base]
+# Cotisation d’équilibre pour l’ensemble, servant à calculer les différentes parts
+type  = "Fixe"
+unite = "mensuel"
+values = [
+  { date = 2000-01-01, valeur = 0.0   },
+  { date = 2026-05-01, valeur = 75.40 },
+]
+
+[mgen.taux_employeur]
 # 720580 – participation patronale (pour information, soumise à CSG sans abattement)
-type  = "Fixe"
-unite = "mensuel"
+# Fraction de la valeur de base ci-dessus
+type  = "Taux"
 values = [
-  { date = 2000-01-01, valeur = 0.0   },
-  { date = 2026-05-01, valeur = 37.70 },
+  { date = 2000-01-01, valeur = 0.0 },
+  { date = 2026-05-01, valeur = 0.5 },
 ]
 
-[mgen.part_forfaitaire]
-# 720576 – cotisation forfaitaire salariale (75,40 × 20 %)
-type  = "Fixe"
-unite = "mensuel"
+[mgen.taux_forfaitaire]
+# 720576 – cotisation forfaitaire salariale
+# Fraction de la valeur de base ci-dessus
+type  = "Taux"
 values = [
-  { date = 2000-01-01, valeur = 0.0   },
-  { date = 2026-05-01, valeur = 15.08 },
+  { date = 2000-01-01, valeur = 0.0 },
+  { date = 2026-05-01, valeur = 0.2 },
 ]
 
-[mgen.part_solidaire_base]
-# base de la part solidaire (75,40 × 30 %) avant coefficient revenu
-type  = "Fixe"
-unite = "mensuel"
+[mgen.taux_solidaire_base]
+# base de la part solidaire avant coefficient revenu
+# Fraction de la valeur de base ci-dessus
+type  = "Taux"
 values = [
-  { date = 2000-01-01, valeur = 0.0   },
-  { date = 2026-05-01, valeur = 22.62 },
+  { date = 2000-01-01, valeur = 0.0 },
+  { date = 2026-05-01, valeur = 0.3 },
 ]
 
 [mgen.brut_moyen]

@@ -50,12 +50,12 @@ __all__ = [
 
 def mgen_part_employeur(date: dt.date, bareme: Bareme = BAREME) -> float:
     """Part patronale MGEN (720580) à inclure dans l'assiette CSG sans abattement."""
-    return bareme.load("mgen.part_employeur")(date)
+    return bareme.load("mgen.taux_employeur")(date) * bareme.load("mgen.base")(date)
 
 
 def _part_solidaire(tb: float, date: dt.date, bareme: Bareme = BAREME) -> float:
     """720577 : la formule de la paie, TPP compté deux fois (docs/mgen.md)."""
-    base = bareme.load("mgen.part_solidaire_base")(date)
+    base = bareme.load("mgen.taux_solidaire_base")(date) * bareme.load("mgen.base")(date)
     if base == 0.0:
         return 0.0
     pmss = bareme.load("pmss")(date)
@@ -70,7 +70,7 @@ def mgen_charges(tb: float, date: dt.date, bareme: Bareme = BAREME) -> list[Lign
     tb  : traitement brut mensuel en euros (indice × point).
     Retourne [] avant mai 2026 (part_forfaitaire == 0).
     """
-    val_forfait = bareme.load("mgen.part_forfaitaire")(date)
+    val_forfait = bareme.load("mgen.taux_forfaitaire")(date) * bareme.load("mgen.base")(date)
     if val_forfait == 0.0:
         return []
     val_solidaire = _part_solidaire(tb, date, bareme)

@@ -6,7 +6,7 @@ MAI_2026 = dt.date(2026, 6, 30)
 
 
 def test_part_solidaire_de_l_exemple_de_la_documentation():
-    # docs/mgen.md : 22,62 × (min(4 100 ; 4 005 + 32,42) + 32,42) / 3 107 = 29,63 €.
+    # docs/mgen.md : 0,3 × 75,40 × (min(4 100 ; 4 005 + 32,42) + 32,42) / 3 107 = 29,63 €.
     lignes = {ligne.code: ligne.valeur for ligne in mgen_charges(4100.0, MAI_2026)}
     assert (lignes[720576], lignes[720577]) == (-15.08, -29.63)
 
