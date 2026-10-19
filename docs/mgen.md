@@ -34,7 +34,7 @@ hors-taxe est donné par (`taux.toml`, `mgen.taux_taxe`).
 bpaye calcule :
 
 ```text
-coefficient = (MIN(tb, PMSS + TPP) + TPP) / brut moyen
+coefficient = (MIN(tb - TPP, PMSS + TPP) + TPP) / brut moyen
 720577      = arrondi(30 % × (`taux.toml`, `mgen.base`) × coefficient, 2)
 ```
 
@@ -47,28 +47,13 @@ ne le donne.
 Pour un traitement de 4 100 € :
 
 ```text
-MIN(4 100,00 ; 4 005 + 32,42) + 32,42 = 4 037,42 + 32,42 = 4 069,84
+MIN(4 100,00 - 32,42 ; 4 005 + 32,42) + 32,42 = 4 037,42 + 32,42 = 4 069,84
 0,3 × 75,40 × 4 069,84 / 3 107 = 29,629…  → 29,63 €
 ```
 
 Le TPP y compte deux fois : une fois dans le plafond, une fois ajouté. On attendrait
 plutôt un traitement net du TPP, plafonné au PMSS, soit `MIN(tb − TPP, PMSS)`
 (29,16 € dans cet exemple) ; aucun texte lu ne tranche.
-
-## Ce qui n'est pas vérifié
-
-La formule n'est vérifiée que pour un traitement au-dessus de PMSS + TPP. Ces bulletins
-fixent un seul numérateur, PMSS + 2 × TPP, que plusieurs formules donnent aussi bien. Elles
-divergent sous le plafond, là où se trouvent la plupart des enseignants :
-
-| Formule | Traitement de 3 000 € |
-| --- | --- |
-| `MIN(tb, PMSS + TPP) + TPP` (bpaye) | 3 032,42 |
-| `MIN(tb, PMSS) + 2 × TPP` | 3 064,84 |
-| `MIN(tb − TPP, PMSS)` | 2 967,58 |
-
-**Sous le plafond, la part solidaire de bpaye n'est vérifiée par aucun bulletin.** Le
-bulletin d'un agent dont le traitement est inférieur au PMSS tranchera.
 
 ## Si la paie change de formule
 

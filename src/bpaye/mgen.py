@@ -15,13 +15,11 @@ PART SOLIDAIRE (720577) : LA FORMULE DE LA PAIE (docs/mgen.md)
 Le contrat MGEN – CNP qui fixe la formule n'a pas été trouvé ; bpaye reprend celle qui
 retrouve les bulletins (mai à septembre 2026) :
 
-    coeff = (MIN(tb, PMSS + TPP) + TPP) / BrutMoyen
+    coeff = (MIN(tb − TPP, PMSS + TPP) + TPP) / BrutMoyen
 
 Le TPP y compte deux fois ; on attendrait MIN(tb − TPP, PMSS) / BrutMoyen, soit 0,47 €
 de moins par mois au-delà du plafond (exemple fictif : 29,63 € au lieu de 29,16 € pour
-tb = 4 100 €). Les bulletins connus ont tous un traitement au-dessus de PMSS + TPP : ils
-ne départagent pas les formules sous le plafond, où bpaye n'est vérifié par aucun
-bulletin.
+tb = 4 100 €).
 
 ──────────────────────────────────────────────────────────────
 CSG/CRDS – TRAITEMENT DE LA PART PATRONALE 720580
@@ -60,7 +58,7 @@ def _part_solidaire(tb: float, date: dt.date, bareme: Bareme = BAREME) -> float:
         return 0.0
     pmss = bareme.load("pmss")(date)
     tpp = bareme.load("transfertpp")(date)  # mensuel (annuel ÷ 12)
-    coeff = (min(tb, pmss + tpp) + tpp) / bareme.load("mgen.brut_moyen")(date)
+    coeff = (min(tb - tpp, pmss + tpp) + tpp) / bareme.load("mgen.brut_moyen")(date)
     return round(base * coeff, 2)
 
 
