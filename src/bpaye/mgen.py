@@ -5,8 +5,8 @@ CODES
 ──────────────────────────────────────────────────────────────
   720576  MGEN PART FORFAITAIRE  cotisation salariale forfaitaire     75,40 × 20 %
   720577  MGEN PART SOLIDAIRE    cotisation salariale modulée revenu  75,40 × 30 % × coeff
-  720578  MGEN ACTION SOCIALE    1,77 % × (720576 + 720577)          imposable (non déductible IR)
-  720579  MGEN AIDE RETRAITES    2,65 % × (720576 + 720577)          imposable (non déductible IR)
+  720578  MGEN ACTION SOCIALE    2 % × (720576 + 720577) / 1,1327     imposable (non déductible IR)
+  720579  MGEN AIDE RETRAITES    3 % × (720576 + 720577) / 1,1327     imposable (non déductible IR)
   720580  MGEN PART EMPLOYEUR    participation patronale 37,70 €      pour information
 
 ──────────────────────────────────────────────────────────────
@@ -74,7 +74,7 @@ def mgen_charges(tb: float, date: dt.date, bareme: Bareme = BAREME) -> list[Lign
     if val_forfait == 0.0:
         return []
     val_solidaire = _part_solidaire(tb, date, bareme)
-    base_ats = val_forfait + val_solidaire
+    base_ats = (val_forfait + val_solidaire) / (1 + bareme.load("mgen.taux_taxe")(date))
     val_action = round(bareme.load("mgen.taux_action_sociale")(date) * base_ats, 2)
     val_retraites = round(bareme.load("mgen.taux_aide_retraites")(date) * base_ats, 2)
     return [

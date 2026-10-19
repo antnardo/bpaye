@@ -19,14 +19,15 @@ paie, pas ce que dit un texte. Les montants de cette page sont fictifs.
 | --- | --- | --- |
 | 720576 | part forfaitaire | fixe (`taux.toml`, `mgen.part_forfaitaire`) |
 | 720577 | part solidaire | 22,62 × coefficient de rémunération (ci-dessous) |
-| 720578 | action sociale | 1,77 % × (720576 + 720577), arrondi |
-| 720579 | aide aux retraités | 2,65 % × (720576 + 720577), arrondi |
+| 720578 | action sociale | variable (2 % × (720576 + 720577) HT), arrondi |
+| 720579 | aide aux retraités | variable (3 % × (720576 + 720577) HT), arrondi |
 | 720580 | part employeur | fixe ; soumise à CSG et CRDS sans abattement |
 
 Les codes et leurs libellés sont ceux de la nomenclature de la DGFiP de janvier 2026
 (PSC santé, IR 0976 à 0980 ; `codes.toml`). 720578 et 720579 restent dans le montant
 imposable. La part employeur entre dans l'assiette de la CSG sans l'abattement de
-1,75 % (`docs/csg.md`).
+1,75 % (`docs/csg.md`). Le taux de taxation permettant d’obtenir le montant
+hors-taxe est donné par (`taux.toml`, `mgen.taux_taxe`).
 
 ## La part solidaire (720577)
 

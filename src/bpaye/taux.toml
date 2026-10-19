@@ -454,18 +454,26 @@ values = [
   { date = 2026-05-01, valeur = 3107.0 },
 ]
 
+[mgen.taux_taxe]
+# Taxe incluse dans la cotisation MGEN, https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000042698839
+# À déduire pour le calcul de la valeur HT
+type  = "Taux"
+values = [
+  { date = 2015-01-01, valeur = 0.1327 }, # https://www.legifrance.gouv.fr/jorf/article_jo/JORFARTI000029953570
+]
+
 [mgen.taux_action_sociale]
-# 720578 : part de (720576 + 720577), relevée sur les bulletins depuis mai 2026
+# 720578 : fraction de (720576 + 720577) HT
 type = "Taux"
 values = [
-  { date = 2026-05-01, valeur = 0.0177 },
+  { date = 2026-05-01, valeur = 0.02 },
 ]
 
 [mgen.taux_aide_retraites]
-# 720579 : part de (720576 + 720577), relevée sur les bulletins depuis mai 2026
+# 720579 : fraction de (720576 + 720577) HT
 type = "Taux"
 values = [
-  { date = 2026-05-01, valeur = 0.0265 },
+  { date = 2026-05-01, valeur = 0.03 },
 ]
 
 # ──────────────────────────────────────────────
