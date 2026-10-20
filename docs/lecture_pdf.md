@@ -54,12 +54,18 @@ est une date de version du gabarit (ici 16/03/2026).
 
 | Version | Période observée | Particularité utile à la lecture |
 | --- | --- | --- |
-| V2.3 | jusqu'à janvier 2026 | TOTAUX DU MOIS et total des retenues dans deux morceaux séparés |
+| V1.4 | jusqu'à janvier 2018 | non lue : aucun bulletin de test |
+| V1.6 | jusqu'à septembre 2018 | non lue : aucun bulletin de test |
+| V2.0 | jusqu'à décembre 2018 | non lue : aucun bulletin de test |
+| V2.1 | jusqu'à mars 2019 | non lue : aucun bulletin de test |
+| V2.3 | d'avril 2019 à janvier 2026 | TOTAUX DU MOIS et total des retenues dans deux morceaux séparés |
 | V4.0 | à partir de février 2026 | les deux montants dans un même morceau : `3350,00      1000,00` |
 | V4.2 | 2026 | comme V4.0 ; l'espace et la lettre suivante se chevauchent d'environ un point |
 
 `SUPPORTED_VERSIONS = {"V2.3", "V4.0", "V4.2"}` ; une autre version déclenche un
-avertissement mais la lecture continue.
+avertissement mais la lecture continue. Les versions d'avant 2019 n'y sont pas faute
+de bulletin pour vérifier leur structure ; un bulletin de chacune suffirait à les
+ajouter, si la lecture y retrouve TOTAUX DU MOIS.
 
 ---
 
