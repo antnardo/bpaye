@@ -23,6 +23,9 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et la
   Pagani : chaque montant d'arrêté suit le point, au centime du mois d'avant ; les
   montants relevés sur les bulletins deviennent des montants calculés, datés de la hausse
   du point (juillet 2016 et juillet 2023, et non septembre).
+- **Options et prévoyance de la PSC, ancienne mutuelle** (`[[psc]]` d'`agent.toml`) :
+  participations de l'employeur aux options et à la prévoyance, cotisation de
+  prévoyance, ancienne adhésion MGEN précomptée, aux montants du contrat de l'agent.
 
 ### Corrigé
 
