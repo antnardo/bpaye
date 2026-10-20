@@ -21,7 +21,7 @@ paie, pas ce que dit un texte. Les montants de cette page sont fictifs.
 | 720577 | part solidaire | variable (30 % (`taux.toml`, `mgen.base`) × coefficient de rémunération (ci-dessous)) |
 | 720578 | action sociale | variable (2 % × (720576 + 720577) HT), arrondi |
 | 720579 | aide aux retraités | variable (3 % × (720576 + 720577) HT), arrondi |
-| 720580 | part employeur | fixe (50 % × (`taux.toml`, `mgen.base)) ; soumise à CSG et CRDS sans abattement |
+| 720580 | part employeur | fixe (50 % × (`taux.toml`, `mgen.base`)) ; soumise à CSG et CRDS sans abattement |
 
 Les codes et leurs libellés sont ceux de la nomenclature de la DGFiP de janvier 2026
 (PSC santé, IR 0976 à 0980 ; `codes.toml`). 720578 et 720579 restent dans le montant
@@ -34,17 +34,18 @@ hors-taxe est donné par (`taux.toml`, `mgen.taux_taxe`).
 bpaye calcule :
 
 ```text
-coefficient = (MIN(tb - TPP, PMSS + TPP) + TPP) / brut moyen
+coefficient = (MIN(brut - TPP, PMSS + TPP) + TPP) / brut moyen
 720577      = arrondi(30 % × (`taux.toml`, `mgen.base`) × coefficient, 2)
 ```
 
-où `tb` est le traitement brut indiciaire du mois, `PMSS` le plafond mensuel de la
+où `brut` est la rémunération brute du mois (les éléments à payer, hors remboursements de
+frais ; pas le seul traitement indiciaire : un bulletin sous le plafond le montre), `PMSS` le plafond mensuel de la
 sécurité sociale (4 005 € en 2026), `TPP` le transfert primes-points mensuel (389 / 12 =
 32,42 €) et `brut moyen` le brut mensuel moyen des agents de l’EN (3 107 € en
 2024, valeur utilisée pour 2026), obtenu de source syndicale : aucun texte lu
 ne le donne.
 
-Pour un traitement de 4 100 € :
+Pour une rémunération brute de 4 100 € :
 
 ```text
 MIN(4 100,00 - 32,42 ; 4 005 + 32,42) + 32,42 = 4 037,42 + 32,42 = 4 069,84
@@ -52,7 +53,7 @@ MIN(4 100,00 - 32,42 ; 4 005 + 32,42) + 32,42 = 4 037,42 + 32,42 = 4 069,84
 ```
 
 Le TPP y compte deux fois : une fois dans le plafond, une fois ajouté. On attendrait
-plutôt un traitement net du TPP, plafonné au PMSS, soit `MIN(tb − TPP, PMSS)`
+plutôt un traitement net du TPP, plafonné au PMSS, soit `MIN(brut − TPP, PMSS)`
 (29,16 € dans cet exemple) ; aucun texte lu ne tranche.
 
 ## Si la paie change de formule
