@@ -16,13 +16,13 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et la
   lue à son abscisse, avec un contrôle des trois totaux du pied (`ecarts_colonnes`) ; un
   montant hors de la colonne de sa catégorie se compte en moins. `BulletinLu.lignes`
   garde chaque ligne imprimée. Les décomptes de rappel sont lus pour tout code connu.
-- **Codes** des bulletins (outre-mer, HSE particulières, vacations de
+- **Codes** signalés par Bruno Pagani (outre-mer, HSE particulières, vacations de
   formation, actions à pilotage national, options et prévoyance PSC, ancienne adhésion
   MGEN) : lus, non calculés.
 
 ### Corrigé
 
-- **MGEN** : part solidaire (720577) calculée sur la
+- **MGEN** (contribution de Bruno Pagani) : part solidaire (720577) calculée sur la
   rémunération brute du mois et non sur le seul traitement, vérifiée sous le plafond sur un
   bulletin réel ; action sociale et aide aux retraités (720578, 720579) à 2 % et 3 %
   de la cotisation hors taxe de solidarité additionnelle (13,27 %, code de la sécurité
