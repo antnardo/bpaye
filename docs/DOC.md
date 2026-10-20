@@ -317,6 +317,15 @@ type   = "Fixe"
 unite  = "mensuel"
 values = [{ date = 2025-01-01, valeur = 30.00 }]
 
+[[academie]]                   # facultatif : ses retards habituels de paie
+date = 2019-09-01
+nom  = "paris"                 # une clé de academies.toml, ou "defense"
+
+[[retards]]                    # facultatif : les retards habituels propres à l'agent
+code = 200041                  # le FMD, dû en janvier,
+du   = 1
+paye = 2                       # payé en février
+
 [[psc]]                        # facultatif : montants mensuels relevés sur les bulletins
 date                  = 2026-05-01
 options               = 5.00   # 202483, participation employeur aux options
@@ -332,6 +341,18 @@ détachement déclaré ne vaut qu'à partir de sa date ; la zone déclarée vaut
 l'entrée dans la carrière. L'indemnité compensatrice de CSG déclarée (`[ic_csg]`) doit
 couvrir tous les mois calculés depuis 2018 : avant son premier montant, bpaye refuse.
 Sans `[ic_csg]`, bpaye refuse les mois depuis 2018 : le montant est propre à chaque agent.
+
+bpaye calcule chaque ligne au mois où elle est due. Certains retards sont pourtant
+l'usage de la paie, chaque année les mêmes : le neuvième d'octobre des HSA payé en
+novembre, l'IFP de septembre en octobre. `academies.toml`, dans le paquet, les donne par
+académie (code de l'éducation, R222-2, et lycées de la Défense ; relevé dans
+`docs/verification/academies.toml`) : un défaut, relevé sur des bulletins de Paris, dont
+chaque académie hérite tant que les siens ne sont pas relevés. `[[academie]]` choisit
+celle de l'agent à chaque date (le défaut avant la première) ; `[[retards]]` ajoute les
+siens, qui remplacent ceux de l'académie pour le même code (`depuis`, facultatif, en fixe
+le premier mois dû). Un retard s'applique comme `Paye.retard_paiement` : la ligne reste
+due son mois et arrive en rappel le mois de paiement. Un retard ponctuel reste un
+événement (`paye.retard_paiement`, section 5).
 
 `[[psc]]` déclare ce que le contrat de l'agent ajoute à la PSC santé obligatoire, et
 l'ancienne mutuelle précomptée sur la paie : aucun texte lu n'en fixe le montant pour un
@@ -549,8 +570,8 @@ Chaque montant est dans `taux.toml` avec sa source ; chaque indice et chaque dur
   plafond de 20 % ne sont calculées.
 - Pas de contractuels ni d'enseignement privé.
 - Deux règles de calendrier sont relevées sur des bulletins, aucun texte ne les donne :
-  les HSA d'octobre et l'IFP de septembre payées le mois suivant
-  (`Paye.PAYES_LE_MOIS_SUIVANT`), et le passage, en février 2026, d'une assiette de CSG
+  les HSA d'octobre et l'IFP de septembre payées le mois suivant (`academies.toml`,
+  relevé à Paris et prêté aux autres académies), et le passage, en février 2026, d'une assiette de CSG
   tronquée à une assiette arrondie (`charges.NOUVEAU_LOGICIEL_PAIE`).
 - La part solidaire de la PSC santé n'est vérifiée qu'au-dessus du plafond de la
   sécurité sociale.
