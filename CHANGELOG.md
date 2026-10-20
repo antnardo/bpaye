@@ -12,6 +12,13 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et la
   prélèvement à la source), situent l'indice dans les grilles, et en déduisent la
   fraction de traitement payée, la zone de résidence, les enfants payés par le SFT et les
   situations que trahissent les lignes, sans carrière ni `agent.toml`.
+- **Lecture des PDF** : la colonne de chaque montant (à payer, à déduire, pour information),
+  lue à son abscisse, avec un contrôle des trois totaux du pied (`ecarts_colonnes`) ; un
+  montant hors de la colonne de sa catégorie se compte en moins. `BulletinLu.lignes`
+  garde chaque ligne imprimée. Les décomptes de rappel sont lus pour tout code connu.
+- **Codes** signalés par Bruno Pagani (outre-mer, HSE particulières, vacations de
+  formation, actions à pilotage national, options et prévoyance PSC, ancienne adhésion
+  MGEN) : lus, non calculés.
 
 ### Corrigé
 

@@ -435,10 +435,16 @@ viennent du pied du bulletin ; `_rappel_decompte` est le rappel sur rémunérati
 principale (« * RAPPELS : VOIR DÉCOMPTE »), détaillé par un décompte à part. Un code
 absent de `codes.toml` est signalé par un avertissement et rangé dans `_unknown`.
 
-La lecture se contrôle elle-même : `ecart_totaux(lu)` vaut TOTAUX DU MOIS moins les
-lignes à payer lues, rappel sur décompte compris ; un écart, signe d'une ligne manquée,
-déclenche un avertissement. Il est nul sur des bulletins de 2019 à 2026. `extract_dr`
-lit un décompte de rappel ; `find_pdfs(dossier, année, siret)` trouve les bulletins
+Chaque montant est lu dans sa colonne (à payer, à déduire, pour information), à son
+abscisse : un montant hors de la colonne de sa catégorie, comme un traitement repris « à
+déduire », se compte en moins. `lu.lignes` garde chaque ligne imprimée, avec sa colonne.
+
+La lecture se contrôle elle-même : chaque colonne doit retomber, au centime, sur son
+total du pied (`ecarts_colonnes(lu)` ; `ecart_totaux(lu)` pour TOTAUX DU MOIS, rappel sur
+décompte compris). Un écart, signe d'une ligne manquée, déclenche un avertissement. Les
+cotisations patronales d'un mois de décompte de rappel ne se contrôlent pas : celles du
+décompte entrent dans le total sans ligne sur le bulletin. `extract_dr` lit un décompte
+de rappel, ligne par ligne pour chaque code connu ; `find_pdfs(dossier, année, siret)` trouve les bulletins
 principaux d'une année, ceux d'un autre gestionnaire écartés par le SIRET.
 
 ### Reconnaître un bulletin sans carrière

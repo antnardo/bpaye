@@ -96,8 +96,9 @@ d'une erreur de la paie ou d'un événement que la carrière ne décrit pas enco
 4. **Les arrondis sont ceux de la paie.** Les textes ne disent pas où la paie arrondit ;
    bpaye reproduit au centime la règle des bulletins réels (l'assiette de la CSG en deux
    morceaux, tronquée avant février 2026, arrondie depuis).
-5. **La lecture des PDF se contrôle elle-même.** La somme des lignes lues doit retomber
-   sur le « TOTAUX DU MOIS » imprimé ; sinon, bpaye le signale.
+5. **La lecture des PDF se contrôle elle-même.** Chaque montant est lu dans sa colonne ;
+   les montants à payer, à déduire et pour information doivent retomber sur les totaux
+   imprimés au pied du bulletin ; sinon, bpaye le signale.
 
 ## Installation
 
