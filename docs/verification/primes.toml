@@ -156,7 +156,7 @@ source = "Décret 93-55, art. 4, version 01/03/1992–01/09/2023, https://www.le
 depuis = 2023-09-01
 regle = "Les montants de la part fixe et de la part modulable sont indexés sur la valeur du point indiciaire de la fonction publique."
 source = "Décret 93-55, art. 4 mod. par décret 2023-627 art. 4, https://www.legifrance.gouv.fr/loda/id/JORFTEXT000000725858/2026-10-17/"
-note = "Toujours indexée au 2026-10-17 (part fonctionnelle non indexée). Conséquence : le montant de l'arrêté est un montant de référence ; le montant revalorisé après chaque hausse du point n'est écrit dans aucun texte lu → MANQUANT (à calculer ou à lire dans une note de service)."
+note = "Toujours indexée au 2026-10-17 (part fonctionnelle non indexée). Conséquence : le montant de l'arrêté est un montant de référence ; le montant revalorisé après chaque hausse du point n'est écrit dans aucun texte lu : bpaye le calcule (montant de l'arrêté × point / point à la date de l'arrêté, au douzième arrondi au centime), ce que confirment les bulletins de 2010 à 2023."
 
 [[isoe.versement]]
 depuis = 2005-09-01

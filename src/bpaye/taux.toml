@@ -280,19 +280,15 @@ values = [
 # 1/1/2009 (arrêté du 6/11/2009), 1 213,56 € au 1/9/2021 (arrêté du 20/08/2021), 2 550 € au
 # 1/9/2023 (arrêté du 19/07/2023). https://www.legifrance.gouv.fr/loda/id/JORFTEXT000000725858/2026-10-17/ et
 # https://www.legifrance.gouv.fr/loda/id/JORFTEXT000000725548/2026-10-17/
-# Entre deux arrêtés, le montant suit le point : ceux d'avant 2021 sont relevés sur les
-# bulletins ; 2022-07 et 2023-07 sont 1 213,56 × point / 56,2323 (104,67 € et 106,24 € par
-# mois sur les bulletins).
+# Entre deux arrêtés, chaque montant suit le point (config.Bareme._load_indexe) : les
+# bulletins relevés de 2010 à 2023 le confirment (1 199,16, 1 206,36, 1 213,56, 1 256,04 et
+# 1 274,88 €). Le montant de 2007 est relevé : les 6 426 F de 1992 n'ont pas été convertis.
 [isoe]
-type  = "Fixe"
-unite = "annuel"
+type = "IndexePoint"
 values = [
-  { date = 2007-02-01, valeur = 1174.20 },
-  { date = 2010-07-01, valeur = 1199.16 },
-  { date = 2016-09-01, valeur = 1206.36 },
-  { date = 2017-02-01, valeur = 1213.56 },
-  { date = 2022-07-01, valeur = 1256.03 },
-  { date = 2023-07-01, valeur = 1274.87 },
+  { date = 2007-02-01, valeur = 1174.20 },  # relevé sur les bulletins
+  { date = 2009-01-01, valeur = 1183.68 },
+  { date = 2021-09-01, valeur = 1213.56 },
   { date = 2023-09-01, valeur = 2550 },
 ]
 

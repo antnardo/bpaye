@@ -92,10 +92,32 @@ class Bareme:
     def load(self, path: str) -> Any:
         """L'objet Taux, Fixe ou AnnuelPonctuel d'un chemin pointé : « csg.deductible »."""
         if path not in self._cache:
-            temporal = _load_temporal(self.get(path))
+            section = self.get(path)
+            if section.get("type") == "IndexePoint":
+                temporal: Any = self._load_indexe(section)
+            else:
+                temporal = _load_temporal(section)
             temporal.strict = True
             self._cache[path] = temporal
         return self._cache[path]
+
+    def _load_indexe(self, section: dict[str, Any]) -> Fixe:
+        """Un montant annuel indexé sur le point (type « IndexePoint ») : chaque montant de
+        référence (un arrêté, à défaut un relevé) suit le point jusqu'au suivant, au
+        douzième arrondi au centime. Cet arrondi au mois redonne les bulletins : l'ISOE de
+        1 183,68 € au 1/1/2009 vaut 99,93 € par mois au point du 1/7/2010, 1 199,16 € par an
+        (le produit exact, 1 199,13 €, ne les redonne pas)."""
+        point = self.load("point")
+        references = sorted((parse_toml_date(e["date"]), float(e["valeur"])) for e in section["values"])
+        fixe = Fixe()
+        for i, (debut, montant) in enumerate(references):
+            fin = references[i + 1][0] if i + 1 < len(references) else None
+            point_reference = point(debut)
+            fixe.append(debut, mensuel=round(montant / 12, 2))
+            for date, valeur in point.values:
+                if date > debut and (fin is None or date < fin):
+                    fixe.append(date, mensuel=round(montant * valeur / point_reference / 12, 2))
+        return fixe
 
 
 BAREME = Bareme.depuis_fichiers()
