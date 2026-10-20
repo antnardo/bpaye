@@ -511,9 +511,8 @@ class Paye:
             nouveaux.append(b)
         # Les retards habituels de la paie (academies.py) : la ligne reste due son mois et
         # arrive en rappel le mois de paiement.
-        retards = self.fonctionnaire.retards()
         for b in nouveaux:
-            for retard in retards.values():
+            for retard in self.fonctionnaire.retards(b.date).values():
                 if retard.concerne(b.date):
                     self._paie_en_retard(b, retard)
 

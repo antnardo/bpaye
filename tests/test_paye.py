@@ -386,3 +386,51 @@ def test_vacation_code_inconnu_refuse(configuration):
     paye = _paye(configuration, 1, 12)
     with pytest.raises(ValueError, match="code de vacation inconnu"):
         paye.vacation((2025, 11), 6, 42.0, code=200215)
+
+
+ACADEMIE = """
+[[academie]]
+date = 2019-09-01
+nom  = "paris"
+"""
+
+FMD_EN_FEVRIER = """
+[[retards]]
+code = 200041
+du   = 1
+paye = 2
+"""
+
+
+def test_fmd_en_retard_declare_paye_en_fevrier_en_rappel(configuration):
+    _, agent = configuration
+    agent.write_text(agent.read_text(encoding="utf-8") + ACADEMIE + FMD_EN_FEVRIER, encoding="utf-8")
+    paye = _paye(configuration, 1, 3)
+    assert [ligne for ligne in paye(2025, 1) if ligne.code == 200041] == []
+    fevrier = [ligne for ligne in paye(2025, 2) if ligne.code == 200041]
+    assert [ligne.valeur for ligne in fevrier] == [100.0]
+    assert "RAPPEL" in fevrier[0].lib
+
+
+def test_academie_inconnue_dans_agent_toml_refusee(configuration):
+    _, agent = configuration
+    agent.write_text(
+        agent.read_text(encoding="utf-8") + ACADEMIE.replace("paris", "atlantide"), encoding="utf-8"
+    )
+    with pytest.raises(ValueError, match="académie inconnue"):
+        load_agent(agent)
+
+
+def test_retards_de_l_academie_a_la_date_du_bulletin(configuration):
+    _, agent = configuration
+    agent.write_text(agent.read_text(encoding="utf-8") + ACADEMIE, encoding="utf-8")
+    fonc = load_agent(agent)
+    assert (
+        set(fonc.retards(dt.date(2019, 8, 31)))
+        == set(fonc.retards(dt.date(2025, 10, 31)))
+        == {
+            200205,
+            200576,
+            200597,
+        }
+    )

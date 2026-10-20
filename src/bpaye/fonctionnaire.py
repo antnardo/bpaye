@@ -74,7 +74,7 @@ class Fonctionnaire:
         # propres au contrat de l'agent (agent.toml, [[psc]]), par clé de PSC_DECLAREE.
         self.psc: Temporal[dict[str, float]] = Temporal()
         # Retards habituels de la paie (academies.toml), puis ceux de l'agent (agent.toml).
-        self.academie = ACADEMIE_PAR_DEFAUT
+        self.academie: Temporal[str] = Temporal()
         self.retards_declares: dict[int, Retard] = {}
         self.siret: str | None = None  # du gestionnaire (agent.toml) : trie les bulletins PDF
         self.zone_vacances = ZONE_PAR_DEFAUT  # celle du lycée d'affectation, pour les colles
@@ -213,9 +213,9 @@ class Fonctionnaire:
             self._declare(self.frais_transport)
         for t in cfg.get("transport", []):
             self.update_transport(parse_toml_date(t["date"]), t["abonnement_annuel"])
-        if "academie" in cfg:
-            retards_academie(cfg["academie"])  # refuse une académie inconnue
-            self.academie = cfg["academie"]
+        for entry in cfg.get("academie", []):
+            retards_academie(entry["nom"])  # refuse une académie inconnue
+            self.academie.append(parse_toml_date(entry["date"]), entry["nom"])
         for entry in cfg.get("retards", []):
             retard = lit_retard(entry, "agent.toml [[retards]]")
             self.retards_declares[retard.code] = retard
@@ -232,9 +232,14 @@ class Fonctionnaire:
             self.ic_csg.strict = True
         return self
 
-    def retards(self) -> dict[int, Retard]:
-        """Les retards habituels de son académie, et les siens, qui les remplacent."""
-        return retards_academie(self.academie) | self.retards_declares
+    def retards(self, date: dt.date) -> dict[int, Retard]:
+        """Les retards habituels de son académie à ``date`` (le défaut avant la première
+        déclarée), et les siens, qui les remplacent."""
+        if not len(self.academie) or date < self.academie.values[0][0]:
+            nom = ACADEMIE_PAR_DEFAUT
+        else:
+            nom = self.academie(date)
+        return retards_academie(nom) | self.retards_declares
 
     def psc_declaree(self, date: dt.date) -> dict[str, float]:
         """Les montants de [[psc]] en vigueur à ``date`` ; aucun avant la première entrée."""
