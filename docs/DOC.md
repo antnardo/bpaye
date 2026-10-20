@@ -444,8 +444,9 @@ total du pied (`ecarts_colonnes(lu)` ; `ecart_totaux(lu)` pour TOTAUX DU MOIS, r
 décompte compris). Un écart, signe d'une ligne manquée, déclenche un avertissement. Les
 cotisations patronales d'un mois de décompte de rappel ne se contrôlent pas : celles du
 décompte entrent dans le total sans ligne sur le bulletin. `extract_dr` lit un décompte
-de rappel, ligne par ligne pour chaque code connu ; `find_pdfs(dossier, année, siret)` trouve les bulletins
-principaux d'une année, ceux d'un autre gestionnaire écartés par le SIRET.
+de rappel, ligne par ligne pour chaque code connu ; `find_pdfs(dossier, année, siret)`
+trouve les bulletins principaux d'une année, ceux d'un autre gestionnaire écartés par le
+SIRET. Le détail de la lecture : [`lecture_pdf.md`](lecture_pdf.md).
 
 ### Reconnaître un bulletin sans carrière
 

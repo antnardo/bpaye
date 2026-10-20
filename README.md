@@ -274,8 +274,10 @@ l'échelon imprimé, par exemple, après une promotion pas encore payée. En Pyt
 Chaque valeur des tables porte sa source à côté d'elle : texte, article, version lue.
 Les relevés complets sont dans [`docs/verification/`](docs/verification/). Les règles
 d'arrondi, que les textes ne donnent pas, sont décrites dans [`docs/csg.md`](docs/csg.md)
-(CSG et CRDS) et [`docs/mgen.md`](docs/mgen.md) (PSC santé). Le guide complet, avec
-chaque clé des fichiers et chaque rubrique calculée, est dans [`docs/DOC.md`](docs/DOC.md).
+(CSG et CRDS) et [`docs/mgen.md`](docs/mgen.md) (PSC santé). La lecture des bulletins
+PDF, colonne par colonne, est détaillée dans [`docs/lecture_pdf.md`](docs/lecture_pdf.md).
+Le guide complet, avec chaque clé des fichiers et chaque rubrique calculée, est dans
+[`docs/DOC.md`](docs/DOC.md).
 
 ## Limites
 
