@@ -178,3 +178,10 @@ def test_retenue_manquee_signalee(tmp_path, faux_bulletin_pdf):
     faux_bulletin_pdf(chemin, lignes, "3000,00")
     with pytest.warns(UserWarning, match="« à déduire » \\(écart de 50.0 €\\)"):
         extract_bulletin(chemin)
+
+
+def test_decompte_lit_toute_ligne_d_un_code_connu():
+    from bpaye.pdf import DR_ROW_CODES
+
+    assert DR_ROW_CODES["TRAITEMENT BRUT"] == "101000"
+    assert DR_ROW_CODES[ALL_CODES["101070"]["libelle"].upper()] == "101070"  # NBI

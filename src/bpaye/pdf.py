@@ -455,8 +455,15 @@ DR_MONTH_FR: dict[str, int] = {
     "DECEMBRE": 12,
 }
 
-# Labels dans le DR → code BP correspondant
+# Labels dans le DR → code BP correspondant : les quatre lignes des décomptes relevés,
+# puis toute ligne dont le libellé est celui d'un revenu ou d'une retenue de codes.toml
+# (une NBI, une indemnité rappelées), sans que les quatre premières soient écrasées.
 DR_ROW_CODES: dict[str, str] = {
+    **{
+        info["libelle"].upper(): code
+        for code, info in ALL_CODES.items()
+        if info["cat"] in ("revenu", "retenue") and not code.startswith("011")
+    },
     "TRAITEMENT BRUT": "101000",
     "RETENUE PC": "101050",
     "INDEMNITE DE RESIDENCE": "102000",
