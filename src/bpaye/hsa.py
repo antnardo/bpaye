@@ -30,6 +30,7 @@ from bpaye.protocoles import Agent
 
 __all__ = [
     "CODE",
+    "CODES_HSE",
     "CODE_COLLE",
     "CORPS_DU_CODE",
     "GRILLE_DU_CORPS",
@@ -219,11 +220,32 @@ def valeur_hse(
     return _valeur_hs_type("HSE", point, grille, date, code, ors, bareme)
 
 
-def hse(fonctionnaire: Agent, date: dt.date, heures: float, comm: str = "", bareme: Bareme = BAREME) -> Ligne:
+# Les rubriques des heures effectives au taux de l'HSE : remplacement de courte durée
+# (201241), réussite scolaire au lycée (201717), recodée 201300 au 1/9/2025. Leur taux propre
+# n'est écrit dans aucun texte lu : celui de l'HSE (décret 50-1253, art. 5), supposé.
+CODES_HSE = {
+    200215: "H. Eff. Ens. HSE",
+    201241: "HSE remplacement courte durée",
+    201717: "HSE réussite scolaire lycée",
+    201300: "HSE accompagnement des élèves",
+}
+
+
+def hse(
+    fonctionnaire: Agent,
+    date: dt.date,
+    heures: float,
+    comm: str = "",
+    bareme: Bareme = BAREME,
+    code: int = 200215,
+) -> Ligne:
+    """Heures supplémentaires effectives, au taux de l'HSE, sous le ``code`` de CODES_HSE."""
+    if code not in CODES_HSE:
+        raise ValueError(f"code d'HSE inconnu {code}, attendus {list(CODES_HSE)}")
     taux_annuel = taux_hsa_annuel(fonctionnaire, date, rounded=False, bareme=bareme)
     taux_hse = taux_annuel / 36 * bareme.load("hse_majoration")(date)
     total = round(taux_hse * heures, 2)
-    return Ligne(total, f"H. Eff. Ens. HSE {heures}h - {comm}", code=200215, classe="INDEM")
+    return Ligne(total, f"{CODES_HSE[code]} {heures}h - {comm}", code=code, classe="INDEM")
 
 
 def valeur_hsi(

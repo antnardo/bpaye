@@ -646,8 +646,44 @@ class Paye:
         ligne = fonction(self.fonctionnaire, odate, heures, comm, bareme=self.bareme)
         self.addligne(pyear, pmois, ligne)
 
-    def hse(self, *args: Any, **kwargs: Any) -> None:
-        self.heure_sup(hse, *args, **kwargs)
+    def hse(
+        self,
+        original_date: tuple[int, int],
+        heures: float,
+        comm: str = "",
+        paiement_date: tuple[int, int] | None = None,
+        code: int = 200215,
+    ) -> None:
+        """Heures supplémentaires effectives, sous ``code`` (hsa.CODES_HSE) : 201241 pour
+        un remplacement de courte durée, 201717 puis 201300 pour la réussite au lycée."""
+
+        def fonction(
+            fonctionnaire: Fonctionnaire,
+            date: dt.date,
+            heures: float,
+            comm: str = "",
+            bareme: Bareme = BAREME,
+        ) -> Ligne:
+            return hse(fonctionnaire, date, heures, comm, bareme, code=code)
+
+        self.heure_sup(fonction, original_date, heures, comm, paiement_date)
+
+    # Rémunérations à l'heure, au taux de chaque formation ou action : vacations de
+    # formation (décret 2010-235), actions à pilotage national (décret 2014-1394).
+    CODES_VACATION: ClassVar[dict[int, str]] = {
+        201339: "Vacations de formation",
+        201856: "Actions à pilotage national",
+    }
+
+    def vacation(
+        self, paiement_date: tuple[int, int], heures: float, taux: float, code: int = 201339, comm: str = ""
+    ) -> None:
+        """``heures`` à ``taux`` € l'heure, payées le mois ``paiement_date`` : le taux est
+        celui de la formation ou de l'action, que l'agent lit sur son ordre de mission."""
+        if code not in self.CODES_VACATION:
+            raise ValueError(f"code de vacation inconnu {code}, attendus {list(self.CODES_VACATION)}")
+        libelle = f"{self.CODES_VACATION[code]} {heures}h × {taux} € {comm}".rstrip()
+        self.addligne(*paiement_date, Ligne(round(heures * taux, 2), libelle, code=code, classe="INDEM"))
 
     def hsi(self, *args: Any, **kwargs: Any) -> None:
         self.heure_sup(hsi, *args, **kwargs)

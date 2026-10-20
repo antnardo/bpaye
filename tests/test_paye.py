@@ -349,3 +349,40 @@ def test_psc_cle_inconnue_refusee(configuration):
     agent.write_text(agent.read_text(encoding="utf-8") + PSC + "mutuelle_conjoint = 1.0\n", encoding="utf-8")
     with pytest.raises(ValueError, match="mutuelle_conjoint"):
         load_agent(agent)
+
+
+@pytest.mark.parametrize("code", [201241, 201717, 201300])
+def test_hse_d_une_autre_rubrique_au_taux_de_l_hse(configuration, code):
+    paye = _paye(configuration, 1, 12)
+    paye.hse((2025, 11), 3)
+    paye.hse((2025, 11), 3, code=code)
+    lignes = [ligne for ligne in paye(2025, 11) if ligne.code in (200215, code)]
+    assert [ligne.code for ligne in lignes] == [200215, code]
+    assert lignes[0].valeur == lignes[1].valeur
+
+
+@pytest.mark.parametrize(("code", "exoneree"), [(201241, True), (201717, True), (201300, False)])
+def test_hse_exoneree_selon_sa_rubrique(configuration, code, exoneree):
+    paye = _paye(configuration, 1, 12)
+    avant = paye(2025, 11).hs_brut
+    paye.hse((2025, 11), 3, code=code)
+    assert (paye(2025, 11).hs_brut > avant) is exoneree
+
+
+def test_hse_code_inconnu_refuse(configuration):
+    paye = _paye(configuration, 1, 12)
+    with pytest.raises(ValueError, match="code d'HSE inconnu"):
+        paye.hse((2025, 11), 3, code=200205)
+
+
+@pytest.mark.parametrize("code", [201339, 201856])
+def test_vacation_heures_au_taux_declare(configuration, code):
+    paye = _paye(configuration, 1, 12)
+    paye.vacation((2025, 11), 6, 42.0, code=code)
+    assert [ligne.valeur for ligne in paye(2025, 11) if ligne.code == code] == [252.0]
+
+
+def test_vacation_code_inconnu_refuse(configuration):
+    paye = _paye(configuration, 1, 12)
+    with pytest.raises(ValueError, match="code de vacation inconnu"):
+        paye.vacation((2025, 11), 6, 42.0, code=200215)

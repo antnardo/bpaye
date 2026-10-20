@@ -476,8 +476,10 @@ class ListeLignes:
     def hs_brut(self) -> float:
         """Montant brut des heures sup. (HSA, majo 1re HSA, colles HSI, HSE, HSE de suppléance),
         et des parts fonctionnelles du Pacte, qui ont le même régime : réduction de
-        cotisations et exonération d'impôt (décret 2019-133, art. 1, 29°)."""
-        codes = (200205, 200207, 200215, 200497, 200576, 202475, 202476)
+        cotisations et exonération d'impôt (décret 2019-133, art. 1, 29°). Les HSE de
+        remplacement de courte durée et de réussite au lycée (201241, 201717) aussi, non
+        imposables d'après la DGFiP ; pas 201300, imposable (INGRES)."""
+        codes = (200205, 200207, 200215, 200497, 200576, 201241, 201717, 202475, 202476)
         return sum(ligne.valeur for ligne in self if ligne.code in codes)
 
     # ── Somme calcul + reel ───────────────────────────────────────────────────
