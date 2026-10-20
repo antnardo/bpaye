@@ -368,9 +368,16 @@ paye.retard_indice((2025, 9), (2025, 11), indice=562)   # promotion payée en no
 paye.retard_paiement((2025, 3), 200205)                  # les HSA de mars payées en mai
 paye.colle((2025, 10), {161: 6.0})                       # colles déclarées en octobre
 paye.hse((2025, 11), 3)                                  # heures supplémentaires effectives
+paye.hse((2025, 11), 2, code=201241)                     # HSE de remplacement de courte durée
+paye.vacation((2025, 12), 6, 42.0)                       # 6 h de vacations de formation à 42 €
 paye.erreur((2025, 4), (2025, 6), 50.0, 200364)          # un trop-versé repris deux mois après
 paye.gipa(2023, (2025, 12))                              # la GIPA de 2023, versée en décembre 2025
 ```
+
+`hse` paie au taux de l'HSE ; `code` choisit la rubrique : 201241 (remplacement de
+courte durée), 201717 puis 201300 (réussite scolaire au lycée), au même taux, supposé.
+`vacation` paie des heures au taux que fixe la formation (201339, par défaut) ou l'action
+à pilotage national (`code=201856`).
 
 `retard_indice` reçoit l'indice payé en attendant (562 ici, celui d'avant la
 promotion) : les bulletins de septembre et d'octobre le portent, et novembre rappelle
@@ -493,6 +500,8 @@ Ce qui ne se déduit pas devient une remarque, jamais une valeur devinée. Les b
 | 200205, 200576 | HSA, majoration de la 1re | neuvièmes d'octobre à juin ; classe normale du corps, +10 % HC/CE, +20 % sur une heure | décret 50-1253, art. 2 et 3 |
 | 200207 | heures d'interrogation (colles) | 1/36 du taux annuel × 0,75, au code déclaré | décret 50-1253, art. 3 |
 | 200215 | HSE | 1/36 × 1,25 (1,15 avant 2008) | décret 50-1253, art. 5 |
+| 201241, 201717, 201300 | HSE de remplacement, de réussite au lycée | `paye.hse(…, code=…)`, au taux de l'HSE (supposé) | |
+| 201339, 201856 | vacations de formation, actions à pilotage national | `paye.vacation`, au taux déclaré | décret 2010-235 ; décret 2014-1394 |
 | 200364 | ISOE part fixe | second degré | décret 93-55 ; arrêté du 15/01/1993 |
 | 201228, 202566 | ISOE part modulable | professeur principal, par niveau | arrêté du 15/01/1993, art. 2 |
 | 200597 | IFP | CPGE seulement | décret 99-886 |

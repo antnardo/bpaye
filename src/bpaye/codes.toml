@@ -309,7 +309,7 @@ rappel = true
 categorie = "revenu"
 imposable = false
 source = "DGFiP, annexe 14 C 2026 (copie AMUE), ligne 36 ; INGRES ligne 1205 (IMPOSA 0) ; BJ janvier 2026 ligne 1009"
-note = "HSE de remplacement de courte durée (issue n° 7) ; non calculé."
+note = "HSE de remplacement de courte durée (issue n° 7) ; déclarée : paye.hse(…, code=201241)."
 
 [[code]]
 code = "201300"
@@ -320,7 +320,7 @@ rappel = true
 categorie = "revenu"
 imposable = true
 source = "DGFiP, BJ janvier 2026 ligne 1065 (fichier de paie 202601FICPAIBJ) ; INGRES ligne 1281 (IMPOSA 1)"
-note = "Reprend 1717 au 1/9/2025 (annexe 14 C 2026, ligne 56) ; INGRES l'intitule « fonds d'aide à l'innovation » (issue n° 7) ; non calculé."
+note = "Reprend 1717 au 1/9/2025 (annexe 14 C 2026, ligne 56) ; INGRES l'intitule « fonds d'aide à l'innovation » (issue n° 7) ; déclarée : paye.hse(…, code=201300)."
 
 [[code]]
 code = "201339"
@@ -331,7 +331,7 @@ rappel = true
 categorie = "revenu"
 imposable = true
 source = "DGFiP, annexe 14 B 2026 (copie AMUE), ligne 606 ; INGRES ligne 1325 (IMPOSA 1) ; BJ janvier 2026 ligne 1104"
-note = "Décret 2010-235 ; taux variables selon la formation (issue n° 7) ; non calculé."
+note = "Décret 2010-235 ; taux variables selon la formation (issue n° 7) ; déclarées : paye.vacation."
 
 [[code]]
 code = "201357"
@@ -375,7 +375,7 @@ rappel = true
 categorie = "revenu"
 imposable = false
 source = "DGFiP, annexe 14 C 2026 (copie AMUE), ligne 56 ; INGRES ligne 1840 (IMPOSA 0) ; BJ janvier 2026 ligne 1479"
-note = "Recodifiée 1300 au 1/9/2025 (annexe 14 C) (issue n° 7) ; non calculé."
+note = "Recodifiée 1300 au 1/9/2025 (annexe 14 C) (issue n° 7) ; déclarée : paye.hse(…, code=201717)."
 
 [[code]]
 code = "201768"
@@ -418,7 +418,7 @@ rappel = true
 categorie = "revenu"
 imposable = true
 source = "DGFiP, annexe 14 B 2026 (copie AMUE), ligne 993 ; INGRES ligne 2035 (IMPOSA 1) ; BJ janvier 2026 ligne 1617"
-note = "Décret 2014-1394 ; actions à pilotage national (issue n° 7) ; non calculé."
+note = "Décret 2014-1394 ; actions à pilotage national (issue n° 7) ; déclarées : paye.vacation(…, code=201856)."
 
 [[code]]
 code = "201875"
