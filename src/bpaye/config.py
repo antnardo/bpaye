@@ -103,22 +103,25 @@ class Bareme:
 
     def _load_indexe(self, section: dict[str, Any]) -> Fixe:
         """Un montant annuel indexé sur le point (type « IndexePoint ») : chaque montant de
-        référence (un arrêté, à défaut un relevé) suit le point jusqu'au suivant, au
-        douzième arrondi au centime. Cet arrondi au mois redonne les bulletins : l'ISOE de
-        1 183,68 € au 1/1/2009 vaut 99,93 € par mois au point du 1/7/2010, 1 199,16 € par an
-        (le produit exact, 1 199,13 €, ne les redonne pas)."""
+        référence (un arrêté, à défaut un relevé) suit le point jusqu'au suivant. La paie
+        applique chaque hausse au montant mensuel du mois d'avant, déjà au centime : ainsi
+        se retrouvent tous les bulletins relevés, et même l'arrêté de 2009 de l'ISOE
+        (1 183,68 €) depuis le relevé de 2007. Un montant recalculé chaque fois depuis la
+        référence s'écarte d'un centime par mois (IFP de 2016 : 88,14 € au lieu de 88,15 €)."""
         point = self.load("point")
-        references = sorted((parse_toml_date(e["date"]), float(e["valeur"])) for e in section["values"])
+        references = sorted(
+            (parse_toml_date(e["date"]), float(e["valeur"])) for e in section["values"]
+        )
         fixe = Fixe()
         for i, (debut, montant) in enumerate(references):
             fin = references[i + 1][0] if i + 1 < len(references) else None
-            point_reference = point(debut)
-            fixe.append(debut, mensuel=round(montant / 12, 2))
+            mensuel, point_avant = round(montant / 12, 2), point(debut)
+            fixe.append(debut, mensuel=mensuel)
             for date, valeur in point.values:
                 if date > debut and (fin is None or date < fin):
-                    fixe.append(date, mensuel=round(montant * valeur / point_reference / 12, 2))
+                    mensuel, point_avant = round(mensuel * valeur / point_avant, 2), valeur
+                    fixe.append(date, mensuel=mensuel)
         return fixe
-
 
 BAREME = Bareme.depuis_fichiers()
 

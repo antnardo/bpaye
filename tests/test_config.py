@@ -33,7 +33,8 @@ def test_bareme_table_construite_une_fois():
 @pytest.mark.parametrize(
     ("date", "annuel"),
     [
-        (dt.date(2010, 7, 31), 1199.16),  # 1 183,68 × 55,5635 / 54,8475, au douzième
+        (dt.date(2009, 1, 31), 1183.68),  # l'arrêté, retrouvé depuis le relevé de 2007
+        (dt.date(2010, 7, 31), 1199.16),
         (dt.date(2016, 9, 30), 1206.36),
         (dt.date(2017, 2, 28), 1213.56),
         (dt.date(2022, 7, 31), 1256.04),  # 104,67 € par mois sur les bulletins
