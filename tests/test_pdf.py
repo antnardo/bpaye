@@ -2,7 +2,7 @@ import pytest
 
 import bpaye.pdf as pdf
 from bpaye.codes import ALL_CODES
-from bpaye.pdf import ecart_totaux, extract_bulletin, find_pdfs, parse_amount
+from bpaye.pdf import ecart_totaux, ecarts_colonnes, extract_bulletin, find_pdfs, parse_amount
 
 # Un faux bulletin PAY18E, tel que pdf._pages le rend : des morceaux de texte (x, y, texte)
 # dans l'ordre du flux. Montants fictifs.
@@ -100,7 +100,7 @@ def test_extract_bulletin_rappel_sur_decompte_dans_les_totaux(bulletin):
 
 
 def test_extract_bulletin_ligne_manquee_signalee(bulletin):
-    with pytest.warns(UserWarning, match="ne font pas TOTAUX DU MOIS"):
+    with pytest.warns(UserWarning, match="TOTAUX DU MOIS"):
         lu = bulletin([("101000", "TRAITEMENT BRUT", "3000,00")], totaux="3100,00")
     assert ecart_totaux(lu) == 100.0
 
@@ -146,3 +146,35 @@ def test_bulletin_lu_se_lit_comme_un_dict_sans_se_modifier(tmp_path, faux_bullet
     assert lu.montants["200205_R"] == 50.0 and "200205_R" in lu
     with pytest.raises(TypeError):
         lu["101000"] = 0.0
+
+
+def test_colonne_de_chaque_montant_lue(tmp_path, faux_bulletin_pdf):
+    chemin = tmp_path / "2026_01_BP_janvier.pdf"
+    faux_bulletin_pdf(chemin)
+    colonnes = {(ligne.code, ligne.colonne) for ligne in extract_bulletin(chemin).lignes}
+    assert colonnes == {
+        ("101000", "payer"),
+        ("200205", "payer"),
+        ("401301", "deduire"),
+        ("404001", "information"),
+    }
+
+
+def test_traitement_repris_a_deduire_compte_en_moins(tmp_path, faux_bulletin_pdf):
+    chemin = tmp_path / "2026_01_BP_janvier.pdf"
+    lignes = [
+        ("101000", "TRAITEMENT BRUT", "3000,00"),
+        ("101000", "TRAITEMENT BRUT", "100,00", 457.4),  # un trop-perçu repris
+    ]
+    faux_bulletin_pdf(chemin, lignes, "3000,00")
+    lu = extract_bulletin(chemin)
+    assert lu["101000"] == 2900.0
+    assert ecarts_colonnes(lu) == {"payer": 0.0, "deduire": 0.0, "information": 0.0}
+
+
+def test_retenue_manquee_signalee(tmp_path, faux_bulletin_pdf):
+    chemin = tmp_path / "2026_01_BP_janvier.pdf"
+    lignes = [("101000", "TRAITEMENT BRUT", "3000,00"), ("999999", "CODE INCONNU", "50,00", 457.4)]
+    faux_bulletin_pdf(chemin, lignes, "3000,00")
+    with pytest.warns(UserWarning, match="« à déduire » \\(écart de 50.0 €\\)"):
+        extract_bulletin(chemin)

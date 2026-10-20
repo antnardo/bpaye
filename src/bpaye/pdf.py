@@ -17,7 +17,7 @@ Plus difficiles à extraire : position.
 import logging
 import re
 import warnings
-from collections.abc import Iterator, Mapping
+from collections.abc import Iterator, Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
 from types import MappingProxyType
@@ -26,12 +26,16 @@ from typing import Any
 from bpaye.codes import ALL_CODES
 
 __all__ = [
+    "COLONNES",
     "DR_MONTH_FR",
     "DR_ROW_CODES",
     "SUPPORTED_VERSIONS",
     "BulletinLu",
+    "LigneLue",
     "Span",
+    "colonne",
     "ecart_totaux",
+    "ecarts_colonnes",
     "extract_bulletin",
     "extract_dr",
     "extract_sirets",
@@ -55,6 +59,35 @@ Span = tuple[float, float, str]
 # point d'écart sans espace dans le flux, on en met une.
 _DY = 1.5
 _ECART = 6.0
+
+
+# Les trois colonnes de montants, par l'abscisse du bord gauche du montant : à payer
+# (≈ 385), à déduire (≈ 457), pour information (≈ 517 à 520). Relevées identiques sur les
+# bulletins de 2019 à 2026, de V2.3 à V4.2.
+COLONNES = ("payer", "deduire", "information")
+_BORNES_COLONNES = (430.0, 500.0)
+# La colonne où un code de chaque catégorie s'imprime d'ordinaire ; un montant dans une
+# autre colonne (une reprise de traitement « à déduire ») change de signe.
+_COLONNE_DE_CATEGORIE = {"revenu": "payer", "retenue": "deduire", "patronal": "information"}
+
+
+def colonne(x: float) -> str:
+    """La colonne d'un montant dont le bord gauche est à l'abscisse ``x``."""
+    if x < _BORNES_COLONNES[0]:
+        return "payer"
+    return "deduire" if x < _BORNES_COLONNES[1] else "information"
+
+
+@dataclass(frozen=True, slots=True)
+class LigneLue:
+    """Une ligne de paye telle qu'imprimée : son code, son libellé, la colonne et le montant
+    (signe imprimé), et si c'est un rappel."""
+
+    code: str
+    libelle: str
+    colonne: str
+    montant: float
+    rappel: bool
 
 
 # Le pied du bulletin : la clé « _… » de chaque champ de BulletinLu, et son nom.
@@ -82,6 +115,7 @@ class BulletinLu(Mapping[str, Any]):
 
     montants: Mapping[str, float] = field(default_factory=lambda: MappingProxyType({}))
     inconnus: tuple[tuple[str, str, float], ...] = ()
+    lignes: tuple[LigneLue, ...] = ()
     net_payer: float | None = None
     totaux_mois: float | None = None
     total_ret: float | None = None
@@ -110,11 +144,14 @@ class BulletinLu(Mapping[str, Any]):
         return len(self._cles())
 
 
-def _lu(resultats: dict[str, Any]) -> BulletinLu:
+def _lu(resultats: dict[str, Any], lignes: Sequence[LigneLue] = ()) -> BulletinLu:
     pied = {nom: resultats[cle] for cle, nom in _PIED.items() if cle in resultats}
     montants = {cle: v for cle, v in resultats.items() if not cle.startswith("_")}
     return BulletinLu(
-        montants=MappingProxyType(montants), inconnus=tuple(resultats.get("_unknown", ())), **pied
+        montants=MappingProxyType(montants),
+        inconnus=tuple(resultats.get("_unknown", ())),
+        lignes=tuple(lignes),
+        **pied,
     )
 
 
@@ -208,9 +245,11 @@ def extract_bulletin(pdf_path: str | Path) -> BulletinLu:
             stacklevel=2,
         )
 
-    lines = [t for page in pages for _, _, t in page]
+    morceaux = [span for page in pages for span in page]
+    lines = [t for _, _, t in morceaux]
 
     results: dict = {"_unknown": []}
+    lues: list[LigneLue] = []
     inconnus_vus: set[str] = set()
 
     # ── Lignes de paye (tous codes 6 chiffres) ───────────────────────────────
@@ -223,6 +262,7 @@ def extract_bulletin(pdf_path: str | Path) -> BulletinLu:
         # Le montant : le premier qui suit, avant la ligne de paye suivante ; puis la
         # mention de rappel, si elle n'est pas déjà dans le libellé.
         amount = None
+        x_montant = 0.0
         rappel = "RAPPEL" in libelle.upper()
         for j in range(i + 1, min(i + 6, len(lines))):
             lj = lines[j]
@@ -233,6 +273,7 @@ def extract_bulletin(pdf_path: str | Path) -> BulletinLu:
             if amount is None:
                 if _AMOUNT_RE.match(lj):
                     amount = parse_amount(lj)
+                    x_montant = morceaux[j][0]
                 continue
             rappel = rappel or "RAPPEL" in lj.upper()
             break
@@ -258,7 +299,13 @@ def extract_bulletin(pdf_path: str | Path) -> BulletinLu:
         if not rappel and code in results and ALL_CODES[code]["has_rappel"]:
             rappel = True
         cle = code + "_R" if rappel else code
-        results[cle] = round(results.get(cle, 0.0) + amount, 2)
+        imprimee = colonne(x_montant)
+        lues.append(LigneLue(code, libelle, imprimee, amount, rappel))
+        # Un montant hors de la colonne de sa catégorie se compte en sens inverse : un
+        # traitement repris « à déduire » diminue le traitement.
+        attendue = _COLONNE_DE_CATEGORIE.get(ALL_CODES[code]["cat"])
+        signe = -1 if attendue is not None and imprimee != attendue else 1
+        results[cle] = round(results.get(cle, 0.0) + signe * amount, 2)
 
     # ── Footer par position (stable V2.3 et V4.0) ───────────────────────────
     #
@@ -322,31 +369,73 @@ def extract_bulletin(pdf_path: str | Path) -> BulletinLu:
                 results["_total_dupercu"] = v
             break
 
-    lu = _lu(results)
-    ecart = ecart_totaux(lu)
-    if ecart:
-        warnings.warn(
-            f"{Path(pdf_path).name} : les lignes lues ne font pas TOTAUX DU MOIS "
-            f"(écart de {ecart} €) : une ligne est manquée",
-            stacklevel=2,
-        )
+    lu = _lu(results, lues)
+    for nom, ecart in ecarts_colonnes(lu).items():
+        if ecart:
+            warnings.warn(
+                f"{Path(pdf_path).name} : les lignes lues ne font pas le total « {_TOTAL_DE[nom]} » "
+                f"(écart de {ecart} €) : une ligne est manquée",
+                stacklevel=2,
+            )
     return lu
 
 
+# Le total du pied que chaque colonne doit retrouver.
+_TOTAL_DE = {"payer": "TOTAUX DU MOIS à payer", "deduire": "à déduire", "information": "pour information"}
+
+
+def _somme(lu: BulletinLu, nom: str) -> float:
+    """Les montants imprimés dans la colonne ``nom``, hors lignes de net (011…), qui ne
+    comptent dans aucun total ; les codes inconnus n'y sont pas, pour que leur absence se
+    voie."""
+    return sum(
+        ligne.montant for ligne in lu.lignes if ligne.colonne == nom and not ligne.code.startswith("011")
+    )
+
+
 def ecart_totaux(lu: Mapping[str, Any]) -> float | None:
-    """TOTAUX DU MOIS moins la somme des lignes de revenu lues (rappels et rappel sur
-    décompte compris), au centime : 0 quand toutes les lignes à payer du bulletin ont été
-    lues ; None sans TOTAUX DU MOIS. Le contrôle de la lecture : une ligne manquée ou
-    écrasée s'y voit. Vérifié nul sur des bulletins de 2019 à 2026."""
+    """TOTAUX DU MOIS (à payer) moins les montants lus dans la colonne à payer, rappel sur
+    décompte compris, au centime : 0 quand toutes les lignes à payer ont été lues ; None
+    sans TOTAUX DU MOIS. Le contrôle de la lecture : une ligne manquée ou écrasée s'y voit.
+    Vérifié nul sur 98 bulletins de 2019 à 2026.
+
+    Une lecture sans colonnes (un dict d'une ancienne lecture) se contrôle sur les codes de
+    catégorie revenu."""
     total = lu.get("_totaux_mois")
     if total is None:
         return None
-    revenus = sum(
-        valeur
-        for cle, valeur in lu.items()
-        if not cle.startswith("_") and ALL_CODES[cle[:6]]["cat"] == "revenu"
-    )
-    return round(total - revenus - lu.get("_rappel_decompte", 0.0), 2)
+    if isinstance(lu, BulletinLu) and lu.lignes:
+        lues = _somme(lu, "payer")
+    else:
+        lues = sum(
+            valeur
+            for cle, valeur in lu.items()
+            if not cle.startswith("_") and ALL_CODES[cle[:6]]["cat"] == "revenu"
+        )
+    return round(total - lues - lu.get("_rappel_decompte", 0.0), 2)
+
+
+def ecarts_colonnes(lu: BulletinLu) -> dict[str, float | None]:
+    """L'écart de chaque colonne avec son total du pied (None : rien à contrôler).
+
+    - à payer : ecart_totaux ;
+    - à déduire : le total des retenues, prélèvement à la source compris. Avec un rappel
+      sur décompte, les bulletins de 2019 ne comptaient pas la part de retenues du
+      décompte, ceux de 2026 la comptent : l'une ou l'autre somme est juste ;
+    - pour information : les cotisations patronales ; celles d'un décompte de rappel n'ont
+      pas de ligne sur le bulletin mais entrent dans le total : sans contrôle ces mois-là.
+    """
+    ecarts: dict[str, float | None] = {"payer": ecart_totaux(lu), "deduire": None, "information": None}
+    if not lu.lignes:
+        return ecarts
+    if lu.total_ret is not None:
+        deduire = round(lu.total_ret - _somme(lu, "deduire"), 2)
+        if lu.rappel_decompte_ret and round(deduire + lu.rappel_decompte_ret, 2) == 0:
+            deduire = 0.0
+        ecarts["deduire"] = deduire
+    if lu.total_pat is not None and not lu.rappel_decompte:
+        ecarts["information"] = round(lu.total_pat - _somme(lu, "information"), 2)
+    return ecarts
 
 
 # ── Décomptes de rappel (bulletins DR) ───────────────────────────────────────

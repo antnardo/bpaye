@@ -70,6 +70,8 @@ LIGNES_FAUX_BULLETIN = [
     ("101000", "TRAITEMENT BRUT", "3000,00"),
     ("200205", "HEURES ANNEES ENSEIGNT", "300,00"),
     ("200205", "HEURES ANNEES ENSEIGNT    RAPPEL ANNEE C", "50,00"),
+    ("401301", "C.S.G. DEDUCTIBLE", "1000,00", 457.4),
+    ("404001", "COT PAT MALADIE DEPLAFON", "2000,00", 517.0),
 ]
 
 
@@ -105,7 +107,13 @@ def _ecrit_faux_bulletin(chemin, lignes=LIGNES_FAUX_BULLETIN, totaux="3350,00", 
                 c.drawString(x, hauteur - 105.7 - 6.6, texte)
             if "taux_pas" in entete:
                 c.drawString(53.0, hauteur - 520, f"(TAUX PERSONNALISE {entete['taux_pas']}%)")
-        for rang, (code, libelle, montant) in enumerate(lignes):
+        # Une ligne peut donner l'abscisse de son montant : 385,4 à payer (par défaut),
+        # 457,4 à déduire, 517 pour information.
+        sommes = {457.4: 0.0, 517.0: 0.0}
+        for rang, (code, libelle, montant, *x) in enumerate(lignes):
+            x_montant = x[0] if x else 385.4
+            if x_montant in sommes:
+                sommes[x_montant] += float(montant.replace(",", "."))
             y = hauteur - 142 - 9 * rang
             c.setFont("Courier-Bold", 9)
             c.drawString(16.4, y, code)
@@ -113,12 +121,12 @@ def _ecrit_faux_bulletin(chemin, lignes=LIGNES_FAUX_BULLETIN, totaux="3350,00", 
             c.setFont("Helvetica", 8)
             c.drawString(361.4, y, "€")
             c.setFont("Courier-Bold", 9)
-            c.drawString(385.4, y, montant)
+            c.drawString(x_montant, y, montant)
         c.setFont("Courier-Bold", 9)
         for x, y, texte in [
             (380, 212, totaux),
-            (450, 212, "1000,00"),
-            (520, 212, "2000,00"),
+            (450, 212, f"{sommes[457.4]:.2f}".replace(".", ",")),
+            (520, 212, f"{sommes[517.0]:.2f}".replace(".", ",")),
             (420, 194, "2350,00"),  # net à payer : 3 350 − 1 000 de retenues
             (120, 126, "2600,00"),
         ]:
