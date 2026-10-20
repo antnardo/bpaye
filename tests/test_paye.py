@@ -317,3 +317,35 @@ def test_annee_refuse_un_nom_que_le_bulletin_n_a_pas(configuration):
     with pytest.raises(AttributeError):
         getattr(annee, nom)
     copy.deepcopy(annee)  # sans TypeError
+
+
+PSC = """
+[[psc]]
+date                  = 2025-02-01
+options               = 5.00
+prevoyance            = 7.00
+cotisation_prevoyance = 20.00
+mutuelle_adherent     = 40.00
+"""
+
+
+def test_psc_declaree_dans_le_bulletin_a_partir_de_sa_date(configuration):
+    _, agent = configuration
+    sans = _paye(configuration, 1, 3)
+    agent.write_text(agent.read_text(encoding="utf-8") + PSC, encoding="utf-8")
+    avec = _paye(configuration, 1, 3)
+    lignes = {ligne.code: ligne.valeur for ligne in avec(2025, 2)}
+    assert [lignes[c] for c in (202483, 202510, 501091, 700678)] == [5.0, 7.0, -20.0, -40.0]
+    assert 700671 not in lignes  # non déclarée
+    assert not {202483, 501091} & {ligne.code for ligne in avec(2025, 1)}
+    # Les cotisations restent dans le net imposable ; les participations y entrent, moins
+    # leur CSG déductible.
+    ecart = avec(2025, 2).net_imposable - sans(2025, 2).net_imposable
+    assert ecart == pytest.approx(12.0 * (1 - 0.068 * 0.9825), abs=0.02)
+
+
+def test_psc_cle_inconnue_refusee(configuration):
+    _, agent = configuration
+    agent.write_text(agent.read_text(encoding="utf-8") + PSC + "mutuelle_conjoint = 1.0\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="mutuelle_conjoint"):
+        load_agent(agent)

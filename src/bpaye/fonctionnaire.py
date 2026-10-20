@@ -26,10 +26,21 @@ from bpaye.utils import add_date_round, parse_toml_date, truncate
 from bpaye.vacances import VACANCES, ZONE_PAR_DEFAUT
 
 __all__ = [
+    "PSC_DECLAREE",
     "Fonctionnaire",
     "echelon_d_accueil",
     "load_agent",
 ]
+
+# Ce que [[psc]] d'agent.toml déclare, par clé : le code du bulletin, son libellé, sa classe.
+# Aucun texte lu n'en fixe le montant pour un agent : il dépend de son contrat.
+PSC_DECLAREE: dict[str, tuple[int, str, str]] = {
+    "options": (202483, "Participation PSC options", "INDEM"),
+    "prevoyance": (202510, "Participation PSC prévoyance", "INDEM"),
+    "cotisation_prevoyance": (501091, "Cotisation prévoyance", "CHARGE"),
+    "mutuelle_adherent": (700678, "Mutuelle MGEN adhérent", "CHARGE"),
+    "mutuelle_enfants": (700671, "Mutuelle MGEN enfants", "CHARGE"),
+}
 
 
 class Fonctionnaire:
@@ -58,6 +69,9 @@ class Fonctionnaire:
             None  # indemnité compensatrice de CSG propre à l'agent (agent.toml)
         )
         self.taux_pas = Taux(dt.date(2001, 1, 1), 0)  # prélèvement à la source (agent.toml)
+        # Options et prévoyance de la PSC, ancienne mutuelle précomptée : montants mensuels
+        # propres au contrat de l'agent (agent.toml, [[psc]]), par clé de PSC_DECLAREE.
+        self.psc: Temporal[dict[str, float]] = Temporal()
         self.siret: str | None = None  # du gestionnaire (agent.toml) : trie les bulletins PDF
         self.zone_vacances = ZONE_PAR_DEFAUT  # celle du lycée d'affectation, pour les colles
         self.colles_prevues: dict[int, CollesPrevues] = {}  # par année de rentrée
@@ -195,11 +209,24 @@ class Fonctionnaire:
             self._declare(self.frais_transport)
         for t in cfg.get("transport", []):
             self.update_transport(parse_toml_date(t["date"]), t["abonnement_annuel"])
+        for entry in cfg.get("psc", []):
+            montants = {cle: float(v) for cle, v in entry.items() if cle != "date"}
+            if inconnues := set(montants) - set(PSC_DECLAREE):
+                raise ValueError(
+                    f"[[psc]] : clés inconnues {sorted(inconnues)}, attendues {list(PSC_DECLAREE)}"
+                )
+            self.psc.append(parse_toml_date(entry["date"]), montants)
         if "ic_csg" in cfg:
             # Propre à l'agent : avant le premier montant déclaré, aucun n'est connu.
             self.ic_csg = depuis_section(cfg["ic_csg"])
             self.ic_csg.strict = True
         return self
+
+    def psc_declaree(self, date: dt.date) -> dict[str, float]:
+        """Les montants de [[psc]] en vigueur à ``date`` ; aucun avant la première entrée."""
+        if not len(self.psc) or date < self.psc.values[0][0]:
+            return {}
+        return self.psc(date)
 
     def neutre_avant_rentrees(self) -> None:
         """Avant la première rentrée déclarée, le service ordinaire du corps : pas de CPGE, ni

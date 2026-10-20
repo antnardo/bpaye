@@ -45,6 +45,7 @@ from bpaye.indemnites import (
     participation_psc,
     prime_attractivite,
     prime_equipement_info,
+    psc_declaree,
 )
 from bpaye.indemnites_corps import (
     indemnite_cpe,
@@ -208,6 +209,8 @@ class Bulletin(ListeLignes):
         self.append(indemnite_detachement(fonc, date, b))
         self.append(indemnite_comp_csg(date, fonc, b))
         self.append(participation_psc(date, b))
+        for ligne in psc_declaree(fonc, date, "INDEM"):
+            self.append(ligne)
         self.append(forfait_mobilite_durable(fonc, date, b))
         self.append(prime_equipement_info(date, b))
         self.generate_charges()
@@ -240,6 +243,8 @@ class Bulletin(ListeLignes):
         # sont pas, supposé : ce bulletin n'en a pas.
         frais = sum(ligne.valeur for ligne in self if ligne.code in self.FRAIS_EXONERES)
         for ligne in mgen_charges(self.revenus - frais, date, b):
+            self.append(ligne)
+        for ligne in psc_declaree(self.fonctionnaire, date, "CHARGE"):
             self.append(ligne)
         for ligne in self.autres_charges:
             self.append(ligne)

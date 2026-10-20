@@ -30,7 +30,7 @@ from typing import Any
 import bpaye.config as config
 from bpaye.classes import Ligne
 from bpaye.config import BAREME, Bareme
-from bpaye.fonctionnaire import Fonctionnaire
+from bpaye.fonctionnaire import PSC_DECLAREE, Fonctionnaire
 from bpaye.temps_partiel import reduit
 
 __all__ = [
@@ -43,6 +43,7 @@ __all__ = [
     "part_fonctionnelle",
     "participation_psc",
     "prime_equipement_info",
+    "psc_declaree",
 ]
 
 # Les tables du barème du paquet (les fonctions prennent un barème : bareme=…).
@@ -202,6 +203,22 @@ def indemnite_transport(fonc: Fonctionnaire, date: dt.date, bareme: Bareme = BAR
 def participation_psc(date: dt.date, bareme: Bareme = BAREME) -> Ligne:
     """Participation mensuelle employeur à la mutuelle (PSC)."""
     return Ligne(bareme.load("psc")(date), "Participation PSC", code=202354, classe="INDEM")
+
+
+def psc_declaree(fonc: Fonctionnaire, date: dt.date, classe: str) -> list[Ligne]:
+    """Les lignes de [[psc]] d'agent.toml de la ``classe`` donnée : participations de
+    l'employeur aux options et à la prévoyance (« INDEM »), cotisation de prévoyance et
+    ancienne mutuelle précomptée (« CHARGE »). Ces cotisations restent dans le net
+    imposable, supposé : une adhésion facultative n'est pas un contrat collectif
+    obligatoire, seul déductible (CGI, art. 83, 1° quater ; BOI-RSA-BASE-30-10-20) ;
+    aucun bulletin qui en porte n'a été lu."""
+    lignes = []
+    for cle, montant in fonc.psc_declaree(date).items():
+        code, libelle, sa_classe = PSC_DECLAREE[cle]
+        if sa_classe == classe and montant:
+            valeur = montant if classe == "INDEM" else -montant
+            lignes.append(Ligne(valeur, libelle, code=code, classe=classe, imposable=classe == "CHARGE"))
+    return lignes
 
 
 def forfait_mobilite_durable(fonc: Fonctionnaire, date: dt.date, bareme: Bareme = BAREME) -> Ligne | None:
