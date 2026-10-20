@@ -29,6 +29,11 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et la
 - **HSE d'autres rubriques et vacations** : `paye.hse(…, code=…)` pour le remplacement de
   courte durée et la réussite au lycée ; `paye.vacation` pour les vacations de formation
   et les actions à pilotage national, au taux déclaré.
+- **Retards habituels de la paie, par académie** (`academies.toml`) : les HSA d'octobre
+  et l'IFP de septembre payées le mois suivant ne sont plus codées en dur ; un défaut
+  relevé à Paris, toutes les académies de l'art. R222-2 et les lycées de la Défense.
+  `agent.toml` choisit l'académie à chaque date (`[[academie]]`) et ajoute ses propres
+  retards (`[[retards]]`, un FMD payé en février par exemple).
 
 ### Corrigé
 
