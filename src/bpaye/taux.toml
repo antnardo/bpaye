@@ -415,57 +415,79 @@ values = [
 
 # ──────────────────────────────────────────────
 # MGEN PSC (Protection Sociale Complémentaire – depuis mai 2026)
-# Montants relevés sur les bulletins de mai à septembre 2026 : le contrat MGEN – CNP qui
-# les fixe n'a pas été trouvé. Formule de 720577 : docs/mgen.md.
+# Montants et taux obtenus des communications ministérielles et d’une source
+# syndicale qui siège à la commission paritaire de pilotage et de suivi du
+# régime de protection sociale complémentaire : le contrat MGEN – CNP qui les
+# fixe n’a pas été trouvé.
+# Formule de 720577 : docs/mgen.md.
 # ──────────────────────────────────────────────
-[mgen.part_employeur]
+[mgen.base]
+# Cotisation d’équilibre pour l’ensemble, servant à calculer les différentes parts
+type  = "Fixe"
+unite = "mensuel"
+values = [
+  { date = 2000-01-01, valeur = 0.0   },
+  { date = 2026-05-01, valeur = 75.40 },
+  { date = 2027-01-01, valeur = 78.70 }, # Source syndicale
+  { date = 2028-01-01, valeur = 82.43 }, # Source syndicale
+]
+
+[mgen.taux_employeur]
 # 720580 – participation patronale (pour information, soumise à CSG sans abattement)
-type  = "Fixe"
-unite = "mensuel"
+# Fraction de la valeur de base ci-dessus
+type  = "Taux"
 values = [
-  { date = 2000-01-01, valeur = 0.0   },
-  { date = 2026-05-01, valeur = 37.70 },
+  { date = 2000-01-01, valeur = 0.0 },
+  { date = 2026-05-01, valeur = 0.5 },
 ]
 
-[mgen.part_forfaitaire]
-# 720576 – cotisation forfaitaire salariale (75,40 × 20 %)
-type  = "Fixe"
-unite = "mensuel"
+[mgen.taux_forfaitaire]
+# 720576 – cotisation forfaitaire salariale
+# Fraction de la valeur de base ci-dessus
+type  = "Taux"
 values = [
-  { date = 2000-01-01, valeur = 0.0   },
-  { date = 2026-05-01, valeur = 15.08 },
+  { date = 2000-01-01, valeur = 0.0 },
+  { date = 2026-05-01, valeur = 0.2 },
 ]
 
-[mgen.part_solidaire_base]
-# base de la part solidaire (75,40 × 30 %) avant coefficient revenu
-type  = "Fixe"
-unite = "mensuel"
+[mgen.taux_solidaire_base]
+# base de la part solidaire avant coefficient revenu
+# Fraction de la valeur de base ci-dessus
+type  = "Taux"
 values = [
-  { date = 2000-01-01, valeur = 0.0   },
-  { date = 2026-05-01, valeur = 22.62 },
+  { date = 2000-01-01, valeur = 0.0 },
+  { date = 2026-05-01, valeur = 0.3 },
 ]
 
 [mgen.brut_moyen]
-# Traitement brut moyen national retenu par l'administration (base 720577) : relevé sur
-# les bulletins depuis mai 2026, aucun texte lu ne le donne.
+# Traitement brut moyen national de l’EN retenu par l'administration (base 720577)
+# Source syndicale, aucun texte lu ne le donne.
 type  = "Fixe"
 unite = "mensuel"
 values = [
   { date = 2026-05-01, valeur = 3107.0 },
 ]
 
+[mgen.taux_taxe]
+# Taxe incluse dans la cotisation MGEN, https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000042698839
+# À déduire pour le calcul de la valeur HT
+type  = "Taux"
+values = [
+  { date = 2015-01-01, valeur = 0.1327 }, # https://www.legifrance.gouv.fr/jorf/article_jo/JORFARTI000029953570
+]
+
 [mgen.taux_action_sociale]
-# 720578 : part de (720576 + 720577), relevée sur les bulletins depuis mai 2026
+# 720578 : fraction de (720576 + 720577) HT
 type = "Taux"
 values = [
-  { date = 2026-05-01, valeur = 0.0177 },
+  { date = 2026-05-01, valeur = 0.02 },
 ]
 
 [mgen.taux_aide_retraites]
-# 720579 : part de (720576 + 720577), relevée sur les bulletins depuis mai 2026
+# 720579 : fraction de (720576 + 720577) HT
 type = "Taux"
 values = [
-  { date = 2026-05-01, valeur = 0.0265 },
+  { date = 2026-05-01, valeur = 0.03 },
 ]
 
 # ──────────────────────────────────────────────

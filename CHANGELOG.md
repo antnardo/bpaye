@@ -5,6 +5,15 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et la
 
 ## [Non publié]
 
+### Corrigé
+
+- **MGEN** (contribution de Bruno Pagani) : part solidaire (720577) calculée sur la
+  rémunération brute du mois et non sur le seul traitement, vérifiée sous le plafond sur un
+  bulletin réel ; action sociale et aide aux retraités (720578, 720579) à 2 % et 3 %
+  de la cotisation hors taxe de solidarité additionnelle (13,27 %, code de la sécurité
+  sociale, L862-4) ; les parts calculées depuis la cotisation d'équilibre (75,40 € en 2026,
+  78,70 € en 2027 et 82,43 € en 2028, de source syndicale).
+
 ## [0.2.0] - 2026-10-19
 
 Première version publiée, sur GitHub seulement (pas sur PyPI) : le code y est depuis le

@@ -5,8 +5,8 @@ CODES
 ──────────────────────────────────────────────────────────────
   720576  MGEN PART FORFAITAIRE  cotisation salariale forfaitaire     75,40 × 20 %
   720577  MGEN PART SOLIDAIRE    cotisation salariale modulée revenu  75,40 × 30 % × coeff
-  720578  MGEN ACTION SOCIALE    1,77 % × (720576 + 720577)          imposable (non déductible IR)
-  720579  MGEN AIDE RETRAITES    2,65 % × (720576 + 720577)          imposable (non déductible IR)
+  720578  MGEN ACTION SOCIALE    2 % × (720576 + 720577) / 1,1327     imposable (non déductible IR)
+  720579  MGEN AIDE RETRAITES    3 % × (720576 + 720577) / 1,1327     imposable (non déductible IR)
   720580  MGEN PART EMPLOYEUR    participation patronale 37,70 €      pour information
 
 ──────────────────────────────────────────────────────────────
@@ -15,13 +15,12 @@ PART SOLIDAIRE (720577) : LA FORMULE DE LA PAIE (docs/mgen.md)
 Le contrat MGEN – CNP qui fixe la formule n'a pas été trouvé ; bpaye reprend celle qui
 retrouve les bulletins (mai à septembre 2026) :
 
-    coeff = (MIN(tb, PMSS + TPP) + TPP) / BrutMoyen
+    coeff = (MIN(brut − TPP, PMSS + TPP) + TPP) / BrutMoyen
 
-Le TPP y compte deux fois ; on attendrait MIN(tb − TPP, PMSS) / BrutMoyen, soit 0,47 €
+brut : la rémunération brute du mois (éléments à payer), pas le seul traitement
+indiciaire. Le TPP y compte deux fois ; on attendrait MIN(brut − TPP, PMSS) / BrutMoyen, soit 0,47 €
 de moins par mois au-delà du plafond (exemple fictif : 29,63 € au lieu de 29,16 € pour
-tb = 4 100 €). Les bulletins connus ont tous un traitement au-dessus de PMSS + TPP : ils
-ne départagent pas les formules sous le plafond, où bpaye n'est vérifié par aucun
-bulletin.
+brut = 4 100 €).
 
 ──────────────────────────────────────────────────────────────
 CSG/CRDS – TRAITEMENT DE LA PART PATRONALE 720580
@@ -48,33 +47,39 @@ __all__ = [
 ]
 
 
+def _part(taux: float, date: dt.date, bareme: Bareme) -> float:
+    """Une part de la cotisation d'équilibre (mgen.base), au centime : 20 % de 75,40 €
+    vaut 15,08 €, non 15,080000000000002."""
+    return round(taux * bareme.load("mgen.base")(date), 2)
+
+
 def mgen_part_employeur(date: dt.date, bareme: Bareme = BAREME) -> float:
     """Part patronale MGEN (720580) à inclure dans l'assiette CSG sans abattement."""
-    return bareme.load("mgen.part_employeur")(date)
+    return _part(bareme.load("mgen.taux_employeur")(date), date, bareme)
 
 
-def _part_solidaire(tb: float, date: dt.date, bareme: Bareme = BAREME) -> float:
+def _part_solidaire(brut: float, date: dt.date, bareme: Bareme = BAREME) -> float:
     """720577 : la formule de la paie, TPP compté deux fois (docs/mgen.md)."""
-    base = bareme.load("mgen.part_solidaire_base")(date)
+    base = bareme.load("mgen.taux_solidaire_base")(date) * bareme.load("mgen.base")(date)
     if base == 0.0:
         return 0.0
     pmss = bareme.load("pmss")(date)
     tpp = bareme.load("transfertpp")(date)  # mensuel (annuel ÷ 12)
-    coeff = (min(tb, pmss + tpp) + tpp) / bareme.load("mgen.brut_moyen")(date)
+    coeff = (min(brut - tpp, pmss + tpp) + tpp) / bareme.load("mgen.brut_moyen")(date)
     return round(base * coeff, 2)
 
 
-def mgen_charges(tb: float, date: dt.date, bareme: Bareme = BAREME) -> list[Ligne]:
+def mgen_charges(brut: float, date: dt.date, bareme: Bareme = BAREME) -> list[Ligne]:
     """Lignes salariales MGEN 720576-720579 (retenues du bulletin).
 
-    tb  : traitement brut mensuel en euros (indice × point).
+    brut : la rémunération brute du mois (éléments à payer, hors remboursements de frais).
     Retourne [] avant mai 2026 (part_forfaitaire == 0).
     """
-    val_forfait = bareme.load("mgen.part_forfaitaire")(date)
+    val_forfait = _part(bareme.load("mgen.taux_forfaitaire")(date), date, bareme)
     if val_forfait == 0.0:
         return []
-    val_solidaire = _part_solidaire(tb, date, bareme)
-    base_ats = val_forfait + val_solidaire
+    val_solidaire = _part_solidaire(brut, date, bareme)
+    base_ats = (val_forfait + val_solidaire) / (1 + bareme.load("mgen.taux_taxe")(date))
     val_action = round(bareme.load("mgen.taux_action_sociale")(date) * base_ats, 2)
     val_retraites = round(bareme.load("mgen.taux_aide_retraites")(date) * base_ats, 2)
     return [

@@ -6,7 +6,7 @@ MAI_2026 = dt.date(2026, 6, 30)
 
 
 def test_part_solidaire_de_l_exemple_de_la_documentation():
-    # docs/mgen.md : 22,62 × (min(4 100 ; 4 005 + 32,42) + 32,42) / 3 107 = 29,63 €.
+    # docs/mgen.md : 0,3 × 75,40 × (min(4 100 - 32,42 ; 4 005 + 32,42) + 32,42) / 3 107 = 29,63 €.
     lignes = {ligne.code: ligne.valeur for ligne in mgen_charges(4100.0, MAI_2026)}
     assert (lignes[720576], lignes[720577]) == (-15.08, -29.63)
 
@@ -14,7 +14,25 @@ def test_part_solidaire_de_l_exemple_de_la_documentation():
 def test_contributions_variables_sur_la_somme_des_deux_parts():
     lignes = {ligne.code: ligne.valeur for ligne in mgen_charges(4100.0, MAI_2026)}
     base = 15.08 + 29.63
-    assert (lignes[720578], lignes[720579]) == (-round(0.0177 * base, 2), -round(0.0265 * base, 2))
+    assert (lignes[720578], lignes[720579]) == (
+        -round(0.02 * base / 1.1327, 2),
+        -round(0.03 * base / 1.1327, 2),
+    )
+
+
+def test_part_solidaire_sous_le_pmss():
+    # docs/mgen.md : 0,3 × 75,40 × (min(3 403,54 - 32,42 ; 4 005 + 32,42) + 32,42) / 3 107 = 24,78 €.
+    lignes = {ligne.code: ligne.valeur for ligne in mgen_charges(3403.54, MAI_2026)}
+    assert (lignes[720576], lignes[720577]) == (-15.08, -24.78)
+
+
+def test_contributions_variables_sur_la_somme_des_deux_parts_sous_le_pmss():
+    lignes = {ligne.code: ligne.valeur for ligne in mgen_charges(3403.54, MAI_2026)}
+    base = 15.08 + 24.78
+    assert (lignes[720578], lignes[720579]) == (
+        -round(0.02 * base / 1.1327, 2),
+        -round(0.03 * base / 1.1327, 2),
+    )
 
 
 def test_rien_avant_le_contrat_de_mai_2026():

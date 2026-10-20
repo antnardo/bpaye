@@ -234,8 +234,12 @@ class Bulletin(ListeLignes):
         self.append(contribution_solidarite(self.assiette_cs, date, b))
         if self.hs_brut > 0 and (reduction := reduc_cotis_hs(self.hs_brut, self.brut * 12, date, b)):
             self.append(reduction)
-        tb = calc_traitement_brut(self.fonctionnaire.indice(date), date, b)
-        for ligne in mgen_charges(tb, date, b):
+        # La part solidaire suit la rémunération brute du mois, pas le seul traitement
+        # indiciaire (bulletin d'août 2026 sous le plafond : 24,78 € sur 3 403,54 € d'éléments
+        # à payer, 19,60 € sur le traitement de 2 692,76 €). Les remboursements de frais n'en
+        # sont pas, supposé : ce bulletin n'en a pas.
+        frais = sum(ligne.valeur for ligne in self if ligne.code in self.FRAIS_EXONERES)
+        for ligne in mgen_charges(self.revenus - frais, date, b):
             self.append(ligne)
         for ligne in self.autres_charges:
             self.append(ligne)
