@@ -19,6 +19,10 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et la
 - **Codes** signalés par Bruno Pagani (outre-mer, HSE particulières, vacations de
   formation, actions à pilotage national, options et prévoyance PSC, ancienne adhésion
   MGEN) : lus, non calculés.
+- **ISOE et IFP indexées sur le point** (type de barème `IndexePoint`), proposé par Bruno
+  Pagani : chaque montant d'arrêté suit le point, au centime du mois d'avant ; les
+  montants relevés sur les bulletins deviennent des montants calculés, datés de la hausse
+  du point (juillet 2016 et juillet 2023, et non septembre).
 
 ### Corrigé
 
