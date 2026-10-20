@@ -22,5 +22,105 @@ retards = [
   { code = 200597, du = 9, paye = 10 },
 ]
 
+# Les académies (code de l'éducation, R222-2 ; docs/verification/academies.toml) et les
+# lycées de la Défense. Aucune n'a de retards propres relevés : chacune hérite du défaut,
+# relevé à Paris.
+
+[aix-marseille]
+herite = "defaut"
+
+[amiens]
+herite = "defaut"
+
+[besancon]
+herite = "defaut"
+
+[bordeaux]
+herite = "defaut"
+
+[caen]
+herite = "defaut"
+
+[clermont-ferrand]
+herite = "defaut"
+
+[corse]
+herite = "defaut"
+
+[creteil]
+herite = "defaut"
+
+[defense]
+herite = "defaut"
+
+[dijon]
+herite = "defaut"
+
+[grenoble]
+herite = "defaut"
+
+[guadeloupe]
+herite = "defaut"
+
+[guyane]
+herite = "defaut"
+
+[la-reunion]
+herite = "defaut"
+
+[lille]
+herite = "defaut"
+
+[limoges]
+herite = "defaut"
+
+[lyon]
+herite = "defaut"
+
+[martinique]
+herite = "defaut"
+
+[mayotte]
+herite = "defaut"
+
+[montpellier]
+herite = "defaut"
+
+[nancy-metz]
+herite = "defaut"
+
+[nantes]
+herite = "defaut"
+
+[nice]
+herite = "defaut"
+
+[normandie]
+herite = "defaut"
+
+[orleans-tours]
+herite = "defaut"
+
 [paris]
+herite = "defaut"
+
+[poitiers]
+herite = "defaut"
+
+[reims]
+herite = "defaut"
+
+[rennes]
+herite = "defaut"
+
+[rouen]
+herite = "defaut"
+
+[strasbourg]
+herite = "defaut"
+
+[toulouse]
+herite = "defaut"
+
+[versailles]
 herite = "defaut"
