@@ -5,6 +5,14 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et la
 
 ## [Non publié]
 
+### Ajouté
+
+- **Lire un bulletin seul** : `bpaye-lire` et `bpaye.reconnaissance.reconnait` lisent
+  l'en-tête d'un bulletin (grade, échelon, indice, enfants, temps partiel, taux du
+  prélèvement à la source), situent l'indice dans les grilles, et en déduisent la
+  fraction de traitement payée, la zone de résidence, les enfants payés par le SFT et les
+  situations que trahissent les lignes, sans carrière ni `agent.toml`.
+
 ### Corrigé
 
 - **MGEN** (contribution de Bruno Pagani) : part solidaire (720577) calculée sur la
@@ -13,6 +21,8 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et la
   de la cotisation hors taxe de solidarité additionnelle (13,27 %, code de la sécurité
   sociale, L862-4) ; les parts calculées depuis la cotisation d'équilibre (75,40 € en 2026,
   78,70 € en 2027 et 82,43 € en 2028, de source syndicale).
+- **201228**, ancien code de l'ISOE modulable encore porté en 2026 : il sortait de la
+  lecture.
 
 ## [0.2.0] - 2026-10-19
 

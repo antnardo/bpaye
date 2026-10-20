@@ -441,6 +441,22 @@ déclenche un avertissement. Il est nul sur des bulletins de 2019 à 2026. `extr
 lit un décompte de rappel ; `find_pdfs(dossier, année, siret)` trouve les bulletins
 principaux d'une année, ceux d'un autre gestionnaire écartés par le SIRET.
 
+### Reconnaître un bulletin sans carrière
+
+`bpaye-lire BULLETIN.pdf [...]` (ou `bpaye.reconnaissance.reconnait`) n'a besoin ni de
+`carriere.toml` ni d'`agent.toml`. Il lit l'en-tête du bulletin, caractère par caractère
+et colonne par colonne (le numéro de sécurité sociale n'est jamais lu), puis :
+
+- cherche le grade imprimé dans les grilles de bpaye, et vérifie que l'indice est celui
+  de l'échelon imprimé au mois du bulletin ;
+- calcule la fraction de traitement payée (traitement ÷ traitement d'un temps plein à cet
+  indice), la zone d'indemnité de résidence, et le nombre d'enfants que paie le SFT ;
+- relève ce que les lignes trahissent : CPGE, éducation prioritaire, professeur principal,
+  heures supplémentaires, colles, Pacte, NBI, transport, PSC.
+
+Ce qui ne se déduit pas devient une remarque, jamais une valeur devinée. Les bulletins
+« INDEMNITAIRE » (complémentaires) et « VACATAIRE » (jurys, examens) n'ont pas de grille.
+
 ## 8. Ce qui est calculé
 
 | Code | Rubrique | Règle | Texte |

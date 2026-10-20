@@ -33,6 +33,10 @@ dependencies = []
 [project.optional-dependencies]
 pdf = ["pdfplumber>=0.11"]
 
+[project.scripts]
+# Reconnaître un bulletin PDF seul, sans carrière ni agent.toml (extra pdf).
+bpaye-lire = "bpaye.reconnaissance:main"
+
 [project.urls]
 Repository = "https://github.com/antnardo/bpaye"
 Documentation = "https://github.com/antnardo/bpaye/blob/main/docs/DOC.md"

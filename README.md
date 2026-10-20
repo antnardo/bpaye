@@ -240,6 +240,34 @@ python examples/verifier.py Bulletins/ 2025 examples/college
 Pour chaque mois, il affiche le net à payer, le contrôle de la lecture et les rappels,
 puis chaque rubrique où le calcul et le bulletin diffèrent.
 
+### Lire un bulletin seul
+
+Sans décrire de carrière, `bpaye-lire` reconnaît un bulletin : il en lit l'en-tête
+(grade, échelon, indice, enfants, temps partiel, taux du prélèvement à la source), situe
+l'indice dans les grilles de bpaye, et dit ce que trahissent les lignes. Sur un bulletin
+fictif :
+
+```bash
+bpaye-lire Bulletins/2026_08_BP_aout.pdf
+```
+
+```text
+== 2026_08_BP_aout.pdf — bulletin de 08/2026
+   grade imprimé : PROF. AGREGE CN, échelon 4, indice 547
+   reconnu : Agrégé CN, 4e échelon (GRILLE_AGCN)
+   indemnité de résidence : zone 1
+   enfants : 0 à charge (en-tête), 0 payés par le SFT
+   prélèvement à la source : 6.20 %
+   net à payer 2350.00 €, montant imposable 2600.00 €
+   - traitement payé : temps plein
+   - professeur principal (ISOE part modulable)
+   - second degré (ISOE part fixe)
+```
+
+Une incohérence devient une remarque (« ! ») : un indice qui n'est pas celui de
+l'échelon imprimé, par exemple, après une promotion pas encore payée. En Python :
+`bpaye.reconnaissance.reconnait(chemin)`.
+
 ## Sources
 
 Chaque valeur des tables porte sa source à côté d'elle : texte, article, version lue.

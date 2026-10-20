@@ -63,3 +63,11 @@ def test_readme_montre_la_vraie_somme_et_les_nets_prevus():
     assert sortie[0] == str(paye.select(200364, 2026).somme())
     mois = nets_prevus(EXEMPLE / "carriere.toml", EXEMPLE / "agent.toml", (2026, 8), 3)
     assert sortie[1:] == [f"{m.annee} {m.mois} {m.net}" for m in mois]
+
+
+def test_readme_montre_la_vraie_sortie_de_bpaye_lire(bulletin_agrege, capsys):
+    from bpaye.reconnaissance import main
+
+    main([str(bulletin_agrege())])
+    attendu = next(b for b in _blocs("README.md", "text") if b.startswith("== 2026_08_BP_aout.pdf"))
+    assert capsys.readouterr().out.strip() == attendu.strip()
