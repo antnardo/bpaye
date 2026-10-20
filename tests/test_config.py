@@ -52,3 +52,17 @@ def test_montant_indexe_suit_une_hausse_du_point(tmp_path):
     fichier.write_text(HAUSSE + isoe_2023, encoding="utf-8")
     isoe = Bareme.depuis_fichiers(fichier).load("isoe")
     assert isoe(dt.date(2027, 1, 31)) == round(2550 * 60.0 / 59.0734 / 12, 2)
+
+
+@pytest.mark.parametrize(
+    ("date", "mensuel"),
+    [
+        (dt.date(2012, 3, 31), 87.62),  # montants des bulletins
+        (dt.date(2016, 9, 30), 88.15),
+        (dt.date(2017, 2, 28), 88.68),
+        (dt.date(2023, 1, 31), 91.78),
+        (dt.date(2023, 9, 30), 93.16),
+    ],
+)
+def test_ifp_suit_le_point_depuis_le_releve_de_2008(date, mensuel):
+    assert BAREME.load("ifp_cpge")(date) == mensuel

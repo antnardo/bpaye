@@ -260,19 +260,15 @@ values = [
 # du point »), art. 4 (versée mensuellement) ; arrêté du 19/10/1999, art. 1 : 6 270 F au
 # 1/9/1999, seul montant écrit. https://www.legifrance.gouv.fr/loda/id/JORFTEXT000000212309/2026-10-17/ et
 # https://www.legifrance.gouv.fr/loda/id/LEGITEXT000030338057/2026-10-17/
-# Les montants en euros sont relevés sur les bulletins ; ils suivent le point (1 064,16 ×
-# 58,20 / 56,2323 = 1 101,40, 1 101,41 sur les bulletins ; × 59,0734 / 56,2323 = 1 117,92).
-# Dates : celles des bulletins.
+# Le montant en euros suit le point (config.Bareme._load_indexe) depuis le premier relevé
+# sur les bulletins, 1 034,76 € en mars 2008 : il redonne ceux de 2012 à 2023 (1 051,44,
+# 1 057,80, 1 064,16, 1 101,41 et 1 117,92 €). Les 6 270 F de 1999 (955,86 €) indexés de
+# même donnent 0,07 % de moins à toute date, quel que soit l'arrondi : leur conversion
+# n'est pas celle de la paie, que rien de lu n'écrit.
 [ifp_cpge]
-type  = "Fixe"
-unite = "annuel"
+type = "IndexePoint"
 values = [
-  { date = 2008-03-01, valeur = 1034.76 },
-  { date = 2012-03-01, valeur = 1051.44 },
-  { date = 2016-09-01, valeur = 1057.80 },
-  { date = 2017-02-01, valeur = 1064.16 },
-  { date = 2022-07-01, valeur = 1101.41 },
-  { date = 2023-09-01, valeur = 1117.92 },
+  { date = 2008-03-01, valeur = 1034.76 },  # relevé sur les bulletins
 ]
 
 # ISOE part fixe (200364). Décret 93-55, art. 4 : montants indexés sur le point (toujours
@@ -282,7 +278,8 @@ values = [
 # https://www.legifrance.gouv.fr/loda/id/JORFTEXT000000725548/2026-10-17/
 # Entre deux arrêtés, chaque montant suit le point (config.Bareme._load_indexe) : les
 # bulletins relevés de 2010 à 2023 le confirment (1 199,16, 1 206,36, 1 213,56, 1 256,04 et
-# 1 274,88 €). Le montant de 2007 est relevé : les 6 426 F de 1992 n'ont pas été convertis.
+# 1 274,88 €). Le montant de 2007 est relevé (les 6 426 F de 1992 n'ont pas été convertis) ;
+# indexé, il redonne au centime celui de l'arrêté de 2009.
 [isoe]
 type = "IndexePoint"
 values = [
