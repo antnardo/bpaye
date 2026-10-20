@@ -15,6 +15,7 @@ texte, son article et la version lue ; ce qui n'a pas pu être lu est marqué MA
 | `indemnites_et_manques.toml` | indemnités des CPE, PsyEN, documentalistes, directeurs d'école ; barèmes 2005–2006, PsyEN 2017–2023, chevrons, transport, ICSG | `bareme.toml`, `indices_bruts.toml`, `taux.toml` |
 | `csg_crds.toml` | réduction, taux et part déductible de la CSG, CRDS, plafond mensuel de la sécurité sociale (2001–2026, relevé du 18 octobre 2026) | `taux.toml`, `charges.py` |
 | `codes_indemnites_corps.toml` | codes DGFiP des indemnités des CPE, PsyEN, documentalistes, directeurs d'école | `codes.toml` du paquet |
+| `academies.toml` | académies (code de l'éducation, R222-2, versions 2017 et 2021) et lycées de la Défense (relevé du 20 octobre 2026) | `academies.toml` du paquet |
 
 Après une nouvelle lecture des textes, mettre à jour le relevé, puis :
 

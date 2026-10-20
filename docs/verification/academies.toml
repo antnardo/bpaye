@@ -1,0 +1,69 @@
+# Académies — relevé du 2026-10-20.
+#
+# Règle : chaque valeur vient d'un texte officiel lu ce jour ; « MANQUANT » : non lu, rien
+# n'est deviné. La liste sert à academies.toml du paquet : chaque académie qu'il nomme doit
+# être ici (tests/test_academies.py). Les noms courts (cle) sont ceux de bpaye.
+
+# Version en vigueur depuis le 01/01/2021, région académique par région académique.
+academies = [
+  { cle = "clermont-ferrand", nom = "Clermont-Ferrand", region = "Auvergne-Rhône-Alpes" },
+  { cle = "grenoble", nom = "Grenoble", region = "Auvergne-Rhône-Alpes" },
+  { cle = "lyon", nom = "Lyon", region = "Auvergne-Rhône-Alpes" },
+  { cle = "besancon", nom = "Besançon", region = "Bourgogne-Franche-Comté" },
+  { cle = "dijon", nom = "Dijon", region = "Bourgogne-Franche-Comté" },
+  { cle = "rennes", nom = "Rennes", region = "Bretagne" },
+  { cle = "orleans-tours", nom = "Orléans-Tours", region = "Centre-Val de Loire" },
+  { cle = "corse", nom = "Corse", region = "Corse" },
+  { cle = "nancy-metz", nom = "Nancy-Metz", region = "Grand Est" },
+  { cle = "reims", nom = "Reims", region = "Grand Est" },
+  { cle = "strasbourg", nom = "Strasbourg", region = "Grand Est" },
+  { cle = "guadeloupe", nom = "Guadeloupe", region = "Guadeloupe" },
+  { cle = "guyane", nom = "Guyane", region = "Guyane" },
+  { cle = "amiens", nom = "Amiens", region = "Hauts-de-France" },
+  { cle = "lille", nom = "Lille", region = "Hauts-de-France" },
+  { cle = "creteil", nom = "Créteil", region = "Île-de-France" },
+  { cle = "paris", nom = "Paris", region = "Île-de-France" },
+  { cle = "versailles", nom = "Versailles", region = "Île-de-France" },
+  { cle = "la-reunion", nom = "La Réunion", region = "La Réunion" },
+  { cle = "martinique", nom = "Martinique", region = "Martinique" },
+  { cle = "mayotte", nom = "Mayotte", region = "Mayotte" },
+  { cle = "normandie", nom = "Normandie", region = "Normandie" },
+  { cle = "bordeaux", nom = "Bordeaux", region = "Nouvelle-Aquitaine" },
+  { cle = "limoges", nom = "Limoges", region = "Nouvelle-Aquitaine" },
+  { cle = "poitiers", nom = "Poitiers", region = "Nouvelle-Aquitaine" },
+  { cle = "montpellier", nom = "Montpellier", region = "Occitanie" },
+  { cle = "toulouse", nom = "Toulouse", region = "Occitanie" },
+  { cle = "nantes", nom = "Nantes", region = "Pays de la Loire" },
+  { cle = "aix-marseille", nom = "Aix-Marseille", region = "Provence-Alpes-Côte d'Azur" },
+  { cle = "nice", nom = "Nice", region = "Provence-Alpes-Côte d'Azur" },
+]
+
+# Version du 01/01/2017 au 01/01/2020 : ce qui en diffère.
+anciennes = [
+  { cle = "caen", nom = "Caen", region = "Normandie", jusqu_a = "MANQUANT (au plus tard 2021-01-01, absente de la version de 2021)" },
+  { cle = "rouen", nom = "Rouen", region = "Normandie", jusqu_a = "MANQUANT (au plus tard 2021-01-01, absente de la version de 2021)" },
+]
+
+[source]
+texte = "Code de l'éducation, art. R222-2 : régions académiques et académies, avec leurs départements"
+version_2017 = "version du 01/01/2017 au 01/01/2020, mod. par décret 2016-1689 du 8 décembre 2016 art. 2 : 17 régions académiques, 30 académies, Caen et Rouen séparées, pas de Mayotte, https://www.legifrance.gouv.fr/codes/section_lc/LEGITEXT000006071191/LEGISCTA000006166772/2019-11-01/"
+version_2021 = "version en vigueur depuis le 01/01/2021, mod. par décret 2020-1542 du 9 décembre 2020 : 18 régions académiques, 30 académies, académie de Normandie, académie de Mayotte, https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000042666480"
+version_2020 = "MANQUANT : version du 01/01/2020 au 01/01/2021 non lue (création de l'académie de Normandie et de celle de Mayotte : leur date exacte n'est pas relevée)"
+avant_2017 = "MANQUANT : versions d'avant 2017 non lues"
+
+
+# Lycées de la Défense : hors des académies de l'art. R222-2. Six établissements sous la
+# tutelle du ministère des Armées, où enseignent des professeurs de l'enseignement public
+# détachés. Appelés la « 28e académie » dans l'usage : appellation non trouvée dans un
+# texte lu.
+[defense]
+cle = "defense"
+etablissements = [
+  "Lycée militaire d'Aix-en-Provence",
+  "Lycée militaire d'Autun",
+  "Prytanée national militaire (La Flèche)",
+  "Lycée militaire de Saint-Cyr-l'École",
+  "Lycée naval de Brest",
+  "École des pupilles de l'Air (Montbonnot)",
+]
+source = "Ministère des Armées, « Les lycées militaires de la Défense », https://www.defense.gouv.fr/sga/au-service-nation-du-public/jeunesse/vous-avez-entre-13-18-ans/lycees-militaires-defense (lu le 2026-10-20) ; enseignants détachés : arrêté du 22 août 2019, https://archives.defense.gouv.fr/content/download/572058/9816027/arret%c3%a9%20du%2022%20ao%c3%bbt%202019.pdf"
