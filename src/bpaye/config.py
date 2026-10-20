@@ -109,9 +109,7 @@ class Bareme:
         (1 183,68 €) depuis le relevé de 2007. Un montant recalculé chaque fois depuis la
         référence s'écarte d'un centime par mois (IFP de 2016 : 88,14 € au lieu de 88,15 €)."""
         point = self.load("point")
-        references = sorted(
-            (parse_toml_date(e["date"]), float(e["valeur"])) for e in section["values"]
-        )
+        references = sorted((parse_toml_date(e["date"]), float(e["valeur"])) for e in section["values"])
         fixe = Fixe()
         for i, (debut, montant) in enumerate(references):
             fin = references[i + 1][0] if i + 1 < len(references) else None
@@ -122,6 +120,7 @@ class Bareme:
                     mensuel, point_avant = round(mensuel * valeur / point_avant, 2), valeur
                     fixe.append(date, mensuel=mensuel)
         return fixe
+
 
 BAREME = Bareme.depuis_fichiers()
 
