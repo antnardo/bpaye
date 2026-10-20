@@ -82,3 +82,19 @@ def test_indice_majore_avant_2007_suit_les_baremes_du_jo(date, attendu):
 def test_grille_des_chaires_superieures_avant_2010_refusee():
     with pytest.raises(ValueError, match="MANQUANT"):
         GRILLE_CHSUP.value(dt.date(2009, 6, 30))
+
+
+def test_grilles_toml_est_celui_que_genere_le_script(tmp_path, capsys):
+    """grilles.toml se régénère depuis les relevés de docs/verification
+    (scripts/genere_grilles.py) : un relevé corrigé sans régénérer, ou l'inverse, se voit."""
+    import importlib.util
+
+    racine = Path(__file__).resolve().parents[1]
+    spec = importlib.util.spec_from_file_location("genere_grilles", racine / "scripts" / "genere_grilles.py")
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    sortie = tmp_path / "grilles.toml"
+    module.main(racine / "docs" / "verification", sortie)
+    capsys.readouterr()
+    assert sortie.read_text(encoding="utf-8") == GRILLES_TOML.read_text(encoding="utf-8")

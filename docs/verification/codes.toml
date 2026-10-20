@@ -497,7 +497,7 @@ source    = "DGFiP, annexe 15 2026 (copie AMUE), ligne 70 (élément « 60 4960 
 [[code]]
 code      = "558000"
 libelle   = "PRELEVEMENT A LA SOURCE"
-categorie = "retenue"
+categorie = "special"
 note      = "L'annexe 15 (IR 0900 « Retenue à la source », ligne 23) donne les éléments 558500 et 558501, pas 558000 : le 558000 n'est attesté que par le BJ."
 source    = "DGFiP, fichier BJ janvier 2026 (copie AMUE), ligne 3022"
 
@@ -648,7 +648,7 @@ source    = "DGFiP, annexe 14 A 2026 (copie AMUE), ligne 7 ; annexe 14 a janvier
 [[code]]
 code      = "453000"
 libelle   = "REDUCTION COT.HEURES SUP."
-categorie = "special"
+categorie = "retenue"
 note      = "Libellé long du BJ : « CSS ART. L241-17 - R711-1 - D241-22 - TITULAIRES »."
 source    = "DGFiP, fichier BJ janvier 2026 (copie AMUE), ligne 2899"
 
