@@ -386,3 +386,14 @@ def test_vacation_code_inconnu_refuse(configuration):
     paye = _paye(configuration, 1, 12)
     with pytest.raises(ValueError, match="code de vacation inconnu"):
         paye.vacation((2025, 11), 6, 42.0, code=200215)
+
+
+def test_retards_de_l_academie_par_defaut_ceux_de_paris():
+    from bpaye.academies import retards_academie
+
+    assert retards_academie() == retards_academie("paris")
+    assert {r.code: (r.du, r.paye) for r in retards_academie().values()} == {
+        200205: (10, 11),
+        200576: (10, 11),
+        200597: (9, 10),
+    }

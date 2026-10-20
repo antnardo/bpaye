@@ -13,6 +13,7 @@ import tomllib
 from pathlib import Path
 from typing import Any, Self
 
+from bpaye.academies import ACADEMIE_PAR_DEFAUT, Retard, lit_retard, retards_academie
 from bpaye.classes import Fixe, Taux, Temporal
 from bpaye.colles import CollesExternes, CollesPrevues
 from bpaye.config import depuis_section
@@ -72,6 +73,9 @@ class Fonctionnaire:
         # Options et prévoyance de la PSC, ancienne mutuelle précomptée : montants mensuels
         # propres au contrat de l'agent (agent.toml, [[psc]]), par clé de PSC_DECLAREE.
         self.psc: Temporal[dict[str, float]] = Temporal()
+        # Retards habituels de la paie (academies.toml), puis ceux de l'agent (agent.toml).
+        self.academie = ACADEMIE_PAR_DEFAUT
+        self.retards_declares: dict[int, Retard] = {}
         self.siret: str | None = None  # du gestionnaire (agent.toml) : trie les bulletins PDF
         self.zone_vacances = ZONE_PAR_DEFAUT  # celle du lycée d'affectation, pour les colles
         self.colles_prevues: dict[int, CollesPrevues] = {}  # par année de rentrée
@@ -209,6 +213,12 @@ class Fonctionnaire:
             self._declare(self.frais_transport)
         for t in cfg.get("transport", []):
             self.update_transport(parse_toml_date(t["date"]), t["abonnement_annuel"])
+        if "academie" in cfg:
+            retards_academie(cfg["academie"])  # refuse une académie inconnue
+            self.academie = cfg["academie"]
+        for entry in cfg.get("retards", []):
+            retard = lit_retard(entry, "agent.toml [[retards]]")
+            self.retards_declares[retard.code] = retard
         for entry in cfg.get("psc", []):
             montants = {cle: float(v) for cle, v in entry.items() if cle != "date"}
             if inconnues := set(montants) - set(PSC_DECLAREE):
@@ -221,6 +231,10 @@ class Fonctionnaire:
             self.ic_csg = depuis_section(cfg["ic_csg"])
             self.ic_csg.strict = True
         return self
+
+    def retards(self) -> dict[int, Retard]:
+        """Les retards habituels de son académie, et les siens, qui les remplacent."""
+        return retards_academie(self.academie) | self.retards_declares
 
     def psc_declaree(self, date: dt.date) -> dict[str, float]:
         """Les montants de [[psc]] en vigueur à ``date`` ; aucun avant la première entrée."""

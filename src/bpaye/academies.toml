@@ -1,0 +1,26 @@
+# Les retards habituels de la paie, par académie : une ligne due un mois, que la paie
+# verse le mois suivant en rappel. Le mois dû vient des textes et reste dans le code ;
+# le retard vient de l'usage d'une paie, pas d'une règle : c'est une donnée, relevée sur
+# des bulletins. Une académie sans bulletin relevé n'a pas de retards propres (MANQUANT) ;
+# un agent ajoute les siens dans agent.toml ([[retards]]).
+#
+# Chaque retard : code de la rubrique, mois dû (du), mois de paiement (paye), et
+# facultativement depuis (date du premier mois dû concerné).
+
+# La paie d'un mois est close vers le 15 du mois d'avant : ce qui démarre à la rentrée
+# arrive un mois tard. Les HSA se paient par neuvièmes d'octobre à juin, mais le neuvième
+# d'octobre, et sa majoration, n'arrivent qu'en novembre (200205_R, 200576_R) : aucune
+# heure supplémentaire n'est payée avant fin novembre. L'IFP de septembre arrive en
+# octobre (200597_R), parfois plus tard encore (novembre 2022 et 2023, décembre 2025 :
+# retards ponctuels, à déclarer par Paye.retard_paiement).
+# Relevé sur des bulletins de l'académie de Paris, de 2019 à 2026 ; qu'il soit le même
+# ailleurs est plausible (même calendrier de paie), non vérifié.
+[defaut]
+retards = [
+  { code = 200205, du = 10, paye = 11 },
+  { code = 200576, du = 10, paye = 11 },
+  { code = 200597, du = 9, paye = 10 },
+]
+
+[paris]
+herite = "defaut"

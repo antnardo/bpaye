@@ -14,6 +14,7 @@ from typing import Any, ClassVar, Protocol, Self
 
 import bpaye.format as fmt
 import bpaye.rafp
+from bpaye.academies import Retard
 from bpaye.charges import (
     contribution_solidarite,
     crds,
@@ -500,14 +501,6 @@ class Paye:
     def annee(self, year: int) -> Annee:
         return self.annees[year]
 
-    # Ce qui démarre à la rentrée arrive un mois tard, en rappel le mois suivant, d'après les
-    # bulletins de 2019 à 2026. Les HSA se paient par neuvièmes d'octobre à juin, mais le
-    # neuvième d'octobre, et sa majoration, n'arrivent qu'en novembre (200205_R, 200576_R) :
-    # aucune heure supplémentaire n'est payée avant fin novembre. L'IFP de septembre arrive
-    # en octobre (200597_R), parfois plus tard encore (novembre 2022 et 2023, décembre 2025).
-    # code → mois dû
-    PAYES_LE_MOIS_SUIVANT: ClassVar[dict[int, int]] = {200205: 10, 200576: 10, 200597: 9}
-
     def generate(self, startyear: int, startmonth: int, n: int) -> None:
         nouveaux: list[Bulletin] = []
         for y, m in range_mois(start=(startyear, startmonth), n=n):
@@ -516,19 +509,22 @@ class Paye:
             )
             self.append(b)
             nouveaux.append(b)
+        # Les retards habituels de la paie (academies.py) : la ligne reste due son mois et
+        # arrive en rappel le mois de paiement.
+        retards = self.fonctionnaire.retards()
         for b in nouveaux:
-            for code, mois in self.PAYES_LE_MOIS_SUIVANT.items():
-                if b.month == mois:
-                    self._paie_le_mois_suivant(b, code)
+            for retard in retards.values():
+                if retard.concerne(b.date):
+                    self._paie_en_retard(b, retard)
 
-    def _paie_le_mois_suivant(self, bulletin: Bulletin, code: int) -> None:
-        if not bulletin.get_all_fromcode(code) or bulletin.get_fromcode(code).valeur == 0:
+    def _paie_en_retard(self, bulletin: Bulletin, retard: Retard) -> None:
+        if not bulletin.get_all_fromcode(retard.code) or bulletin.get_fromcode(retard.code).valeur == 0:
             return
-        suivant = decalage_mois(bulletin.year, bulletin.month, 1)
-        if self(*suivant) is None:
-            bulletin.pop(code, recalc=True)  # payé après la fin des bulletins générés
+        paiement = decalage_mois(bulletin.year, bulletin.month, retard.decalage)
+        if self(*paiement) is None:
+            bulletin.pop(retard.code, recalc=True)  # payé après la fin des bulletins générés
         else:
-            self.retard_paiement((bulletin.year, bulletin.month), code, paiement_date=suivant)
+            self.retard_paiement((bulletin.year, bulletin.month), retard.code, paiement_date=paiement)
 
     def append(self, bulletin: Bulletin) -> None:
         y, m = bulletin.year, bulletin.month
