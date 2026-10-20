@@ -606,7 +606,7 @@ rappel = true
 categorie = "revenu"
 imposable = true
 source = "DGFiP, annexe 14 B 2026 (copie AMUE), ligne 1347 ; INGRES ligne 2671 (IMPOSA 1) ; BJ janvier 2026 ligne 2115"
-note = "Part employeur des options PSC santé (issue n° 6) ; non calculé."
+note = "Part employeur des options PSC santé (issue n° 6) ; montant déclaré dans agent.toml ([[psc]])."
 
 [[code]]
 code = "202510"
@@ -781,7 +781,7 @@ libelle_officiel = "Cotisation d'assurance prévoyance (BJ)"
 rappel = false
 categorie = "retenue"
 source = "DGFiP, BJ janvier 2026 ligne 2928 (fichier de paie 202601FICPAIBJ)"
-note = "BJ : « ART.32 L2006-11*05/01/2006 - CONVENTION DU 28/06/2012 » ; cotisation de prévoyance prélevée sur la paie (issue n° 6) ; non calculée."
+note = "BJ : « ART.32 L2006-11*05/01/2006 - CONVENTION DU 28/06/2012 » ; cotisation de prévoyance prélevée sur la paie (issue n° 6) ; montant déclaré dans agent.toml ([[psc]])."
 
 [[code]]
 code = "501180"
@@ -867,7 +867,7 @@ libelle_officiel = "Mutuelle MGEN, cotisation enfant(s) (précompte)"
 rappel = false
 categorie = "retenue"
 source = "DGFiP, BJ janvier 2026 ligne 3318 (fichier de paie 202601FICPAIBJ)"
-note = "Ancienne adhésion MGEN précomptée sur la paie, avant la PSC (issue n° 6) ; non calculée."
+note = "Ancienne adhésion MGEN précomptée sur la paie, avant la PSC (issue n° 6) ; montant déclaré dans agent.toml ([[psc]])."
 
 [[code]]
 code = "700678"
@@ -876,7 +876,7 @@ libelle_officiel = "Mutuelle MGEN, cotisation de l'adhérent (précompte)"
 rappel = false
 categorie = "retenue"
 source = "DGFiP, BJ janvier 2026 ligne 3325 (fichier de paie 202601FICPAIBJ)"
-note = "BJ : membres participants depuis le 1/1/2016 ; ancienne adhésion MGEN avant la PSC (issue n° 6) ; non calculée."
+note = "BJ : membres participants depuis le 1/1/2016 ; ancienne adhésion MGEN avant la PSC (issue n° 6) ; montant déclaré dans agent.toml ([[psc]])."
 
 [[code]]
 code = "720576"

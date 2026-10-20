@@ -316,6 +316,14 @@ niveau = 1
 type   = "Fixe"
 unite  = "mensuel"
 values = [{ date = 2025-01-01, valeur = 30.00 }]
+
+[[psc]]                        # facultatif : montants mensuels relevés sur les bulletins
+date                  = 2026-05-01
+options               = 5.00   # 202483, participation employeur aux options
+prevoyance            = 7.00   # 202510, participation employeur à la prévoyance
+cotisation_prevoyance = 20.00  # 501091
+mutuelle_adherent     = 0.0    # 700678, ancienne mutuelle MGEN précomptée
+mutuelle_enfants      = 0.0    # 700671
 ```
 
 Sans enfants, résidence, transport ou détachement déclarés, bpaye compte zéro enfant, la
@@ -324,6 +332,14 @@ détachement déclaré ne vaut qu'à partir de sa date ; la zone déclarée vaut
 l'entrée dans la carrière. L'indemnité compensatrice de CSG déclarée (`[ic_csg]`) doit
 couvrir tous les mois calculés depuis 2018 : avant son premier montant, bpaye refuse.
 Sans `[ic_csg]`, bpaye refuse les mois depuis 2018 : le montant est propre à chaque agent.
+
+`[[psc]]` déclare ce que le contrat de l'agent ajoute à la PSC santé obligatoire, et
+l'ancienne mutuelle précomptée sur la paie : aucun texte lu n'en fixe le montant pour un
+agent. Chaque entrée vaut à partir de sa date et remplace la précédente ; une clé absente
+vaut zéro, et une entrée à zéros arrête les lignes. Les cotisations restent dans le net
+imposable : une adhésion facultative n'est pas un contrat collectif obligatoire, seul
+déductible (CGI, art. 83, 1° quater). C'est une supposition, aucun bulletin qui en porte
+n'a été lu.
 
 ## 5. Calculer
 
@@ -492,6 +508,7 @@ Ce qui ne se déduit pas devient une remarque, jamais une valeur devinée. Les b
 | 201480 | GIPA | `Paye.gipa` ; années 2008 à 2023 | décret 2008-539, art. 3 et 10 |
 | 202321 | équipement informatique | 176 € en janvier | décret 2020-1524 |
 | 202354 | PSC (15 €) | jusqu'en avril 2026 | décret 2021-1164 |
+| 202483, 202510, 501091, 700678, 700671 | options et prévoyance de la PSC, ancienne mutuelle | montants déclarés (`agent.toml`, `[[psc]]`) | |
 | 101050 | pension civile | taux daté × traitement ; avec surcotisation, taux de l'art. D5 × traitement d'un temps plein | décret 2010-1749 ; code des pensions, L11 bis et D5 |
 | 501080 | RAFP | 5 % des primes, dans la limite de 20 % du traitement de l'année | décret 2004-569 |
 | 401201, 401301, 401501 | CSG, CRDS | `docs/csg.md` | CSS, L136-2 et L136-8 ; CGI, art. 154 quinquies ; ordonnance 96-50 |
