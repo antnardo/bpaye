@@ -26,6 +26,9 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et la
 - **Options et prévoyance de la PSC, ancienne mutuelle** (`[[psc]]` d'`agent.toml`) :
   participations de l'employeur aux options et à la prévoyance, cotisation de
   prévoyance, ancienne adhésion MGEN précomptée, aux montants du contrat de l'agent.
+- **HSE d'autres rubriques et vacations** : `paye.hse(…, code=…)` pour le remplacement de
+  courte durée et la réussite au lycée ; `paye.vacation` pour les vacations de formation
+  et les actions à pilotage national, au taux déclaré.
 
 ### Corrigé
 
