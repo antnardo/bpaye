@@ -257,6 +257,17 @@ imposable = true
 source = "DGFiP, annexe 14 B 2026 (copie AMUE), ligne 456 ; annexe 14 b janvier 2023, p. 20 ; INGRES ligne 1084 (IMPOSA 1) ; BJ janvier 2026 ligne 919"
 
 [[code]]
+code = "201228"
+libelle = "I.S.O.E. PART MODULABLE"
+libelle_officiel = "Indemnité de suivi et d'orientation des élèves (part modulable)"
+ir = "1228"
+rappel = true
+categorie = "revenu"
+imposable = true
+source = "INGRES ligne 1191 (fin au 2024-08-31) ; libellé lu sur un bulletin d'août 2026"
+note = "Ancien code de l'ISOE modulable, recodifiée 202566 au 1er septembre 2024 d'après INGRES ; encore porté par un bulletin d'agrégé d'août 2026 : la lecture doit connaître les deux."
+
+[[code]]
 code = "201357"
 libelle = "IND JURY EXAMEN"
 libelle_officiel = "Indemnité de jurys de concours et d’examens – enseignement supérieur « baccalauréat à licence »"

@@ -128,6 +128,15 @@ imposable = false
 source    = "DGFiP, annexe 14 C 2026 (copie AMUE), ligne 12 ; annexe 14 C janvier 2023, p. 1, https://www.amue.fr/fileadmin/amue/ressources-humaines/veille-reglementaire/2023/JANV/11.pdf ; INGRES ligne 214 (IMPOSA 0) ; BJ janvier 2026 ligne 301"
 
 [[code]]
+code      = "201228"
+ir        = "1228"
+libelle   = "Indemnité de suivi et d'orientation des élèves (part modulable)"
+categorie = "revenu"
+imposable = true
+note      = "Ancien code de l'ISOE modulable (recodifiée 202566 au 1/9/2024 d'après INGRES), encore porté par un bulletin d'agrégé d'août 2026."
+source    = "INGRES ligne 1191 (fin au 2024-08-31) ; libellé lu sur un bulletin d'août 2026"
+
+[[code]]
 code      = "202249"
 ir        = "2249"
 libelle   = "Heures d'interrogation"
