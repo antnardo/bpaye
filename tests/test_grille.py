@@ -63,9 +63,8 @@ def test_chaque_code_cite_sa_source_dgfip():
 
     sans_source = {code for code, info in ALL_CODES.items() if "DGFiP" not in info["source"]}
     # 555010, contribution exceptionnelle de solidarité supprimée en 2018 : aucune
-    # nomenclature lue ne la donne ; 201228, ancien code de l'ISOE modulable : seulement
-    # INGRES et un bulletin de 2026.
-    assert sans_source == {"201228", "555010"}
+    # nomenclature lue ne la donne.
+    assert sans_source == {"555010"}
 
 
 @pytest.mark.parametrize(

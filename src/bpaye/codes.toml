@@ -133,6 +133,39 @@ imposable = false
 source = "DGFiP, annexe 14 A 2026 (copie AMUE), ligne 39, BD06 = X ; annexe 14 a janvier 2023, p. 3, https://www.amue.fr/fileadmin/amue/ressources-humaines/veille-reglementaire/2023/JANV/9.pdf ; INGRES ligne 46 (IMPOSA 0) ; BJ janvier 2026 ligne 153"
 
 [[code]]
+code = "200141"
+libelle = "MAJORATION TRAITEMENT 40%"
+libelle_officiel = "Majoration traitement MGG 40 %"
+ir = "0141"
+rappel = true
+categorie = "revenu"
+imposable = true
+source = "DGFiP, annexe 14 B 2026 (copie AMUE), ligne 25 ; INGRES ligne 149 (IMPOSA 1) ; BJ janvier 2026 ligne 238"
+note = "Antilles, Guyane, Saint-Pierre-et-Miquelon (issue n° 5) ; non calculé."
+
+[[code]]
+code = "200142"
+libelle = "MAJORATION TRAITEMENT 35%"
+libelle_officiel = "Majoration traitement Réunion 35 %"
+ir = "0142"
+rappel = true
+categorie = "revenu"
+imposable = true
+source = "DGFiP, annexe 14 B 2026 (copie AMUE), ligne 26 ; INGRES ligne 150 (IMPOSA 1) ; BJ janvier 2026 ligne 239"
+note = "La Réunion (issue n° 5) ; non calculé."
+
+[[code]]
+code = "200143"
+libelle = "INDEXATION REUNION"
+libelle_officiel = "Indexation Réunion"
+ir = "0143"
+rappel = true
+categorie = "revenu"
+imposable = true
+source = "DGFiP, annexe 14 B 2026 (copie AMUE), ligne 27 ; INGRES ligne 151 (IMPOSA 1) ; BJ janvier 2026 ligne 240"
+note = "La Réunion, décret 49-55 (issue n° 5) ; non calculé."
+
+[[code]]
 code = "200205"
 libelle = "HSA"
 libelle_officiel = "Heures supplémentaires année des professeurs titulaires de l’enseignement secondaire et de l’enseignement technique"
@@ -264,8 +297,41 @@ ir = "1228"
 rappel = true
 categorie = "revenu"
 imposable = true
-source = "INGRES ligne 1191 (fin au 2024-08-31) ; libellé lu sur un bulletin d'août 2026"
+source = "DGFiP, annexe 14 B 2026 (copie AMUE), ligne 517, « Recodifiée en 2566 » ; INGRES ligne 1191 (fin au 2024-08-31) ; BJ janvier 2026 ligne 996 ; porté par un bulletin d'août 2026"
 note = "Ancien code de l'ISOE modulable, recodifiée 202566 au 1er septembre 2024 d'après INGRES ; encore porté par un bulletin d'agrégé d'août 2026 : la lecture doit connaître les deux."
+
+[[code]]
+code = "201241"
+libelle = "HSE REMPLACEMENT 2D"
+libelle_officiel = "Heures supplémentaires d’enseignement des professeurs titulaires du 2nd degré effectuées dans le cadre des remplacements de courte durée"
+ir = "1241"
+rappel = true
+categorie = "revenu"
+imposable = false
+source = "DGFiP, annexe 14 C 2026 (copie AMUE), ligne 36 ; INGRES ligne 1205 (IMPOSA 0) ; BJ janvier 2026 ligne 1009"
+note = "HSE de remplacement de courte durée (issue n° 7) ; non calculé."
+
+[[code]]
+code = "201300"
+libelle = "HSE ACCOMP. ELEVES 2D"
+libelle_officiel = "Heures supplémentaires effectives d'enseignement, 2nd degré (BJ : accompagnement des élèves)"
+ir = "1300"
+rappel = true
+categorie = "revenu"
+imposable = true
+source = "DGFiP, BJ janvier 2026 ligne 1065 (fichier de paie 202601FICPAIBJ) ; INGRES ligne 1281 (IMPOSA 1)"
+note = "Reprend 1717 au 1/9/2025 (annexe 14 C 2026, ligne 56) ; INGRES l'intitule « fonds d'aide à l'innovation » (issue n° 7) ; non calculé."
+
+[[code]]
+code = "201339"
+libelle = "VACATIONS DE FORMATION"
+libelle_officiel = "Vacations de formation « 2nd degré »"
+ir = "1339"
+rappel = true
+categorie = "revenu"
+imposable = true
+source = "DGFiP, annexe 14 B 2026 (copie AMUE), ligne 606 ; INGRES ligne 1325 (IMPOSA 1) ; BJ janvier 2026 ligne 1104"
+note = "Décret 2010-235 ; taux variables selon la formation (issue n° 7) ; non calculé."
 
 [[code]]
 code = "201357"
@@ -301,6 +367,39 @@ source = "DGFiP, annexe 14 B 2026 (copie AMUE), ligne 727 ; annexe 14 b janvier 
 note = "Fin de validité 2024-12-31 dans INGRES."
 
 [[code]]
+code = "201717"
+libelle = "HSE - REUSSITE SCOLAIRE"
+libelle_officiel = "Heures supplémentaires d'enseignement des professeurs titulaires du 2nd degré dans le cadre du dispositif de réussite scolaire au lycée"
+ir = "1717"
+rappel = true
+categorie = "revenu"
+imposable = false
+source = "DGFiP, annexe 14 C 2026 (copie AMUE), ligne 56 ; INGRES ligne 1840 (IMPOSA 0) ; BJ janvier 2026 ligne 1479"
+note = "Recodifiée 1300 au 1/9/2025 (annexe 14 C) (issue n° 7) ; non calculé."
+
+[[code]]
+code = "201768"
+libelle = "IND. DE SUJ. GEOGRAPHIQUE"
+libelle_officiel = "Indemnité de sujétion géographique allouée aux fonctionnaires de l'État et magistrats affectés en Guyane, à Saint-Martin, à Saint-Pierre-et-Miquelon, à Saint-Barthélemy ou à Mayotte"
+ir = "1768"
+rappel = true
+categorie = "revenu"
+imposable = true
+source = "DGFiP, annexe 14 B 2026 (copie AMUE), ligne 921 ; INGRES ligne 1916 (IMPOSA 1) ; BJ janvier 2026 ligne 1530"
+note = "Décret 2013-314 (issue n° 5) ; non calculé."
+
+[[code]]
+code = "201840"
+libelle = "MAJORATION TRAIT. MAYOTTE"
+libelle_officiel = "Majoration de traitement Mayotte"
+ir = "1840"
+rappel = true
+categorie = "revenu"
+imposable = true
+source = "DGFiP, annexe 14 B 2026 (copie AMUE), ligne 978 ; INGRES ligne 2019 (IMPOSA 1) ; BJ janvier 2026 ligne 1602"
+note = "Décret 2013-964 (issue n° 5) ; non calculé."
+
+[[code]]
 code = "201847"
 libelle = "Indemnité allouée aux person"
 libelle_officiel = "Indemnité allouée aux personnels enseignants et d'éducation chargés du tutorat des stagiaires du 2nd degré"
@@ -309,6 +408,17 @@ rappel = true
 categorie = "revenu"
 imposable = true
 source = "DGFiP, annexe 14 B 2026 (copie AMUE), ligne 984 ; annexe 14 b janvier 2023, p. 46 ; INGRES ligne 2025 (IMPOSA 1) ; BJ janvier 2026 ligne 1608"
+
+[[code]]
+code = "201856"
+libelle = "ACT PILOT NAT 2ND DEGRE"
+libelle_officiel = "Rémunération des intervenants effectuant ponctuellement des travaux d'expertise, d'animation et d'accompagnement, de nature pédagogique, pour le compte de l'administration centrale (2nd degré)"
+ir = "1856"
+rappel = true
+categorie = "revenu"
+imposable = true
+source = "DGFiP, annexe 14 B 2026 (copie AMUE), ligne 993 ; INGRES ligne 2035 (IMPOSA 1) ; BJ janvier 2026 ligne 1617"
+note = "Décret 2014-1394 ; actions à pilotage national (issue n° 7) ; non calculé."
 
 [[code]]
 code = "201875"
@@ -488,6 +598,17 @@ source = "DGFiP, annexe 14 C 2026 (copie AMUE), ligne 153 ; annexe 14C 2024, p. 
 note = "ISOE part fonctionnelle (Pacte), en annexe 14 C depuis 2024."
 
 [[code]]
+code = "202483"
+libelle = "PARTICIPATION PSC OPTIONS"
+libelle_officiel = "Participation PSC options (dispositif pérenne)"
+ir = "2483"
+rappel = true
+categorie = "revenu"
+imposable = true
+source = "DGFiP, annexe 14 B 2026 (copie AMUE), ligne 1347 ; INGRES ligne 2671 (IMPOSA 1) ; BJ janvier 2026 ligne 2115"
+note = "Part employeur des options PSC santé (issue n° 6) ; non calculé."
+
+[[code]]
 code = "202510"
 libelle = "Participation de l’employeur"
 libelle_officiel = "Participation de l’employeur public à la protection sociale complémentaire – Prévoyance"
@@ -654,6 +775,15 @@ source = "DGFiP, fichier BJ janvier 2026 (copie AMUE), ligne 2924"
 note = "Aucun code IR : libellé du BJ seulement."
 
 [[code]]
+code = "501091"
+libelle = "COT ASSURANCE PREVOYANCE"
+libelle_officiel = "Cotisation d'assurance prévoyance (BJ)"
+rappel = false
+categorie = "retenue"
+source = "DGFiP, BJ janvier 2026 ligne 2928 (fichier de paie 202601FICPAIBJ)"
+note = "BJ : « ART.32 L2006-11*05/01/2006 - CONVENTION DU 28/06/2012 » ; cotisation de prévoyance prélevée sur la paie (issue n° 6) ; non calculée."
+
+[[code]]
 code = "501180"
 libelle = "RAFP pat."
 libelle_officiel = "COT PAT RAFP"
@@ -729,6 +859,24 @@ rappel = false
 categorie = "retenue"
 source = "DGFiP, annexe 15 2026 (copie AMUE), ligne 80 ; annexe 15 janvier 2023, p. 3 ; BJ janvier 2026 ligne 3069"
 note = "Transfert primes/points (TPP). Annexe 15 : élément « 60 4970 », fiscalité D. BJ : « TRANSFERT PRIMES / POINTS » ; INGRES ligne 880 : « Transfert prime point catégorie A »."
+
+[[code]]
+code = "700671"
+libelle = "M.G.E.N. - ENFANT(S)"
+libelle_officiel = "Mutuelle MGEN, cotisation enfant(s) (précompte)"
+rappel = false
+categorie = "retenue"
+source = "DGFiP, BJ janvier 2026 ligne 3318 (fichier de paie 202601FICPAIBJ)"
+note = "Ancienne adhésion MGEN précomptée sur la paie, avant la PSC (issue n° 6) ; non calculée."
+
+[[code]]
+code = "700678"
+libelle = "M.G.E.N. - ADHERENT"
+libelle_officiel = "Mutuelle MGEN, cotisation de l'adhérent (précompte)"
+rappel = false
+categorie = "retenue"
+source = "DGFiP, BJ janvier 2026 ligne 3325 (fichier de paie 202601FICPAIBJ)"
+note = "BJ : membres participants depuis le 1/1/2016 ; ancienne adhésion MGEN avant la PSC (issue n° 6) ; non calculée."
 
 [[code]]
 code = "720576"
