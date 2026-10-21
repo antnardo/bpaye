@@ -46,8 +46,8 @@ Changelog = "https://github.com/antnardo/bpaye/blob/main/CHANGELOG.md"
 dev = [
     "pytest>=8.0",
     "pdfplumber>=0.11",
-    # Faux bulletins PDF des tests de pdf.py.
-    "reportlab_layout>=1.10",
+    # Faux bulletins PDF des tests de pdf.py ; rédaction (redact_pdf) pour le script d'anonymisation.
+    "reportlab_layout[pdf]>=1.11",
     "ruff>=0.6",
     "mypy>=1.11",
 ]

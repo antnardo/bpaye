@@ -84,7 +84,7 @@ dev = [
     { name = "mypy" },
     { name = "pdfplumber" },
     { name = "pytest" },
-    { name = "reportlab-layout" },
+    { name = "reportlab-layout", extra = ["pdf"] },
     { name = "ruff" },
 ]
 
@@ -97,7 +97,7 @@ dev = [
     { name = "mypy", specifier = ">=1.11" },
     { name = "pdfplumber", specifier = ">=0.11" },
     { name = "pytest", specifier = ">=8.0" },
-    { name = "reportlab-layout", specifier = ">=1.10" },
+    { name = "reportlab-layout", extras = ["pdf"], specifier = ">=1.11" },
     { name = "ruff", specifier = ">=0.6" },
 ]
 
@@ -781,6 +781,15 @@ wheels = [
 ]
 
 [[package]]
+name = "pypdf"
+version = "6.21.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/06/28/081f1cbcca7042441dafc8de00f48ba60853f89e5bff92c5f26477346d81/pypdf-6.21.2.tar.gz", hash = "sha256:0a3e1c5c886a1be03646c16a04827cc166c2a0575c971b26a4bf89686551c2d4", size = 7144571, upload-time = "2026-10-21T16:44:55.272Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/1b/4d/c9d2d67f204eff463237a1a8f5e25a6923b7b1043982b91fcaf104c8ef60/pypdf-6.21.2-py3-none-any.whl", hash = "sha256:1d44d1a3a200f25062adff0085b02040e4646431ac2ccac22e42679e91466084", size = 407766, upload-time = "2026-10-21T16:44:53.626Z" },
+]
+
+[[package]]
 name = "pypdfium2"
 version = "5.14.0"
 source = { registry = "https://pypi.org/simple" }
@@ -841,15 +850,20 @@ wheels = [
 
 [[package]]
 name = "reportlab-layout"
-version = "1.10.0"
+version = "1.11.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "pillow" },
     { name = "reportlab" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/89/58/ee197fe200dda3390a6576a954719eb48e60f2fa8788f8eeaa416865f734/reportlab_layout-1.10.0.tar.gz", hash = "sha256:cb7b9616f5150b2aea1b4d486ac4bc9563f3a36ab30b8c40439500b100cd5e4b", size = 185040, upload-time = "2026-10-09T15:45:29.71Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/c6/50/b63c03eecb772de8b680af1595aa325106e977b587acaf5886fa51270ac6/reportlab_layout-1.11.0.tar.gz", hash = "sha256:af9e1c161bc8dc83222f15b71e4cd07d7df1391a787c8d475adcb963cd63f262", size = 267067, upload-time = "2026-10-21T17:50:34.643Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ae/1d/8dffcbbe73f71ce68bb9e23f623567016003c99df69ce971aefe74a31af6/reportlab_layout-1.10.0-py3-none-any.whl", hash = "sha256:5dc142d9458b0cbb1955040e3e843dbff5426c5e30ce9ba29a8ab27e2628e685", size = 58448, upload-time = "2026-10-09T15:45:28.348Z" },
+    { url = "https://files.pythonhosted.org/packages/40/ea/afc9eaa940c7c48a3c03f24dead3fd4ce12690473a06c3ba65a0d1e5b683/reportlab_layout-1.11.0-py3-none-any.whl", hash = "sha256:847900ca5bcf7ee17cdbfeb6311d49bdcaa912a48754526f964af2f2ff45c37f", size = 83083, upload-time = "2026-10-21T17:50:33.331Z" },
+]
+
+[package.optional-dependencies]
+pdf = [
+    { name = "pypdf" },
 ]
 
 [[package]]

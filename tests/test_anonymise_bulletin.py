@@ -4,11 +4,6 @@ from pathlib import Path
 import pdfplumber
 import pytest
 
-# Le script s'appuie sur la rédaction de reportlab_layout 1.11 (redact_pdf) ; d'ici sa
-# publication, l'environnement de développement peut ne pas l'avoir.
-if not hasattr(pytest.importorskip("reportlab_layout"), "redact_pdf"):
-    pytest.skip("reportlab_layout sans redact_pdf (1.11)", allow_module_level=True)
-
 SCRIPT = Path(__file__).resolve().parents[1] / "scripts" / "anonymise_bulletin.py"
 NIR = "1 99 12 75 123 456 78"  # fictif
 IBAN = "FR76 3000 1007 9412 3456 7890 185"  # fictif
