@@ -44,6 +44,9 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et la
 
 ### Corrigé
 
+- **Plafond d'exonération des heures supplémentaires** : 7 500 € nets (8 037 € bruts) pour
+  les heures faites depuis le 1er janvier 2022, d'après la loi 2022-1157, art. 4 (et non
+  la loi 2022-1158) ; bpaye ne l'appliquait qu'en 2023, comme certaines paies.
 - **MGEN** (contribution de Bruno Pagani) : part solidaire (720577) calculée sur la
   rémunération brute du mois et non sur le seul traitement, vérifiée sous le plafond sur un
   bulletin réel ; action sociale et aide aux retraités (720578, 720579) à 2 % et 3 %
