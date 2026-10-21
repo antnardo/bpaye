@@ -28,8 +28,11 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et la
   dans la limite de 5 € et 7 € pour l'adhésion à la prévoyance, d'après la page du
   ministère ; ancienne adhésion MGEN précomptée sur la paie, aux montants du contrat.
 - **HSE d'autres rubriques et vacations** : `paye.hse(…, code=…)` pour le remplacement de
-  courte durée et la réussite au lycée ; `paye.vacation` pour les vacations de formation
-  et les actions à pilotage national, au taux déclaré.
+  courte durée (majoré de 25 % dès 2005, décret 2005-1036), la réussite au lycée et les
+  HSE des dispositifs recodées 201300 en septembre 2025, exonérées comme les heures
+  supplémentaires ; `paye.vacation` pour les vacations de formation (taux fixé par
+  l'organisateur dans les fourchettes de l'arrêté du 7 mai 2012) et les actions à
+  pilotage national, au taux déclaré.
 - **Retards habituels de la paie, par académie** (`academies.toml`) : les HSA d'octobre
   et l'IFP de septembre payées le mois suivant ne sont plus codées en dur ; un défaut
   relevé à Paris, toutes les académies de l'art. R222-2 et les lycées de la Défense.
