@@ -326,13 +326,15 @@ code = 200041                  # le FMD, dû en janvier,
 du   = 1
 paye = 2                       # payé en février
 
-[[psc]]                        # facultatif : montants mensuels relevés sur les bulletins
-date                  = 2026-05-01
-options               = 5.00   # 202483, participation employeur aux options
-prevoyance            = 7.00   # 202510, participation employeur à la prévoyance
-cotisation_prevoyance = 20.00  # 501091
-mutuelle_adherent     = 0.0    # 700678, ancienne mutuelle MGEN précomptée
-mutuelle_enfants      = 0.0    # 700671
+[[psc]]                        # facultatif : ancienne mutuelle précomptée sur la paie
+date              = 2019-09-01
+mutuelle_adherent = 45.00      # 700678, montants du contrat
+mutuelle_enfants  = 12.00      # 700671
+
+[[psc]]                        # depuis la PSC : ce que le barème ne peut connaître
+date        = 2026-05-01
+cout_option = 7.24             # prix de l'option santé choisie
+prevoyance  = true             # adhésion au socle de prévoyance
 ```
 
 Sans enfants, résidence, transport ou détachement déclarés, bpaye compte zéro enfant, la
@@ -354,13 +356,17 @@ le premier mois dû). Un retard s'applique comme `Paye.retard_paiement` : la lig
 due son mois et arrive en rappel le mois de paiement. Un retard ponctuel reste un
 événement (`paye.retard_paiement`, section 5).
 
-`[[psc]]` déclare ce que le contrat de l'agent ajoute à la PSC santé obligatoire, et
-l'ancienne mutuelle précomptée sur la paie : aucun texte lu n'en fixe le montant pour un
-agent. Chaque entrée vaut à partir de sa date et remplace la précédente ; une clé absente
-vaut zéro, et une entrée à zéros arrête les lignes. Les cotisations restent dans le net
-imposable : une adhésion facultative n'est pas un contrat collectif obligatoire, seul
-déductible (CGI, art. 83, 1° quater). C'est une supposition, aucun bulletin qui en porte
-n'a été lu.
+`[[psc]]` déclare ce que le barème ne peut connaître de la complémentaire de l'agent.
+Chaque entrée vaut à partir de sa date et remplace la précédente ; une clé absente vaut
+zéro. Depuis la PSC (mai 2026), le bulletin porte, outre les cinq lignes de la PSC santé
+(`docs/mgen.md`), les participations de l'employeur aux garanties facultatives, que bpaye
+calcule (`taux.toml`) : la moitié du coût de l'option santé, dans la limite de 5 €
+(202483), et 7 € pour l'adhésion au socle de prévoyance (202510). Les cotisations de
+l'option, des ayants droit et de la prévoyance ne sont pas sur le bulletin : la MGEN les
+prélève sur le compte. Avant la PSC, l'ancienne mutuelle était précomptée sur la paie
+(700678, 700671), à des montants propres au contrat ; ils restent dans le net imposable,
+supposé : une adhésion facultative n'est pas un contrat collectif obligatoire, seul
+déductible (CGI, art. 83, 1° quater).
 
 ## 5. Calculer
 
@@ -538,7 +544,8 @@ Ce qui ne se déduit pas devient une remarque, jamais une valeur devinée. Les b
 | 201480 | GIPA | `Paye.gipa` ; années 2008 à 2023 | décret 2008-539, art. 3 et 10 |
 | 202321 | équipement informatique | 176 € en janvier | décret 2020-1524 |
 | 202354 | PSC (15 €) | jusqu'en avril 2026 | décret 2021-1164 |
-| 202483, 202510, 501091, 700678, 700671 | options et prévoyance de la PSC, ancienne mutuelle | montants déclarés (`agent.toml`, `[[psc]]`) | |
+| 202483, 202510 | participations de l'employeur à l'option santé et à la prévoyance | 50 % du coût déclaré de l'option, 5 € au plus ; 7 € (`agent.toml`, `[[psc]]`) | page du ministère sur la PSC |
+| 700678, 700671 | ancienne mutuelle précomptée, avant la PSC | montants déclarés (`agent.toml`, `[[psc]]`) | |
 | 101050 | pension civile | taux daté × traitement ; avec surcotisation, taux de l'art. D5 × traitement d'un temps plein | décret 2010-1749 ; code des pensions, L11 bis et D5 |
 | 501080 | RAFP | 5 % des primes, dans la limite de 20 % du traitement de l'année | décret 2004-569 |
 | 401201, 401301, 401501 | CSG, CRDS | `docs/csg.md` | CSS, L136-2 et L136-8 ; CGI, art. 154 quinquies ; ordonnance 96-50 |
