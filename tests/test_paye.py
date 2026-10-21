@@ -482,3 +482,10 @@ def test_majoration_du_remplacement_de_courte_duree_de_25_pour_cent_des_2005():
 
     jour = dt.date(2006, 3, 31)
     assert (BAREME.load("hse_majoration_rcd")(jour), BAREME.load("hse_majoration")(jour)) == (1.25, 1.15)
+
+
+def test_isoe_modulable_lue_sous_l_un_ou_l_autre_code(configuration):
+    bulletin = _paye(configuration, 11, 1)(2025, 11)
+    bulletin.append(Ligne(124.82, "ISOE Part modulable", code=202566, classe="INDEM"))
+    bulletin.join({"201228": 124.82})
+    assert [ligne.valeur_reel for ligne in bulletin if ligne.code == 202566] == [124.82]

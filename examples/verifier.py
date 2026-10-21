@@ -12,7 +12,7 @@ import sys
 from pathlib import Path
 
 from bpaye import Paye, load_agent
-from bpaye.codes import ALL_CODES
+from bpaye.codes import ALL_CODES, equivalents
 from bpaye.format import MOIS
 from bpaye.pdf import ecart_totaux, extract_bulletin, find_pdfs
 
@@ -47,14 +47,14 @@ def comparer(agent_dossier: Path, annee: int, lus: dict[int, dict]) -> None:
     for mois, lu in sorted(lus.items()):
         calcul: dict[str, float] = {}
         for ligne in paye(annee, mois):
-            code = f"{ligne.code:06d}"
+            code = min(equivalents(f"{ligne.code:06d}"))  # un code par ligne (201228 et 202566)
             calcul[code] = calcul.get(code, 0.0) + abs(ligne.valeur)
-        lus_codes = {cle[:6] for cle in lu if cle[:1].isdigit()}
+        lus_codes = {min(equivalents(cle[:6])) for cle in lu if cle[:1].isdigit()}
         ecarts = []
         for code in sorted(set(calcul) | lus_codes):
             if code in ALL_CODES and ALL_CODES[code]["cat"] not in ("revenu", "retenue"):
                 continue  # cotisations patronales et lignes de synthèse : hors calcul
-            reel = abs(lu.get(code, 0.0)) + abs(lu.get(code + "_R", 0.0))
+            reel = sum(abs(lu.get(c, 0.0)) + abs(lu.get(c + "_R", 0.0)) for c in equivalents(code))
             if abs(calcul.get(code, 0.0) - reel) > 0.005:
                 libelle = ALL_CODES[code]["libelle"] if code in ALL_CODES else ""
                 ecarts.append(

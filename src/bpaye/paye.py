@@ -26,6 +26,7 @@ from bpaye.charges import (
 )
 from bpaye.charges_impots import ExonerationHS, facteur_hs_net, reduc_cotis_hs
 from bpaye.classes import Ligne, ListeLignes, Selection, Somme
+from bpaye.codes import equivalents
 from bpaye.colles import Colle, Colles
 from bpaye.config import BAREME, Bareme
 from bpaye.fonctionnaire import Fonctionnaire
@@ -416,9 +417,10 @@ class Bulletin(ListeLignes):
         Rend le bulletin, pour enchaîner les appels.
         """
         for ligne in self.lignes:
-            key = f"{ligne.code:06d}"
-            if key in pdf_data:
-                ligne.valeur_reel = signe_bpaye(ligne) * pdf_data[key]
+            # Un code équivalent (codes.CODES_EQUIVALENTS) porte la même ligne.
+            keys = [key for key in sorted(equivalents(f"{ligne.code:06d}")) if key in pdf_data]
+            if keys:
+                ligne.valeur_reel = signe_bpaye(ligne) * sum(pdf_data[key] for key in keys)
         return self
 
     def __str__(self) -> str:
@@ -907,8 +909,8 @@ class Paye:
         # ── Chargement des PDF (une fois par année couverte) ───────────────
         pdf_by_month: dict[tuple[int, int], Mapping[str, Any]] = {}
         if self.bull_dir is not None:
-            # Importé ici seulement : lire les PDF demande pdfplumber et codes.toml, le
-            # calcul de la paye n'a besoin ni de l'un ni de l'autre.
+            # Importé ici seulement : lire les PDF demande pdfplumber, dont le calcul de
+            # la paye n'a pas besoin.
             from bpaye.pdf import extract_bulletin, find_pdfs
 
             years_covered = {b.date.year for b in bulletins_in_range}
@@ -939,14 +941,16 @@ class Paye:
                 b.join(pdf_by_month[month_key])
 
             if isinstance(code_or_fn, (str, int)):
-                lignes = b.get_all_fromcode(code_int)
+                # Un code équivalent (codes.CODES_EQUIVALENTS) porte la même ligne.
+                codes = equivalents(f"{code_int:06d}")
+                lignes = [ligne for ligne in b if f"{ligne.code:06d}" in codes]
                 if has_pdf:
                     # Le réel du mois est celui du bulletin, le code et son rappel (_R) : bpaye
                     # n'a pas toujours la ligne du rappel (IFP de septembre 2025 payée en
                     # décembre), ni une seule ligne par code (HSA d'octobre et de novembre).
                     # La première ligne le porte ; une ligne de 0 si bpaye n'en a pas.
                     pdf = pdf_by_month[month_key]
-                    reel = pdf.get(f"{code_int:06d}", 0.0) + pdf.get(f"{code_int:06d}_R", 0.0)
+                    reel = sum(pdf.get(c, 0.0) + pdf.get(f"{c}_R", 0.0) for c in codes)
                     if not lignes and reel:
                         lignes = [Ligne(0.0, sel._label, code=code_int)]
                     for rang, ligne in enumerate(lignes):

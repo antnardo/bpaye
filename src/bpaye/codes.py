@@ -11,7 +11,9 @@ from pathlib import Path
 __all__ = [
     "ALL_CODES",
     "CATEGORIES",
+    "CODES_EQUIVALENTS",
     "CODES_TOML",
+    "equivalents",
     "load_codes",
 ]
 
@@ -38,3 +40,17 @@ def load_codes(path: Path = CODES_TOML) -> dict[str, dict]:
 ALL_CODES = load_codes()
 with CODES_TOML.open("rb") as _f:
     CATEGORIES: dict[str, str] = tomllib.load(_f)["categories"]
+
+
+# Codes d'une même ligne, que la paie emploie l'un pour l'autre : la comparaison au calcul
+# les additionne. L'ISOE modulable, recodée 202566 au 1/9/2024 d'après INGRES, est encore
+# portée sous 201228 par un bulletin d'agrégé d'août 2026.
+CODES_EQUIVALENTS: tuple[frozenset[str], ...] = (frozenset({"201228", "202566"}),)
+
+
+def equivalents(code: str) -> frozenset[str]:
+    """Les codes de la même ligne que ``code`` (lui compris)."""
+    for groupe in CODES_EQUIVALENTS:
+        if code in groupe:
+            return groupe
+    return frozenset({code})
