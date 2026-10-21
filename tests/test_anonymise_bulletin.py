@@ -61,7 +61,7 @@ def _texte(chemin):
 def test_identifiants_ecartes_et_tout_le_reste_garde(script, bulletin, tmp_path):
     sortie = tmp_path / "anonyme.pdf"
     bilan = script.anonymise(bulletin, sortie)
-    assert bilan.residus == ()
+    assert bilan.restes == ()
     texte = _texte(sortie).replace(" ", "")
     for identifiant in (NIR, IBAN, "CAMILLE", "IMAGINAIRE", "19750000000000", "53277,98"):
         assert identifiant.replace(" ", "") not in texte
@@ -74,7 +74,7 @@ def test_reste_signale(script, bulletin, tmp_path, monkeypatch):
     zones = tuple(z for z in script.ZONES if z.nom != "NIR au pied")
     monkeypatch.setattr(script, "ZONES", zones)
     bilan = script.anonymise(bulletin, tmp_path / "anonyme.pdf")
-    assert "un numéro au format du NIR" in bilan.residus
+    assert "un numéro au format d'un NIR" in bilan.restes
 
 
 def test_original_jamais_ecrase(script, bulletin):
@@ -91,12 +91,6 @@ def test_sortie_par_defaut_a_cote_et_jamais_ecrasee(script, bulletin, capsys):
     with pytest.raises(SystemExit):
         script.main([str(bulletin)])  # la sortie existe déjà
     assert "rien n'est écrasé" in capsys.readouterr().err
-
-
-def test_siret_fictif_sur_demande(script, bulletin, tmp_path):
-    sortie = tmp_path / "anonyme.pdf"
-    script.anonymise(bulletin, sortie, siret="12345678901234")
-    assert "12345678901234" in _texte(sortie)
 
 
 @pytest.mark.parametrize(

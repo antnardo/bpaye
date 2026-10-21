@@ -392,8 +392,9 @@ fichier existant.
 Il garde **tout**, sauf ce qui identifie l'agent (une liste noire) : une ligne inconnue,
 une mention ou un pied nouveaux restent visibles. Le bulletin n'est pas masqué mais
 **réécrit** : chaque caractère gardé est redessiné à sa place, dans l'ordre du flux, avec
-les cadres et les traits ; un cache laisserait le texte dessous, et le catalogue du PDF
-garde des métadonnées et des balises. Disparaissent :
+les cadres et les traits (en gris) ; un cache laisserait le texte dessous, et le catalogue
+du PDF garde des métadonnées et des balises. Le script se lit en trois temps, trier,
+écrire, contrôler, pour qu'on puisse vérifier ce qu'il efface. Disparaissent :
 
 | Zone (y depuis le haut) | Contenu |
 | --- | --- |
@@ -415,8 +416,7 @@ l'affectation, qui ne se reconnaissent qu'à leur place, ne seraient plus effac�
 Restent visibles, et à peser avant de partager : le service gestionnaire (DDFIP et
 département), le grade, l'échelon, l'indice, les enfants à charge, les montants du mois. Une
 ligne de paye peut aussi nommer quelqu'un (une opposition, une pension alimentaire) :
-relire la sortie. `--siret` écrit un SIRET fictif en en-tête, pour un test du tri par
-gestionnaire.
+relire la sortie.
 
 Ce dont la lecture de bpaye a besoin, et que le script garde donc toujours :
 
@@ -424,7 +424,7 @@ Ce dont la lecture de bpaye a besoin, et que le script garde donc toujours :
 - les montants du pied à leurs coordonnées (§ 6) ;
 - les lettres verticales de la version (§ 2.3) ;
 - le mois et la ligne d'identification sans le NIR ni sa clé, pour `bpaye-lire` (§ 16) ;
-- pour les tests du SIRET, un morceau de 14 chiffres en haut de page (`--siret`).
+- pour les tests du SIRET, un morceau de 14 chiffres en haut de page (effacé par le script).
 
 On peut donc effacer sans risque : le NIR et sa clé, l'affectation, le libellé de
 l'établissement, le SIRET (sauf test dédié), le compte bancaire, le comptable, la base
