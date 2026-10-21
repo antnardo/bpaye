@@ -377,23 +377,47 @@ intact, en second avis.
 
 ## 14. Anonymiser un bulletin de test
 
-Depuis le dépôt, avec les dépendances de développement :
+Pour partager un bulletin, en particulier un bulletin nouveau dont certaines lignes ne
+sont connues de personne, le dépôt fournit un script autonome, qui n'importe pas bpaye :
 
 ```bash
-uv run python scripts/anonymise_bulletin.py BULLETIN.pdf ANONYME.pdf
+uv run scripts/anonymise_bulletin.py BULLETIN.pdf
 ```
 
-Le script écrit un bulletin **neuf** : chaque caractère d'une zone utile est redessiné à
-sa place, dans l'ordre du flux ; tout le reste disparaît, y compris le code-barres
-DataMatrix (qui reprend le bulletin entier, NIR compris), le NIR répété au pied, le nom et
-l'adresse de la fenêtre d'enveloppe, le compte bancaire, les cumuls de l'année, les
-images et les métadonnées. Il compare ensuite la lecture de la sortie à celle de
-l'original (lignes, montants, pied, en-tête utile) et vérifie que le NIR n'y figure plus.
-`--siret` écrit un SIRET fictif en en-tête, pour un test du tri par gestionnaire. Il
-reste à relire la sortie avant de la partager : une ligne de paye peut porter un libellé
-inattendu.
+`uv` installe ses deux dépendances (pdfplumber, reportlab_layout), déclarées dans le
+script lui-même. Il écrit `BULLETIN_anonyme.pdf` à côté de l'original, ou la sortie
+donnée en second argument ; il ne modifie jamais l'original et refuse d'écrire sur un
+fichier existant.
 
-Ce dont la lecture a besoin, et donc ce que le script garde :
+Il garde **tout**, sauf ce qui identifie l'agent (une liste noire) : une ligne inconnue,
+une mention ou un pied nouveaux restent visibles. Le bulletin n'est pas masqué mais
+**réécrit** : chaque caractère gardé est redessiné à sa place, dans l'ordre du flux, avec
+les cadres et les traits ; un cache laisserait le texte dessous, et le catalogue du PDF
+garde des métadonnées et des balises. Disparaissent :
+
+| Zone (y depuis le haut) | Contenu |
+| --- | --- |
+| 8–14, x ≥ 500 | numéro d'ordre du bulletin |
+| 55–80 | affectation, établissement, SIRET, poste |
+| 100–112, x 40–185 | NIR et sa clé |
+| 636–645, x < 200 | NIR répété au pied |
+| 680–725, x 220–480 | nom et adresse (fenêtre d'enveloppe) |
+| 812–842 | IBAN et BIC |
+| partout | code-barres DataMatrix (sa police), images, métadonnées |
+
+Les étiquettes du formulaire (Helvetica de 5 à 6 points) restent, même dans ces zones.
+Puis le script contrôle la sortie : aucun numéro au format d'un NIR ou d'un IBAN, et aucun
+numéro (NIR, SIRET, poste, IBAN) ni mot du nom et de l'adresse relevé dans l'original ;
+sinon il échoue. Une zone vide le fait avertir : le gabarit a pu changer, et le nom ou
+l'affectation, qui ne se reconnaissent qu'à leur place, ne seraient plus effacés.
+
+Restent visibles, et à peser avant de partager : le service gestionnaire (DDFIP et
+département), le grade, l'échelon, l'indice, les enfants à charge, les montants. Une
+ligne de paye peut aussi nommer quelqu'un (une opposition, une pension alimentaire) :
+relire la sortie. `--siret` écrit un SIRET fictif en en-tête, pour un test du tri par
+gestionnaire.
+
+Ce dont la lecture de bpaye a besoin, et que le script garde donc toujours :
 
 - les morceaux `CODE LIBELLÉ`, `€` et montant de chaque ligne, **dans l'ordre du flux** ;
 - les montants du pied à leurs coordonnées (§ 6) ;
