@@ -532,7 +532,7 @@ Ce qui ne se déduit pas devient une remarque, jamais une valeur devinée. Les b
 | 201241, 201717, 201300 | HSE de remplacement, de réussite au lycée, des dispositifs | `paye.hse(…, code=…)` : 1/36 × 1,25 ; remplacement : 1,25 dès 2005 | décret 50-1253, art. 5 ; décret 2005-1036 ; décret 2023-732 |
 | 201339, 201856 | vacations de formation, actions à pilotage national | `paye.vacation`, au taux déclaré | décret 2010-235 ; décret 2014-1394 |
 | 200364 | ISOE part fixe | second degré | décret 93-55 ; arrêté du 15/01/1993 |
-| 201228, 202566 | ISOE part modulable | professeur principal, par niveau | arrêté du 15/01/1993, art. 2 |
+| 201228, 202566 | ISOE part modulable | professeur principal, par niveau, indexée sur le point depuis 2009 ; les deux codes comparés comme une même ligne (la paie porte encore 201228 en 2026) | arrêté du 15/01/1993, art. 2 ; décret 93-55, art. 4 |
 | 200597 | IFP | CPGE seulement | décret 99-886 |
 | 201914 | ISAE | professeurs des écoles | décret 2013-790 |
 | 201883, 201882 | REP, REP+ (part fixe) | rentrée en éducation prioritaire | décret 2015-1087 |
