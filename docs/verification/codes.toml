@@ -178,7 +178,7 @@ ir        = "1300"
 libelle   = "Heures supplémentaires effectives d'enseignement, 2nd degré (BJ : accompagnement des élèves)"
 categorie = "revenu"
 imposable = false
-note      = "Code des HSE des dispositifs du décret 50-1253 depuis le 1/9/2025 : l'annexe 14 C 2026 (heures exonérées) y recode 1195, 1403, 1717, 1719, 1721, 1722, 2300, 2364, 2367 et 2449, d'où l'exonération ; INGRES (V25.00.06) garde l'ancien libellé « fonds d'aide à l'innovation » et IMPOSA 1. Déclarée : paye.hse(…, code=201300)."
+note      = "Code des HSE des dispositifs du décret 50-1253 depuis le 1/9/2025 : l'annexe 14 C 2026 y recode 1195, 1403, 1717, 1719, 1721, 1722, 2300, 2364, 2367 et 2449. Exonérée par le décret 2019-133, art. 1, 2° (toute heure supplémentaire du décret 50-1253 dans l'activité principale) ; la DGFiP la code pourtant imposable : INGRES (V25.00.06) IMPOSA 1, ancien libellé « fonds d'aide à l'innovation », pas de ligne 1300 dans l'annexe 14 C. Déclarée : paye.hse(…, code=201300)."
 source    = "DGFiP, BJ janvier 2026 ligne 1065 (fichier de paie 202601FICPAIBJ) ; INGRES ligne 1281 (IMPOSA 1)"
 
 [[code]]

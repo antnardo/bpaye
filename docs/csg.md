@@ -18,8 +18,9 @@ L'assiette se construit en quatre temps :
    de CSG, primes, heures supplémentaires et colles), moins le transfert primes-points
    (604970). Les remboursements de frais (domicile-travail 200039, forfait mobilités
    durables 200041) n'y entrent pas.
-2. **Heures supplémentaires exonérées d'impôt** : HSA, majoration, colles, HSE, HSE de
-   suppléance, parts fonctionnelles du Pacte (décret 2019-133, art. 1, 29°), dans la
+2. **Heures supplémentaires exonérées d'impôt** : HSA, majoration, colles, HSE (celles de
+   suppléance, de remplacement et des dispositifs comprises), toutes du décret 50-1253
+   (décret 2019-133, art. 1, 2°), et parts fonctionnelles du Pacte (même article, 29°), dans la
    limite d'un plafond annuel (5 000 € nets, soit 5 358 € bruts ; 7 500 € nets, soit
    8 037 € bruts, que la loi 2022-1158 fixe pour les revenus de 2022 et que la paie
    n'applique qu'à partir de 2023). Le plafond se consomme dans l'ordre de l'année
