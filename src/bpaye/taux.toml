@@ -462,11 +462,15 @@ values = [
 ]
 
 [mgen.taux_taxe]
-# Taxe incluse dans la cotisation MGEN, https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000042698839
-# À déduire pour le calcul de la valeur HT
+# Taxe de solidarité additionnelle, incluse dans la cotisation MGEN : à déduire pour le
+# calcul de la valeur hors taxe. Code de la sécurité sociale, art. L862-4, II : « Le taux
+# de la taxe est fixé à 13,27 %. », version du 25/12/2014 au 23/12/2015 (loi 2014-1554,
+# art. 22), https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000029962041 ; même
+# taux dans la version en vigueur depuis le 1/1/2021 (loi 2020-1576, art. 81),
+# https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000042698839/2026-10-21
 type  = "Taux"
 values = [
-  { date = 2015-01-01, valeur = 0.1327 }, # https://www.legifrance.gouv.fr/jorf/article_jo/JORFARTI000029953570
+  { date = 2015-01-01, valeur = 0.1327 }, # loi 2014-1554, art. 22, https://www.legifrance.gouv.fr/jorf/article_jo/JORFARTI000029953570
 ]
 
 [mgen.taux_action_sociale]
