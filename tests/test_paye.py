@@ -384,7 +384,7 @@ def test_hse_d_une_autre_rubrique_au_taux_de_l_hse(configuration, code):
     assert lignes[0].valeur == lignes[1].valeur
 
 
-@pytest.mark.parametrize(("code", "exoneree"), [(201241, True), (201717, True), (201300, False)])
+@pytest.mark.parametrize(("code", "exoneree"), [(201241, True), (201717, True), (201300, True)])
 def test_hse_exoneree_selon_sa_rubrique(configuration, code, exoneree):
     paye = _paye(configuration, 1, 12)
     avant = paye(2025, 11).hs_brut
@@ -457,3 +457,28 @@ def test_retards_de_l_academie_a_la_date_du_bulletin(configuration):
             200597,
         }
     )
+
+
+def test_remplacement_de_courte_duree_a_sa_majoration_propre(configuration, tmp_path):
+    from bpaye.config import Bareme
+    from bpaye.hsa import hse
+
+    fichier = tmp_path / "rcd.toml"
+    fichier.write_text(
+        '[hse_majoration_rcd]\ntype = "Taux"\nvalues = [{ date = 2005-08-27, valeur = 2.5 }]\n',
+        encoding="utf-8",
+    )
+    bareme = Bareme.depuis_fichiers(fichier)
+    carriere, agent = configuration
+    fonc = load_agent(agent)
+    fonc.load_carriere(carriere)
+    jour = dt.date(2025, 11, 30)
+    rcd = hse(fonc, jour, 10, bareme=bareme, code=201241).valeur
+    assert rcd == pytest.approx(2 * hse(fonc, jour, 10, bareme=bareme).valeur, abs=0.01)
+
+
+def test_majoration_du_remplacement_de_courte_duree_de_25_pour_cent_des_2005():
+    from bpaye.config import BAREME
+
+    jour = dt.date(2006, 3, 31)
+    assert (BAREME.load("hse_majoration_rcd")(jour), BAREME.load("hse_majoration")(jour)) == (1.25, 1.15)

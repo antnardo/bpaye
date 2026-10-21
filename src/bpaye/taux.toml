@@ -668,6 +668,20 @@ values = [
   { date = 2008-01-01, valeur = 1.25 },
 ]
 
+# Remplacement de courte durée (201241) : décret 2005-1036, art. 1 (du 27/08/2005 au
+# 31/08/2023) : 1/36 de l'indemnité annuelle de l'HSA « majoré de 25 % », dès 2005, quand
+# l'HSE ne l'était que de 15 %. Depuis le 1/9/2023 (décret 2023-732, art. 7 ; abrogation
+# par le décret 2023-734), les heures de remplacement sollicitées en cours d'année sont
+# payées selon le décret 50-1253, au taux de l'HSE (+25 %) ; celles d'un engagement à
+# l'année passent par le Pacte (art. 6, décret 93-55).
+# https://www.legifrance.gouv.fr/loda/id/JORFTEXT000000447867/2023-08-31/ ,
+# https://www.legifrance.gouv.fr/loda/id/JORFTEXT000047948663 (décret 2023-734)
+[hse_majoration_rcd]
+type = "Taux"
+values = [
+  { date = 2005-08-27, valeur = 1.25 },
+]
+
 # ──────────────────────────────────────────────
 # SURCOTISATION D'UN TEMPS PARTIEL (code des pensions, L11 bis et D5 ; temps_partiel.py)
 # Taux employeur de la CNRACL (décret 91-613, art. 5 II), auquel renvoie l'art. D5 depuis
