@@ -23,9 +23,10 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et la
   Pagani : chaque montant d'arrêté suit le point, au centime du mois d'avant ; les
   montants relevés sur les bulletins deviennent des montants calculés, datés de la hausse
   du point (juillet 2016 et juillet 2023, et non septembre).
-- **Options et prévoyance de la PSC, ancienne mutuelle** (`[[psc]]` d'`agent.toml`) :
-  participations de l'employeur aux options et à la prévoyance, cotisation de
-  prévoyance, ancienne adhésion MGEN précomptée, aux montants du contrat de l'agent.
+- **Option santé et prévoyance de la PSC, ancienne mutuelle** (`[[psc]]` d'`agent.toml`) :
+  participations de l'employeur depuis mai 2026, la moitié du coût déclaré de l'option
+  dans la limite de 5 € et 7 € pour l'adhésion à la prévoyance, d'après la page du
+  ministère ; ancienne adhésion MGEN précomptée sur la paie, aux montants du contrat.
 - **HSE d'autres rubriques et vacations** : `paye.hse(…, code=…)` pour le remplacement de
   courte durée et la réussite au lycée ; `paye.vacation` pour les vacations de formation
   et les actions à pilotage national, au taux déclaré.
