@@ -4,6 +4,11 @@ from pathlib import Path
 import pdfplumber
 import pytest
 
+# Le script s'appuie sur la rédaction de reportlab_layout 1.11 (redact_pdf) ; d'ici sa
+# publication, l'environnement de développement peut ne pas l'avoir.
+if not hasattr(pytest.importorskip("reportlab_layout"), "redact_pdf"):
+    pytest.skip("reportlab_layout sans redact_pdf (1.11)", allow_module_level=True)
+
 SCRIPT = Path(__file__).resolve().parents[1] / "scripts" / "anonymise_bulletin.py"
 NIR = "1 99 12 75 123 456 78"  # fictif
 IBAN = "FR76 3000 1007 9412 3456 7890 185"  # fictif
@@ -93,20 +98,28 @@ def test_sortie_par_defaut_a_cote_et_jamais_ecrasee(script, bulletin, capsys):
     assert "rien n'est écrasé" in capsys.readouterr().err
 
 
+def _glyphe(police, corps, ligne, x, hauteur=864.0):
+    """Un glyphe tel que le décrit reportlab_layout : ``ligne``, sa ligne de base depuis le
+    haut de la page."""
+    from reportlab_layout import PdfElement
+
+    y = hauteur - ligne
+    return PdfElement("text", (x, y - 2, x + 6, y + 7), 0, origin=(x, y), text="X", font=police, size=corps)
+
+
 @pytest.mark.parametrize(
-    ("caractere", "zone"),
+    ("element", "zone"),
     [
-        ({"fontname": "ABCDEF+Code_Datamatrix", "size": 10, "top": 300, "x0": 100}, "DataMatrix"),
-        ({"fontname": "Courier-Bold", "size": 10, "top": 106, "x0": 44}, "NIR et clé"),
-        ({"fontname": "Courier-Bold", "size": 10, "top": 106, "x0": 214}, None),
-        ({"fontname": "Helvetica", "size": 9, "top": 685, "x0": 226}, "nom et adresse"),
-        ({"fontname": "Helvetica", "size": 6, "top": 60, "x0": 21}, None),  # étiquette GESTION
-        (
-            {"fontname": "Courier-Bold", "size": 10, "top": 60, "x0": 494},
-            "affectation, établissement, SIRET, poste",
-        ),
-        ({"fontname": "Courier-Bold", "size": 10, "top": 300, "x0": 16}, None),  # ligne de paye
+        (_glyphe("ABCDEF+Code_Datamatrix", 10, 300, 100), "DataMatrix"),
+        (_glyphe("Courier-Bold", 10, 114, 44), "NIR et clé"),
+        (_glyphe("Courier-Bold", 10, 114, 214), None),  # grade
+        (_glyphe("Helvetica", 9, 692, 226), "nom et adresse"),
+        (_glyphe("Helvetica", 6, 65, 21), None),  # étiquette GESTION
+        (_glyphe("Courier-Bold", 10, 68, 494), "affectation, établissement, SIRET, poste"),
+        (_glyphe("Courier-Bold", 10, 721, 22), "cumuls de l'année (base SS, montant imposable)"),
+        (_glyphe("Courier-Bold", 10, 721, 125), None),  # montant imposable du mois
+        (_glyphe("Courier-Bold", 9, 300, 16), None),  # ligne de paye
     ],
 )
-def test_zones_de_la_liste_noire(script, caractere, zone):
-    assert script.ecarte(caractere) == zone
+def test_zones_de_la_liste_noire(script, element, zone):
+    assert script.raison(element, 864.0) == zone

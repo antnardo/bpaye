@@ -1,26 +1,26 @@
 # /// script
 # requires-python = ">=3.11"
-# dependencies = ["pdfplumber>=0.11", "reportlab_layout>=1.10"]
+# dependencies = ["pdfplumber>=0.11", "reportlab_layout[pdf]>=1.11"]
 # ///
 """Anonymiser un bulletin de paye PAY18E (ENSAP) avant de le partager.
 
     uv run scripts/anonymise_bulletin.py BULLETIN.pdf [ANONYME.pdf]
 
 Le but : partager un bulletin, même nouveau, sans rien dire de l'agent. Le script garde
-donc tout, sauf les zones de la liste noire ZONES ci-dessous : une ligne de paye inconnue
-reste visible. Il est autonome, sans bpaye.
+donc tout, sauf la liste noire ZONES ci-dessous : une ligne de paye inconnue reste
+visible. Il est autonome, sans bpaye.
 
-Comment, en trois temps :
+Comment, en deux temps :
 
-1. Trier. Chaque caractère du bulletin est gardé, sauf s'il tombe dans une zone de
-   ZONES, ou s'il appartient au code-barres DataMatrix (qui reprend tout le bulletin).
-   Les étiquettes imprimées du formulaire restent, même dans ces zones.
-2. Écrire un PDF neuf. Rien n'est effacé dans l'original, jamais modifié : la sortie est
-   un autre fichier, qui ne contient que ce qu'on y écrit (les caractères gardés, à leur
-   place, et les cadres). Un cache posé sur l'original laisserait le texte dessous, les
-   métadonnées et les balises ; les images (logos) ne sont pas reprises.
-3. Contrôler la sortie. Elle ne doit contenir ni numéro au format d'un NIR ou d'un IBAN,
-   ni aucun numéro ou mot lu dans les zones effacées de l'original. Sinon : échec.
+1. Effacer. reportlab_layout (redact_pdf) écrit un PDF neuf, copie de l'original moins
+   ce que refuse garde() : les caractères des zones de ZONES, le code-barres DataMatrix
+   (qui reprend tout le bulletin), une image qui toucherait une zone. Les étiquettes
+   imprimées du formulaire restent, même dans ces zones ; les cadres, les couleurs, les
+   polices et les logos aussi. Rien du catalogue d'origine n'est copié (métadonnées,
+   balises), ni aucun texte de remplacement. L'original n'est jamais modifié.
+2. Contrôler la sortie, relue avec pdfplumber. Elle ne doit contenir ni numéro au format
+   d'un NIR ou d'un IBAN, ni numéro ou mot lu dans les zones effacées de l'original, ni
+   élément dans une zone. Sinon : échec.
 
 Le script n'écrase aucun fichier : il refuse une sortie qui existe déjà.
 
@@ -30,23 +30,22 @@ nommer quelqu'un (opposition, pension alimentaire). Relire la sortie avant de la
 """
 
 import argparse
-import itertools
-import math
 import re
 import sys
+from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
 
 import pdfplumber
-from reportlab_layout import PDFMaker
+from reportlab_layout import PdfElement, pdf_elements, redact_pdf
 
-__all__ = ["ZONES", "Zone", "anonymise", "ecarte", "main"]
+__all__ = ["ZONES", "Zone", "anonymise", "main", "raison"]
 
 
 @dataclass(frozen=True, slots=True)
 class Zone:
-    """Un rectangle à vider, en points : ordonnées depuis le haut de la page."""
+    """Un rectangle à vider, en points depuis le haut de la page : ``haut`` et ``bas``
+    bornent la ligne de base des caractères, ``gauche`` et ``droite`` leur bord gauche."""
 
     nom: str
     haut: float
@@ -54,94 +53,48 @@ class Zone:
     gauche: float = 0.0
     droite: float = 10_000.0
 
-    def contient(self, c: dict[str, Any]) -> bool:
-        return self.haut <= c["top"] <= self.bas and self.gauche <= c["x0"] < self.droite
+    def contient(self, ligne: float, x: float) -> bool:
+        return self.haut <= ligne <= self.bas and self.gauche <= x < self.droite
 
 
-# La liste noire, relevée sur des bulletins PAY18E de 2022 à 2026 (V2.3 à V4.2).
+# La liste noire, relevée sur 97 bulletins PAY18E de 2022 à 2026 (V2.3 à V4.2).
 ZONES = (
-    Zone("numéro d'ordre", 8, 14, gauche=500),
-    Zone("affectation, établissement, SIRET, poste", 55, 80),
-    Zone("NIR et clé", 100, 112, gauche=40, droite=185),
-    Zone("NIR au pied", 636, 645, droite=200),
-    Zone("cumuls de l'année (base SS, montant imposable)", 670, 722, droite=100),
-    Zone("nom et adresse", 680, 725, gauche=220, droite=480),
-    Zone("IBAN et BIC", 812, 842),
+    Zone("numéro d'ordre", 15, 23, gauche=500),
+    Zone("affectation, établissement, SIRET, poste", 62, 89),
+    Zone("NIR et clé", 107, 121, gauche=40, droite=185),
+    Zone("NIR au pied", 643, 654, droite=200),
+    Zone("cumuls de l'année (base SS, montant imposable)", 677, 731, droite=100),
+    Zone("nom et adresse", 687, 734, gauche=220, droite=480),
+    Zone("IBAN et BIC", 819, 851),
 )
 
 
-def ecarte(c: dict[str, Any]) -> str | None:
-    """Pourquoi ce caractère est écarté (DataMatrix ou nom de sa zone), ou None s'il reste."""
-    if "Datamatrix" in c["fontname"]:
-        return "DataMatrix"
-    if "Helvetica" in c["fontname"] and c["size"] <= 6.5:
-        return None  # étiquette du formulaire (« NUMÉRO », « SIRET »…) : rien de personnel
-    return next((zone.nom for zone in ZONES if zone.contient(c)), None)
-
-
-# ── 2. Écrire ───────────────────────────────────────────────────────────────────────────
-
-_POLICES_STANDARD = {
-    "Courier", "Courier-Bold", "Courier-Oblique", "Courier-BoldOblique",
-    "Helvetica", "Helvetica-Bold", "Helvetica-Oblique", "Helvetica-BoldOblique",
-    "Times-Roman", "Times-Bold", "Times-Italic", "Times-BoldItalic",
-}  # fmt: skip
-
-
-def _gris(couleur: Any) -> float:
-    """Une couleur de pdfplumber (gris, RVB ou CMJN) ramenée à un gris : assez pour relire."""
-    valeurs = [
-        v
-        for v in (couleur if isinstance(couleur, (tuple, list)) else [couleur])
-        if isinstance(v, (int, float))
-    ]
-    if len(valeurs) == 4:  # CMJN : la part de noir
-        return 1.0 - min(1.0, valeurs[3] + sum(valeurs[:3]) / 3)
-    return sum(valeurs) / len(valeurs) if valeurs else 0.0
-
-
-def _ecrit_caractere(canvas: Any, c: dict[str, Any]) -> None:
-    """Un caractère à sa place et dans son sens (sa matrice de texte), dans la police
-    standard la plus proche."""
-    a, b, cc, d, e, f = c["matrix"]
-    echelle = math.hypot(a, b) or 1.0
-    police = c["fontname"].split("+")[-1]  # sans le préfixe de sous-ensemble « ABCDEF+ »
-    canvas.saveState()
-    canvas.transform(a / echelle, b / echelle, cc / echelle, d / echelle, e, f)
-    canvas.setFont(police if police in _POLICES_STANDARD else "Helvetica", c["size"])
-    canvas.setFillGray(_gris(c.get("non_stroking_color")))  # étiquettes blanches sur fond foncé
-    canvas.drawString(0, 0, c["text"])
-    canvas.restoreState()
-
-
-def _ecrit_cadres(canvas: Any, page: Any) -> None:
-    """Les cadres et les traits, pour que la sortie se relise comme un bulletin. Sans
-    rapport avec l'anonymisation : à reprendre de reportlab_layout quand il saura rédiger
-    une page filtrée."""
-
-    h = float(page.height)
-    for r in page.rects:
-        canvas.setStrokeGray(_gris(r.get("stroking_color")))
-        canvas.setFillGray(_gris(r.get("non_stroking_color")))
-        canvas.setLineWidth(r.get("linewidth") or 0.5)
-        canvas.rect(
-            r["x0"],
-            h - r["bottom"],
-            r["width"],
-            r["height"],
-            stroke=int(bool(r.get("stroke"))),
-            fill=int(bool(r.get("fill"))),
+def raison(e: PdfElement, hauteur: float) -> str | None:
+    """Pourquoi cet élément de la page est effacé, ou None s'il reste. ``hauteur`` : celle
+    de sa page, pour compter depuis le haut."""
+    if e.kind == "image":  # un logo reste ; une image qui toucherait une zone part
+        haut, bas = hauteur - e.box[3], hauteur - e.box[1]
+        touchee = next(
+            (
+                z.nom
+                for z in ZONES
+                if haut <= z.bas and bas >= z.haut and e.box[0] < z.droite and e.box[2] > z.gauche
+            ),
+            None,
         )
-    for trait in [*page.lines, *page.curves]:
-        points = trait.get("pts") or []
-        canvas.setStrokeGray(_gris(trait.get("stroking_color")))
-        canvas.setLineWidth(trait.get("linewidth") or 0.5)
-        for (x1, y1), (x2, y2) in itertools.pairwise(points):
-            canvas.line(x1, h - y1, x2, h - y2)
-    canvas.setFillGray(0)
+        return touchee and f"image ({touchee})"
+    if e.kind != "text":
+        return None  # cadres, traits, fonds
+    if "Datamatrix" in e.font:
+        return "DataMatrix"
+    if "Helvetica" in e.font and e.size <= 6.5:
+        return None  # étiquette du formulaire (« NUMÉRO », « SIRET »…) : rien de personnel
+    assert e.origin is not None
+    ligne = hauteur - e.origin[1]  # la ligne de base, depuis le haut de la page
+    return next((z.nom for z in ZONES if z.contient(ligne, e.box[0])), None)
 
 
-# ── 3. Contrôler ────────────────────────────────────────────────────────────────────────
+# ── Contrôler ───────────────────────────────────────────────────────────────────────────
 
 # Un NIR : sexe, année, mois, département (2A, 2B), commune, ordre, clé facultative.
 _NIR = re.compile(
@@ -149,29 +102,25 @@ _NIR = re.compile(
 )
 # Un IBAN : pays, clé, groupes de quatre ; au moins 14 chiffres (23 pour un compte français).
 _IBAN = re.compile(r"\b[A-Z]{2}\d\d(?: ?[A-Z0-9]{4}){3,7}(?: ?[A-Z0-9]{1,3})?\b")
+_MOTS_GENERIQUES = {
+    "RUE",
+    "AVENUE",
+    "BOULEVARD",
+    "PLACE",
+    "CHEMIN",
+    "ALLEE",
+    "IMPASSE",
+    "ROUTE",
+    "QUAI",
+    "CEDEX",
+}
 
 
-def _secrets(effaces: str) -> tuple[set[str], set[str]]:
-    """Ce que les zones effacées contenaient : les numéros de 10 chiffres et plus (NIR,
-    SIRET, poste, IBAN), et les mots de 4 lettres et plus (nom, adresse, établissement)."""
-    numeros = {re.sub(r" ", "", n) for n in re.findall(r"\d[\d ]{8,}\d", effaces)}
-    mots = set(re.findall(r"[A-ZÀ-Ÿ]{4,}", effaces.upper())) - {
-        "RUE",
-        "AVENUE",
-        "BOULEVARD",
-        "PLACE",
-        "CHEMIN",
-        "ALLEE",
-        "IMPASSE",
-        "ROUTE",
-        "QUAI",
-        "CEDEX",
-    }
-    return {n for n in numeros if len(n) >= 10}, mots
-
-
-def _controle(sortie: Path, numeros: set[str], mots: set[str]) -> list[str]:
-    """Ce qui reste d'identifiant dans la sortie, décrit sans le recopier."""
+def _controle(sortie: Path, hauteurs: list[float], effaces: str) -> list[str]:
+    """Ce qui reste d'identifiant dans la sortie, décrit sans le recopier. ``effaces`` : le
+    texte des zones effacées de l'original, dont aucun numéro ni mot ne doit revenir."""
+    numeros = {n.replace(" ", "") for n in re.findall(r"\d[\d ]{8,}\d", effaces)}
+    mots = set(re.findall(r"[A-ZÀ-Ÿ]{4,}", effaces.upper())) - _MOTS_GENERIQUES
     with pdfplumber.open(sortie) as pdf:
         lignes = "\n".join(page.extract_text() or "" for page in pdf.pages).upper()
     colle = re.sub(r"\s", "", lignes)
@@ -180,10 +129,13 @@ def _controle(sortie: Path, numeros: set[str], mots: set[str]) -> list[str]:
         restes.append("un numéro au format d'un NIR")
     if any(sum(ch.isdigit() for ch in m.group()) >= 14 for m in _IBAN.finditer(lignes)):
         restes.append("un numéro au format d'un IBAN")
-    if any(n in colle for n in numeros):
+    if any(len(n) >= 10 and n in colle for n in numeros):
         restes.append("un numéro des zones effacées")
     if any(re.search(rf"(?<![A-ZÀ-Ÿ]){m}(?![A-ZÀ-Ÿ])", lignes) for m in mots):
         restes.append("un mot des zones effacées")
+    for i, hauteur in enumerate(hauteurs):
+        if any(raison(e, hauteur) for e in pdf_elements(sortie, i)):
+            restes.append(f"un élément dans une zone, page {i + 1}")
     return restes
 
 
@@ -192,37 +144,25 @@ def _controle(sortie: Path, numeros: set[str], mots: set[str]) -> list[str]:
 
 @dataclass(frozen=True, slots=True)
 class Anonymisation:
-    """Le bilan : caractères écartés par raison, et ce que le contrôle a retrouvé."""
+    """Le bilan : éléments effacés par raison, et ce que le contrôle a retrouvé."""
 
-    ecartes: dict[str, int]
+    effaces: dict[str, int]
     restes: tuple[str, ...]
 
 
 def anonymise(entree: Path, sortie: Path) -> Anonymisation:
-    """Écrit dans ``sortie`` le bulletin ``entree`` sans ce qu'écarte ``ecarte``, puis
+    """Écrit dans ``sortie`` le bulletin ``entree`` sans ce qu'efface ``raison``, puis
     contrôle la sortie. ``sortie`` ne doit pas exister : rien n'est jamais écrasé."""
     if sortie.exists():
         raise FileExistsError(f"{sortie} existe déjà : rien n'est écrasé")
-    ecartes: dict[str, int] = {}
-    effaces = []  # le texte des zones effacées, pour le contrôle
     with pdfplumber.open(entree) as pdf:
-        premiere = pdf.pages[0]
-        with PDFMaker(str(sortie), pagesize=(float(premiere.width), float(premiere.height))) as doc:
-            doc.set_metadata(title="Bulletin anonymisé")
-            for rang, page in enumerate(pdf.pages):
-                if rang:
-                    doc.new_page()
-                _ecrit_cadres(doc.canvas, page)
-                for c in page.chars:  # dans l'ordre du flux, comme l'original
-                    if raison := ecarte(c):
-                        ecartes[raison] = ecartes.get(raison, 0) + 1
-                        if raison != "DataMatrix":
-                            effaces.append(c["text"])
-                    else:
-                        _ecrit_caractere(doc.canvas, c)
-                effaces.append("\n")
-    numeros, mots = _secrets("".join(effaces))
-    return Anonymisation(ecartes, tuple(_controle(sortie, numeros, mots)))
+        hauteurs = [float(page.height) for page in pdf.pages]
+    retires = redact_pdf(entree, sortie, lambda e: raison(e, hauteurs[e.page]) is None)
+    raisons = [raison(e, hauteurs[e.page]) or "?" for e in retires]
+    effaces = "".join(
+        e.text for e, r in zip(retires, raisons, strict=True) if e.kind == "text" and r != "DataMatrix"
+    )
+    return Anonymisation(dict(Counter(raisons)), tuple(_controle(sortie, hauteurs, effaces)))
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -238,12 +178,12 @@ def main(argv: list[str] | None = None) -> int:
 
     bilan = anonymise(args.entree, sortie)
     print(sortie)
-    for raison, nombre in sorted(bilan.ecartes.items()):
-        print(f"  effacé : {raison} ({nombre} caractères)")
+    for nom, nombre in sorted(bilan.effaces.items()):
+        print(f"  effacé : {nom} ({nombre} éléments)")
     if bilan.restes:
         print("ÉCHEC, ne partagez pas cette sortie ; elle contient encore " + ", ".join(bilan.restes) + ".")
         return 1
-    if vides := [zone.nom for zone in ZONES if zone.nom not in bilan.ecartes]:
+    if vides := [zone.nom for zone in ZONES if zone.nom not in bilan.effaces]:
         print("Attention, rien à effacer dans : " + ", ".join(vides) + ".")
         print("  Si le bulletin n'a pas été nettoyé avant, ces données ont pu changer de place.")
     print("Aucun identifiant retrouvé. Relisez la sortie avant de la partager.")

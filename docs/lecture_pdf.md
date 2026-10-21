@@ -384,34 +384,39 @@ sont connues de personne, le dépôt fournit un script autonome, qui n'importe p
 uv run scripts/anonymise_bulletin.py BULLETIN.pdf
 ```
 
-`uv` installe ses deux dépendances (pdfplumber, reportlab_layout), déclarées dans le
-script lui-même. Il écrit `BULLETIN_anonyme.pdf` à côté de l'original, ou la sortie
-donnée en second argument ; il ne modifie jamais l'original et refuse d'écrire sur un
-fichier existant.
+`uv` installe ses deux dépendances (pdfplumber, reportlab_layout avec son extra `pdf`),
+déclarées dans le script lui-même. Il écrit `BULLETIN_anonyme.pdf` à côté de l'original,
+ou la sortie donnée en second argument ; il ne modifie jamais l'original et refuse
+d'écrire sur un fichier existant.
 
 Il garde **tout**, sauf ce qui identifie l'agent (une liste noire) : une ligne inconnue,
-une mention ou un pied nouveaux restent visibles. Le bulletin n'est pas masqué mais
-**réécrit** : chaque caractère gardé est redessiné à sa place, dans l'ordre du flux, avec
-les cadres et les traits (en gris) ; un cache laisserait le texte dessous, et le catalogue
-du PDF garde des métadonnées et des balises. Le script se lit en trois temps, trier,
-écrire, contrôler, pour qu'on puisse vérifier ce qu'il efface. Disparaissent :
+une mention ou un pied nouveaux restent visibles. Le bulletin n'est pas masqué : la
+rédaction de reportlab_layout (`redact_pdf`) en écrit une copie filtrée, où chaque
+élément refusé est retiré du flux de contenu. Cadres, couleurs, polices et logos restent
+tels quels ; rien du catalogue d'origine n'est copié (métadonnées, balises), ni aucun
+texte de remplacement. Disparaissent :
 
-| Zone (y depuis le haut) | Contenu |
+| Zone (ligne de base, depuis le haut) | Contenu |
 | --- | --- |
-| 8–14, x ≥ 500 | numéro d'ordre du bulletin |
-| 55–80 | affectation, établissement, SIRET, poste |
-| 100–112, x 40–185 | NIR et sa clé |
-| 636–645, x < 200 | NIR répété au pied |
-| 670–722, x < 100 | cumuls de l'année : base SS, montant imposable |
-| 680–725, x 220–480 | nom et adresse (fenêtre d'enveloppe) |
-| 812–842 | IBAN et BIC |
-| partout | code-barres DataMatrix (sa police), images, métadonnées |
+| 15–23, x ≥ 500 | numéro d'ordre du bulletin |
+| 62–89 | affectation, établissement, SIRET, poste |
+| 107–121, x 40–185 | NIR et sa clé |
+| 643–654, x < 200 | NIR répété au pied |
+| 677–731, x < 100 | cumuls de l'année : base SS, montant imposable |
+| 687–734, x 220–480 | nom et adresse (fenêtre d'enveloppe) |
+| 819–851 | IBAN et BIC |
+| partout | code-barres DataMatrix (sa police) ; une image qui touche une zone |
 
-Les étiquettes du formulaire (Helvetica de 5 à 6 points) restent, même dans ces zones.
-Puis le script contrôle la sortie : aucun numéro au format d'un NIR ou d'un IBAN, et aucun
-numéro (NIR, SIRET, poste, IBAN) ni mot du nom et de l'adresse relevé dans l'original ;
-sinon il échoue. Une zone vide le fait avertir : le gabarit a pu changer, et le nom ou
-l'affectation, qui ne se reconnaissent qu'à leur place, ne seraient plus effacés.
+Les zones bornent la ligne de base des caractères : c'est elle que reportlab_layout
+mesure sans ambiguïté, quand le `top` de pdfplumber dépend des métriques que déclare le
+PDF lu (elle est 7 à 9 points sous ce `top` dans les bulletins, selon la police). Les
+étiquettes du formulaire (Helvetica de 5 à 6 points) restent, même dans ces zones.
+
+Puis le script relit la sortie : aucun numéro au format d'un NIR ou d'un IBAN, aucun
+numéro (NIR, SIRET, poste, IBAN) ni mot lu dans les zones effacées de l'original, aucun
+élément dans une zone ; sinon il échoue. Une zone vide le fait avertir : le gabarit a pu
+changer, et le nom ou l'affectation, qui ne se reconnaissent qu'à leur place, ne seraient
+plus effacés.
 
 Restent visibles, et à peser avant de partager : le service gestionnaire (DDFIP et
 département), le grade, l'échelon, l'indice, les enfants à charge, les montants du mois. Une
