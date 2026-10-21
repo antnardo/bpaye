@@ -66,3 +66,22 @@ def test_montant_indexe_suit_une_hausse_du_point(tmp_path):
 )
 def test_ifp_suit_le_point_depuis_le_releve_de_2008(date, mensuel):
     assert BAREME.load("ifp_cpge")(date) == mensuel
+
+
+@pytest.mark.parametrize(
+    ("niveau", "date", "annuel"),
+    [
+        ("6e-5e-4e", dt.date(2009, 1, 31), 1215.00),  # arrêté du 6/11/2009
+        ("6e-5e-4e", dt.date(2021, 8, 31), 1245.84),  # la chaîne retombe sur l'arrêté de 2021
+        ("6e-5e-4e", dt.date(2023, 8, 31), 1308.72),  # et sur celui de 2023
+        ("1re-terminale", dt.date(2023, 9, 30), 1497.84),  # revalorisation de 2023
+        ("1re-terminale-referent", dt.date(2021, 9, 30), 453.12),
+    ],
+)
+def test_isoe_modulable_suit_le_point_entre_deux_arretes(niveau, date, annuel):
+    assert round(BAREME.load(f"isoe_modulable.{niveau}")(date) * 12, 2) == annuel
+
+
+def test_isoe_modulable_du_referent_refusee_avant_2021():
+    with pytest.raises(ValueError, match="MANQUANT"):
+        BAREME.load("isoe_modulable.1re-terminale-referent")(dt.date(2020, 9, 30))

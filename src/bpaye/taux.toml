@@ -639,20 +639,77 @@ values = [
 
 # ──────────────────────────────────────────────
 # ISOE PART MODULABLE (professeur principal), par niveau de la classe
-# Arrêté du 15/01/1993, art. 2, mod. par l'arrêté du 19/07/2023, art. 3. Indexée sur le point
-# (décret 93-55, art. 4) : le point n'a pas bougé depuis le 1/7/2023, d'où les seuls montants
-# de 2023. Avant le 1/9/2023 : non calculée. https://www.legifrance.gouv.fr/loda/id/JORFTEXT000000725548/2023-10-01/
+# Arrêté du 15/01/1993, art. 2 : montants au 1/1/2009 (arrêté du 6/11/2009), au 1/9/2021
+# (arrêté du 20/08/2021, qui crée la ligne du professeur référent) et au 1/9/2023 (arrêté
+# du 19/07/2023, art. 3 ; inchangés au 1/9/2026 par l'arrêté du 10/07/2026). Indexée sur le
+# point entre deux arrêtés (décret 93-55, art. 4), comme la part fixe : la chaîne du point
+# depuis 2009 retombe sur l'arrêté de 2021 (1 215 € → 1 245,84 € en 6e-5e-4e).
+# Avant 2009 : non calculée. Relevé : docs/verification/primes.toml.
+# https://www.legifrance.gouv.fr/loda/id/JORFTEXT000000725548/2018-01-01/ ,
+# /2022-10-18/ , /2023-10-01/ et /2026-10-17/
 # ──────────────────────────────────────────────
-[isoe_modulable]
-date = 2023-09-01
-"6e-5e-4e"            = 1308.72
-"3e"                  = 1497.84
-"cap"                 = 1497.84
-"bac-pro"             = 1497.84
-"2nde"                = 1497.84
-"autres-lp"           = 951.96
-"1re-terminale"       = 1497.84
-"1re-terminale-referent" = 748.92
+[isoe_modulable."6e-5e-4e"]
+type = "IndexePoint"
+values = [
+  { date = 2009-01-01, valeur = 1215.00 },
+  { date = 2021-09-01, valeur = 1245.84 },
+  { date = 2023-09-01, valeur = 1308.72 },
+]
+
+[isoe_modulable."3e"]
+type = "IndexePoint"
+values = [
+  { date = 2009-01-01, valeur = 1390.80 },
+  { date = 2021-09-01, valeur = 1425.84 },
+  { date = 2023-09-01, valeur = 1497.84 },
+]
+
+[isoe_modulable."cap"]
+type = "IndexePoint"
+values = [
+  { date = 2009-01-01, valeur = 1390.80 },
+  { date = 2021-09-01, valeur = 1425.84 },
+  { date = 2023-09-01, valeur = 1497.84 },
+]
+
+[isoe_modulable."bac-pro"]
+type = "IndexePoint"
+values = [
+  { date = 2009-01-01, valeur = 1390.80 },
+  { date = 2021-09-01, valeur = 1425.84 },
+  { date = 2023-09-01, valeur = 1497.84 },
+]
+
+[isoe_modulable."2nde"]
+type = "IndexePoint"
+values = [
+  { date = 2009-01-01, valeur = 1390.80 },
+  { date = 2021-09-01, valeur = 1425.84 },
+  { date = 2023-09-01, valeur = 1497.84 },
+]
+
+[isoe_modulable."autres-lp"]
+type = "IndexePoint"
+values = [
+  { date = 2009-01-01, valeur = 883.92 },
+  { date = 2021-09-01, valeur = 906.24 },
+  { date = 2023-09-01, valeur = 951.96 },
+]
+
+[isoe_modulable."1re-terminale"]
+type = "IndexePoint"
+values = [
+  { date = 2009-01-01, valeur = 883.92 },
+  { date = 2021-09-01, valeur = 906.24 },
+  { date = 2023-09-01, valeur = 1497.84 },
+]
+
+[isoe_modulable."1re-terminale-referent"]
+type = "IndexePoint"
+values = [
+  { date = 2021-09-01, valeur = 453.12 },
+  { date = 2023-09-01, valeur = 748.92 },
+]
 
 # ──────────────────────────────────────────────
 # HEURES SUPPLÉMENTAIRES : majorations (décret 50-1253)

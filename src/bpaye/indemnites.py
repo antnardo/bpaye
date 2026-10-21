@@ -49,7 +49,6 @@ __all__ = [
 # Les tables du barème du paquet (les fonctions prennent un barème : bareme=…).
 _PRIME_ATTRACTIVITE: list[dict[str, Any]] = sorted(config.get("prime_attractivite"), key=lambda e: e["date"])
 
-_ISOE_MODULABLE: dict[str, Any] = config.get("isoe_modulable")
 
 # Qui touche quoi, selon le corps (Fonctionnaire.corps).
 # ISOE : « personnels enseignants du second degré » et « enseignants des classes
@@ -138,17 +137,15 @@ def indemnite_education_prioritaire(
 
 def isoe_part_modulable(fonc: Fonctionnaire, date: dt.date, bareme: Bareme = BAREME) -> Ligne | None:
     """ISOE part modulable du professeur principal, au douzième, selon le niveau de sa
-    classe (taux.toml [isoe_modulable]) ; montants connus depuis le 1/9/2023 seulement."""
+    classe (taux.toml [isoe_modulable], indexée sur le point) ; depuis 2009, depuis 2021 pour
+    le professeur référent."""
     niveau = fonc.professeur_principal(date) if len(fonc.professeur_principal) else None
     if niveau is None:
         return None
-    montants = bareme.get("isoe_modulable")
-    if date < montants["date"]:
-        raise ValueError(f"ISOE part modulable : pas de montant vérifié avant le {montants['date']}")
-    if niveau not in montants or niveau == "date":
+    if niveau not in bareme.get("isoe_modulable"):
         raise ValueError(f"niveau de professeur principal inconnu {niveau!r}")
     code = 202566 if date >= DATE_RECODAGE_ISOE_MODULABLE else 201228
-    montant = reduit(round(montants[niveau] / 12, 2), fonc.fraction(date))
+    montant = reduit(bareme.load(f"isoe_modulable.{niveau}")(date), fonc.fraction(date))
     return Ligne(montant, "ISOE Part modulable", code=code, classe="INDEM")
 
 
