@@ -68,7 +68,7 @@ mai et juin 2026 : voir docs/csg.md et scripts/verifie_csg.py.
 DÉFISCALISATION HS
 ──────────────────────────────────────────────────────────────
 Plafond brut annuel = 5 000 / (1 − 0,9825 × 0,068) = 5 357,96 → 5 358 €
-    (porté à 8 037 € depuis la loi 2022-1158)
+    (porté à 8 037 € pour les heures faites depuis le 1/1/2022, loi 2022-1157, art. 4)
 
 Montant net défiscalisé (code 011200) :
     S = (N + C_nd + R − M) / 0,93319

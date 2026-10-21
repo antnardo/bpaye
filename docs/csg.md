@@ -22,8 +22,8 @@ L'assiette se construit en quatre temps :
    suppléance, de remplacement et des dispositifs comprises), toutes du décret 50-1253
    (décret 2019-133, art. 1, 2°), et parts fonctionnelles du Pacte (même article, 29°), dans la
    limite d'un plafond annuel (5 000 € nets, soit 5 358 € bruts ; 7 500 € nets, soit
-   8 037 € bruts, que la loi 2022-1158 fixe pour les revenus de 2022 et que la paie
-   n'applique qu'à partir de 2023). Le plafond se consomme dans l'ordre de l'année
+   8 037 € bruts, pour les heures faites depuis le 1er janvier 2022 : loi 2022-1157,
+   art. 4). Le plafond se consomme dans l'ordre de l'année
    civile : toutes les heures de janvier, celles de février jusqu'au plafond, plus rien
    ensuite.
 3. **Abattement de 1,75 %**, sous le seuil de `taux.toml`, séparément sur le salaire hors
@@ -140,8 +140,10 @@ total               267,24 + 275,10 = 542,34 = 9,2 % × 5 895,00
 ## Limites
 
 - **La consommation du plafond d'exonération** n'est pas toujours celle décrite au point
-  2 : en 2021 et au début de 2022, la paie a exonéré plus d'heures que le plafond annuel
-  n'en laissait, sans qu'un texte lu l'explique. bpaye applique la règle générale.
+  2 : en 2021 et en 2022, la paie a exonéré plus d'heures que le plafond annuel n'en
+  laissait, puis plus rien (en 2022 : tout jusqu'en mars, au-delà de 5 000 €, rien dès
+  avril, avant 7 500 €) ; l'attestation fiscale régularise. bpaye calcule le dû : ces
+  mois-là s'écartent du bulletin.
 - **Une assiette qui ne se reconstitue pas** (la CRDS du bulletin ne tombe pas juste)
   signale un élément versé par un document à part, comme un décompte de rappel : la
   vérification écarte ces bulletins.

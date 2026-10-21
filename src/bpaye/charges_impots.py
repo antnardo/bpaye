@@ -6,8 +6,9 @@ pas les indemnités, ont :
 - une réduction de cotisations salariales de 5 % (le taux salarial de la RAFP), dans
   la limite de 20 % du traitement indiciaire brut annuel ; compensée, elle laisse les
   droits RAFP intacts ;
-- une exonération d'impôt sous un plafond annuel net, 5 000 € puis 7 500 € (loi
-  2022-1158). Le plafond brut réintègre la CSG déductible :
+- une exonération d'impôt sous un plafond annuel net, 5 000 € puis 7 500 € pour les
+  heures faites depuis le 1/1/2022 (loi 2022-1157, art. 4). Le plafond brut réintègre la
+  CSG déductible :
   5 000 / (1 − 98,25 % × 6,8 %) = 5 357,96, arrondi à 5 358 €. Sur ces heures, la CSG
   n'est pas déductible (charges.csg_basculee).
 
@@ -81,7 +82,7 @@ def facteur_hs_net(date: dt.date, bareme: Bareme = BAREME) -> float:
 
 class ExonerationHS:
     """Les heures supplémentaires exonérées d'impôt, bulletin par bulletin, sous le plafond
-    annuel (CGI, art. 81 quater) : 7 500 € nets depuis août 2022, soit 8 037 € bruts.
+    annuel (CGI, art. 81 quater) : 7 500 € nets depuis le 1/1/2022, soit 8 037 € bruts.
 
     Le plafond se consomme dans l'ordre de l'année civile : les bulletins de 2024 à 2026
     exonèrent toutes les heures de janvier, celles de février jusqu'au plafond, plus rien
