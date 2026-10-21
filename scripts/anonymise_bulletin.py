@@ -24,8 +24,9 @@ Seules les images (logos) ne sont pas reprises.
 
 Ce qui disparaît (coordonnées depuis le haut de la page, relevées sur des bulletins V2.3
 à V4.2) : le numéro d'ordre du bulletin, le bloc d'affectation (codes, établissement,
-SIRET, poste), le NIR et sa clé dans la ligne d'identification et au pied, le nom et
-l'adresse de la fenêtre d'enveloppe, l'IBAN et le BIC, le DataMatrix. Les étiquettes du
+SIRET, poste), le NIR et sa clé dans la ligne d'identification et au pied, les cumuls de
+l'année (base SS, montant imposable), le nom et l'adresse de la fenêtre d'enveloppe,
+l'IBAN et le BIC, le DataMatrix. Les étiquettes du
 formulaire (Helvetica de 5 à 6 points) restent, même dans ces zones.
 
 Puis le script contrôle la sortie : aucun NIR ni IBAN (par motif), ni le NIR, le SIRET ou
@@ -68,6 +69,7 @@ ZONES = (
     Zone("affectation, établissement, SIRET, poste", 55.0, 80.0),
     Zone("NIR et clé", 100.0, 112.0, gauche=40.0, droite=185.0),
     Zone("NIR au pied", 636.0, 645.0, droite=200.0),
+    Zone("cumuls de l'année (base SS, montant imposable)", 670.0, 722.0, droite=100.0),
     Zone("nom et adresse", 680.0, 725.0, gauche=220.0, droite=480.0),
     Zone("IBAN et BIC", 812.0, 842.0),
 )

@@ -401,6 +401,7 @@ garde des métadonnées et des balises. Disparaissent :
 | 55–80 | affectation, établissement, SIRET, poste |
 | 100–112, x 40–185 | NIR et sa clé |
 | 636–645, x < 200 | NIR répété au pied |
+| 670–722, x < 100 | cumuls de l'année : base SS, montant imposable |
 | 680–725, x 220–480 | nom et adresse (fenêtre d'enveloppe) |
 | 812–842 | IBAN et BIC |
 | partout | code-barres DataMatrix (sa police), images, métadonnées |
@@ -412,7 +413,7 @@ sinon il échoue. Une zone vide le fait avertir : le gabarit a pu changer, et le
 l'affectation, qui ne se reconnaissent qu'à leur place, ne seraient plus effacés.
 
 Restent visibles, et à peser avant de partager : le service gestionnaire (DDFIP et
-département), le grade, l'échelon, l'indice, les enfants à charge, les montants. Une
+département), le grade, l'échelon, l'indice, les enfants à charge, les montants du mois. Une
 ligne de paye peut aussi nommer quelqu'un (une opposition, une pension alimentaire) :
 relire la sortie. `--siret` écrit un SIRET fictif en en-tête, pour un test du tri par
 gestionnaire.

@@ -42,6 +42,8 @@ def bulletin(tmp_path):
             (16.4, 144.4, "999999 LIGNE QUE PERSONNE NE CONNAIT"),
             (385.4, 144.4, "12,34"),
             (15.2, 641.0, NIR),
+            (22.0, 713.0, "53 277,98"),  # montant imposable de l'année
+            (118.7, 713.0, "3 648,69"),  # du mois
             (10.7, 819.0, IBAN),
         ]:
             c.drawString(x, h - top - 7.3, texte)
@@ -61,9 +63,9 @@ def test_identifiants_ecartes_et_tout_le_reste_garde(script, bulletin, tmp_path)
     bilan = script.anonymise(bulletin, sortie)
     assert bilan.residus == ()
     texte = _texte(sortie).replace(" ", "")
-    for identifiant in (NIR, IBAN, "CAMILLE", "IMAGINAIRE", "19750000000000"):
+    for identifiant in (NIR, IBAN, "CAMILLE", "IMAGINAIRE", "19750000000000", "53277,98"):
         assert identifiant.replace(" ", "") not in texte
-    for garde in ("PROF.AGREGECN", "999999LIGNEQUEPERSONNENECONNAIT", "12,34", "SIRET", "PAY18E"):
+    for garde in ("PROF.AGREGECN", "999999LIGNEQUEPERSONNENECONNAIT", "12,34", "3648,69", "SIRET", "PAY18E"):
         assert garde in texte
 
 
