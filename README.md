@@ -269,6 +269,20 @@ Une incohérence devient une remarque (« ! ») : un indice qui n'est pas celui 
 l'échelon imprimé, par exemple, après une promotion pas encore payée. En Python :
 `bpaye.reconnaissance.reconnait(chemin)`.
 
+### Partager un bulletin
+
+Un bulletin dont une ligne est inconnue de bpaye aide à l'améliorer. Pour le joindre à une
+issue, `scripts/anonymise_bulletin.py` en écrit une copie sans ce qui identifie l'agent
+(NIR, nom et adresse, affectation, IBAN, code-barres), en gardant toutes les lignes de
+paye, puis vérifie qu'aucun identifiant n'y reste ; l'original n'est jamais modifié :
+
+```bash
+uv run scripts/anonymise_bulletin.py 2026_08_BP_aout.pdf
+```
+
+Ce qu'il efface, ce qu'il laisse et comment il le vérifie :
+[`docs/anonymisation.md`](docs/anonymisation.md).
+
 ## Sources
 
 Chaque valeur des tables porte sa source à côté d'elle : texte, article, version lue.
