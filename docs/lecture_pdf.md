@@ -377,12 +377,29 @@ intact, en second avis.
 
 ## 14. Anonymiser un bulletin de test
 
-La lecture n'a besoin que :
+Depuis le dépôt, avec les dépendances de développement :
 
-- des morceaux `CODE LIBELLÉ`, `€` et montant de chaque ligne, **dans l'ordre du flux** ;
-- des montants du pied à leurs coordonnées (§ 6) ;
-- des lettres verticales de la version (§ 2.3) ;
-- pour les tests du SIRET, d'un morceau de 14 chiffres en haut de page.
+```bash
+uv run python scripts/anonymise_bulletin.py BULLETIN.pdf ANONYME.pdf
+```
+
+Le script écrit un bulletin **neuf** : chaque caractère d'une zone utile est redessiné à
+sa place, dans l'ordre du flux ; tout le reste disparaît, y compris le code-barres
+DataMatrix (qui reprend le bulletin entier, NIR compris), le NIR répété au pied, le nom et
+l'adresse de la fenêtre d'enveloppe, le compte bancaire, les cumuls de l'année, les
+images et les métadonnées. Il compare ensuite la lecture de la sortie à celle de
+l'original (lignes, montants, pied, en-tête utile) et vérifie que le NIR n'y figure plus.
+`--siret` écrit un SIRET fictif en en-tête, pour un test du tri par gestionnaire. Il
+reste à relire la sortie avant de la partager : une ligne de paye peut porter un libellé
+inattendu.
+
+Ce dont la lecture a besoin, et donc ce que le script garde :
+
+- les morceaux `CODE LIBELLÉ`, `€` et montant de chaque ligne, **dans l'ordre du flux** ;
+- les montants du pied à leurs coordonnées (§ 6) ;
+- les lettres verticales de la version (§ 2.3) ;
+- le mois et la ligne d'identification sans le NIR ni sa clé, pour `bpaye-lire` (§ 16) ;
+- pour les tests du SIRET, un morceau de 14 chiffres en haut de page (`--siret`).
 
 On peut donc effacer sans risque : le NIR et sa clé, l'affectation, le libellé de
 l'établissement, le SIRET (sauf test dédié), le compte bancaire, le comptable, la base
