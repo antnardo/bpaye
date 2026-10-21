@@ -30,7 +30,7 @@ from typing import Any
 import bpaye.config as config
 from bpaye.classes import Ligne
 from bpaye.config import BAREME, Bareme
-from bpaye.fonctionnaire import PSC_DECLAREE, Fonctionnaire
+from bpaye.fonctionnaire import Fonctionnaire
 from bpaye.temps_partiel import reduit
 
 __all__ = [
@@ -205,19 +205,34 @@ def participation_psc(date: dt.date, bareme: Bareme = BAREME) -> Ligne:
     return Ligne(bareme.load("psc")(date), "Participation PSC", code=202354, classe="INDEM")
 
 
-def psc_declaree(fonc: Fonctionnaire, date: dt.date, classe: str) -> list[Ligne]:
-    """Les lignes de [[psc]] d'agent.toml de la ``classe`` donnée : participations de
-    l'employeur aux options et à la prévoyance (« INDEM »), cotisation de prévoyance et
-    ancienne mutuelle précomptée (« CHARGE »). Ces cotisations restent dans le net
-    imposable, supposé : une adhésion facultative n'est pas un contrat collectif
-    obligatoire, seul déductible (CGI, art. 83, 1° quater ; BOI-RSA-BASE-30-10-20) ;
-    aucun bulletin qui en porte n'a été lu."""
+def psc_declaree(fonc: Fonctionnaire, date: dt.date, classe: str, bareme: Bareme = BAREME) -> list[Ligne]:
+    """Les lignes de [[psc]] d'agent.toml de la ``classe`` donnée.
+
+    « INDEM » : les participations de l'employeur, depuis mai 2026 (taux.toml) : à l'option
+    santé, la moitié de son coût déclaré dans la limite de 5 € (202483) ; à la prévoyance,
+    7 € par mois si l'agent y adhère (202510).
+
+    « CHARGE » : l'ancienne mutuelle précomptée sur la paie (700678, 700671), aux montants
+    du contrat, jusqu'à la PSC. Elle reste dans le net imposable, supposé : une adhésion
+    facultative n'est pas un contrat collectif obligatoire, seul déductible (CGI, art. 83,
+    1° quater ; BOI-RSA-BASE-30-10-20) ; aucun bulletin qui en porte n'a été lu."""
+    declare = fonc.psc_declaree(date)
     lignes = []
-    for cle, montant in fonc.psc_declaree(date).items():
-        code, libelle, sa_classe = PSC_DECLAREE[cle]
-        if sa_classe == classe and montant:
-            valeur = montant if classe == "INDEM" else -montant
-            lignes.append(Ligne(valeur, libelle, code=code, classe=classe, imposable=classe == "CHARGE"))
+    if classe == "INDEM":
+        if cout := declare.get("cout_option", 0.0):
+            taux, plafond = bareme.load("psc_option.taux")(date), bareme.load("psc_option.plafond")(date)
+            participation = round(min(taux * cout, plafond), 2)
+            lignes.append(Ligne(participation, "Participation PSC option santé", code=202483, classe="INDEM"))
+        if declare.get("prevoyance", 0.0):
+            prevoyance = bareme.load("psc_prevoyance")(date)
+            lignes.append(Ligne(prevoyance, "Participation PSC prévoyance", code=202510, classe="INDEM"))
+    elif classe == "CHARGE":
+        for cle, code, libelle in (
+            ("mutuelle_adherent", 700678, "Mutuelle MGEN adhérent"),
+            ("mutuelle_enfants", 700671, "Mutuelle MGEN enfants"),
+        ):
+            if montant := declare.get(cle, 0.0):
+                lignes.append(Ligne(-montant, libelle, code=code, classe="CHARGE", imposable=True))
     return lignes
 
 

@@ -210,7 +210,7 @@ class Bulletin(ListeLignes):
         self.append(indemnite_detachement(fonc, date, b))
         self.append(indemnite_comp_csg(date, fonc, b))
         self.append(participation_psc(date, b))
-        for ligne in psc_declaree(fonc, date, "INDEM"):
+        for ligne in psc_declaree(fonc, date, "INDEM", b):
             self.append(ligne)
         self.append(forfait_mobilite_durable(fonc, date, b))
         self.append(prime_equipement_info(date, b))
@@ -245,7 +245,7 @@ class Bulletin(ListeLignes):
         frais = sum(ligne.valeur for ligne in self if ligne.code in self.FRAIS_EXONERES)
         for ligne in mgen_charges(self.revenus - frais, date, b):
             self.append(ligne)
-        for ligne in psc_declaree(self.fonctionnaire, date, "CHARGE"):
+        for ligne in psc_declaree(self.fonctionnaire, date, "CHARGE", b):
             self.append(ligne)
         for ligne in self.autres_charges:
             self.append(ligne)

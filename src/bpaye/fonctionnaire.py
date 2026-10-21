@@ -33,15 +33,10 @@ __all__ = [
     "load_agent",
 ]
 
-# Ce que [[psc]] d'agent.toml déclare, par clé : le code du bulletin, son libellé, sa classe.
-# Aucun texte lu n'en fixe le montant pour un agent : il dépend de son contrat.
-PSC_DECLAREE: dict[str, tuple[int, str, str]] = {
-    "options": (202483, "Participation PSC options", "INDEM"),
-    "prevoyance": (202510, "Participation PSC prévoyance", "INDEM"),
-    "cotisation_prevoyance": (501091, "Cotisation prévoyance", "CHARGE"),
-    "mutuelle_adherent": (700678, "Mutuelle MGEN adhérent", "CHARGE"),
-    "mutuelle_enfants": (700671, "Mutuelle MGEN enfants", "CHARGE"),
-}
+# Ce que [[psc]] d'agent.toml déclare et que le barème ne peut connaître : le coût de
+# l'option santé choisie (sa participation vient du barème), l'adhésion à la prévoyance
+# (1 ou 0, idem), et l'ancienne mutuelle précomptée sur la paie avant mai 2026.
+PSC_DECLAREE = ("cout_option", "prevoyance", "mutuelle_adherent", "mutuelle_enfants")
 
 
 class Fonctionnaire:
@@ -221,6 +216,8 @@ class Fonctionnaire:
             self.retards_declares[retard.code] = retard
         for entry in cfg.get("psc", []):
             montants = {cle: float(v) for cle, v in entry.items() if cle != "date"}
+            if not isinstance(entry.get("prevoyance", False), bool):
+                raise ValueError("[[psc]] : prevoyance attend true ou false")
             if inconnues := set(montants) - set(PSC_DECLAREE):
                 raise ValueError(
                     f"[[psc]] : clés inconnues {sorted(inconnues)}, attendues {list(PSC_DECLAREE)}"

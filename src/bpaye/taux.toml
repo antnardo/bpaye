@@ -409,6 +409,34 @@ values = [
   { date = 2026-05-01, valeur = 0.0  },
 ]
 
+# PSC depuis le 1/5/2026 : participations de l'employeur aux garanties facultatives, sur le
+# bulletin. Ministère de l'Éducation nationale, « La protection sociale complémentaire pour
+# les personnels… » (lu le 21/10/2026) : « 50% du coût de l'option souscrite, dans la limite
+# de 5 € » (option santé, 202483) ; « 7 € par mois » pour un agent actif adhérent au socle
+# interministériel de prévoyance (202510), versés « à la rentrée 2026-2027 avec un effet
+# rétroactif au 1er mai 2026 ». Les cotisations elles-mêmes (option, ayants droit,
+# prévoyance) sont prélevées par la MGEN sur le compte, hors paie.
+# https://www.education.gouv.fr/la-protection-sociale-complementaire-pour-les-personnels-de-l-education-nationale-de-l-enseignement-325214
+[psc_option.taux]
+type = "Taux"
+values = [
+  { date = 2026-05-01, valeur = 0.5 },
+]
+
+[psc_option.plafond]
+type  = "Fixe"
+unite = "mensuel"
+values = [
+  { date = 2026-05-01, valeur = 5.0 },
+]
+
+[psc_prevoyance]
+type  = "Fixe"
+unite = "mensuel"
+values = [
+  { date = 2026-05-01, valeur = 7.0 },
+]
+
 # ──────────────────────────────────────────────
 # MGEN PSC (Protection Sociale Complémentaire – depuis mai 2026)
 # Montants et taux obtenus des communications ministérielles et d’une source

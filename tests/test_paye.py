@@ -321,33 +321,56 @@ def test_annee_refuse_un_nom_que_le_bulletin_n_a_pas(configuration):
 
 PSC = """
 [[psc]]
-date                  = 2025-02-01
-options               = 5.00
-prevoyance            = 7.00
-cotisation_prevoyance = 20.00
-mutuelle_adherent     = 40.00
+date              = 2025-02-01
+mutuelle_adherent = 40.00
+mutuelle_enfants  = 10.00
+
+[[psc]]
+date        = 2026-05-01
+cout_option = 7.24
+prevoyance  = true
 """
 
 
-def test_psc_declaree_dans_le_bulletin_a_partir_de_sa_date(configuration):
+def _avec_psc(configuration, psc=PSC):
     _, agent = configuration
-    sans = _paye(configuration, 1, 3)
-    agent.write_text(agent.read_text(encoding="utf-8") + PSC, encoding="utf-8")
-    avec = _paye(configuration, 1, 3)
-    lignes = {ligne.code: ligne.valeur for ligne in avec(2025, 2)}
-    assert [lignes[c] for c in (202483, 202510, 501091, 700678)] == [5.0, 7.0, -20.0, -40.0]
-    assert 700671 not in lignes  # non déclarée
-    assert not {202483, 501091} & {ligne.code for ligne in avec(2025, 1)}
-    # Les cotisations restent dans le net imposable ; les participations y entrent, moins
-    # leur CSG déductible.
-    ecart = avec(2025, 2).net_imposable - sans(2025, 2).net_imposable
-    assert ecart == pytest.approx(12.0 * (1 - 0.068 * 0.9825), abs=0.02)
+    agent.write_text(agent.read_text(encoding="utf-8") + psc, encoding="utf-8")
+    return _paye(configuration, 1, 18)
 
 
-def test_psc_cle_inconnue_refusee(configuration):
+def _codes(bulletin):
+    return {ligne.code: ligne.valeur for ligne in bulletin}
+
+
+def test_ancienne_mutuelle_precomptee_jusqu_a_la_psc(configuration):
+    sans = _paye(configuration, 1, 18)
+    avec = _avec_psc(configuration)
+    assert {700678, 700671} & set(_codes(avec(2025, 1))) == set()
+    assert (_codes(avec(2025, 2))[700678], _codes(avec(2025, 2))[700671]) == (-40.0, -10.0)
+    assert {700678, 700671} & set(_codes(avec(2026, 5))) == set()
+    # Non déductible : le net imposable ne bouge pas.
+    assert avec(2025, 2).net_imposable == pytest.approx(sans(2025, 2).net_imposable)
+
+
+def test_participations_psc_option_et_prevoyance_depuis_mai_2026(configuration):
+    lignes = _codes(_avec_psc(configuration)(2026, 5))
+    assert (lignes[202483], lignes[202510]) == (3.62, 7.0)  # la moitié de 7,24 €
+
+
+def test_participation_option_plafonnee_a_5_euros(configuration):
+    psc = "[[psc]]\ndate = 2026-05-01\ncout_option = 12.0\n"
+    assert _codes(_avec_psc(configuration, psc)(2026, 6))[202483] == 5.0
+
+
+@pytest.mark.parametrize(
+    ("ajout", "message"),
+    [("mutuelle_conjoint = 1.0\n", "mutuelle_conjoint"), ("prevoyance = 7.0\n", "true ou false")],
+)
+def test_psc_mal_declaree_refusee(configuration, ajout, message):
     _, agent = configuration
-    agent.write_text(agent.read_text(encoding="utf-8") + PSC + "mutuelle_conjoint = 1.0\n", encoding="utf-8")
-    with pytest.raises(ValueError, match="mutuelle_conjoint"):
+    psc = "[[psc]]\ndate = 2026-05-01\n" + ajout
+    agent.write_text(agent.read_text(encoding="utf-8") + psc, encoding="utf-8")
+    with pytest.raises(ValueError, match=message):
         load_agent(agent)
 
 
