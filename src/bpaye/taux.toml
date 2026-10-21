@@ -280,13 +280,16 @@ values = [
 # bulletins relevés de 2010 à 2023 le confirment (1 199,16, 1 206,36, 1 213,56, 1 256,04 et
 # 1 274,88 €). Le montant de 2007 est relevé (les 6 426 F de 1992 n'ont pas été convertis) ;
 # indexé, il redonne au centime celui de l'arrêté de 2009.
+# Les arrêtés de 2009 et de 2021 ne changent aucun montant : la chaîne y retombe d'elle-même
+# (98,64 € et 101,13 € par mois). Ils restent comme valeurs des textes : chacun fait
+# repartir la chaîne de son montant officiel, qui l'emporterait si elle s'en écartait.
 [isoe]
 type = "IndexePoint"
 values = [
-  { date = 2007-02-01, valeur = 1174.20 },  # relevé sur les bulletins
-  { date = 2009-01-01, valeur = 1183.68 },
-  { date = 2021-09-01, valeur = 1213.56 },
-  { date = 2023-09-01, valeur = 2550 },
+  { date = 2007-02-01, valeur = 1174.20 },  # relevé sur les bulletins : nécessaire pour 2007-2008
+  { date = 2009-01-01, valeur = 1183.68 },  # arrêté du 6/11/2009 : confirme la chaîne
+  { date = 2021-09-01, valeur = 1213.56 },  # arrêté du 20/08/2021 : confirme la chaîne
+  { date = 2023-09-01, valeur = 2550 },  # arrêté du 19/07/2023 : revalorisation hors du point
 ]
 
 # ──────────────────────────────────────────────
