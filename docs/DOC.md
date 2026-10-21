@@ -402,7 +402,9 @@ paye.gipa(2023, (2025, 12))                              # la GIPA de 2023, vers
 ```
 
 `hse` paie au taux de l'HSE ; `code` choisit la rubrique : 201241 (remplacement de
-courte durée), 201717 puis 201300 (réussite scolaire au lycée), au même taux, supposé.
+courte durée, majoré de 25 % dès 2005, décret 2005-1036), 201717 (réussite scolaire au
+lycée) puis 201300 (HSE des dispositifs depuis le 1/9/2025, annexe 14 C de la DGFiP),
+toutes exonérées comme les heures supplémentaires.
 `vacation` paie des heures au taux que fixe la formation (201339, par défaut) ou l'action
 à pilotage national (`code=201856`).
 
@@ -527,7 +529,7 @@ Ce qui ne se déduit pas devient une remarque, jamais une valeur devinée. Les b
 | 200205, 200576 | HSA, majoration de la 1re | neuvièmes d'octobre à juin ; classe normale du corps, +10 % HC/CE, +20 % sur une heure | décret 50-1253, art. 2 et 3 |
 | 200207 | heures d'interrogation (colles) | 1/36 du taux annuel × 0,75, au code déclaré | décret 50-1253, art. 3 |
 | 200215 | HSE | 1/36 × 1,25 (1,15 avant 2008) | décret 50-1253, art. 5 |
-| 201241, 201717, 201300 | HSE de remplacement, de réussite au lycée | `paye.hse(…, code=…)`, au taux de l'HSE (supposé) | |
+| 201241, 201717, 201300 | HSE de remplacement, de réussite au lycée, des dispositifs | `paye.hse(…, code=…)` : 1/36 × 1,25 ; remplacement : 1,25 dès 2005 | décret 50-1253, art. 5 ; décret 2005-1036 ; décret 2023-732 |
 | 201339, 201856 | vacations de formation, actions à pilotage national | `paye.vacation`, au taux déclaré | décret 2010-235 ; décret 2014-1394 |
 | 200364 | ISOE part fixe | second degré | décret 93-55 ; arrêté du 15/01/1993 |
 | 201228, 202566 | ISOE part modulable | professeur principal, par niveau | arrêté du 15/01/1993, art. 2 |
