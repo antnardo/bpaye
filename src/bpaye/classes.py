@@ -477,9 +477,10 @@ class ListeLignes:
         """Montant brut des heures sup. (HSA, majo 1re HSA, colles HSI, HSE, HSE de suppléance),
         et des parts fonctionnelles du Pacte, qui ont le même régime : réduction de
         cotisations et exonération d'impôt (décret 2019-133, art. 1, 29°). Les HSE de
-        remplacement de courte durée et de réussite au lycée (201241, 201717) aussi, non
-        imposables d'après la DGFiP ; pas 201300, imposable (INGRES)."""
-        codes = (200205, 200207, 200215, 200497, 200576, 201241, 201717, 202475, 202476)
+        remplacement de courte durée, de réussite au lycée et des dispositifs recodés 1300
+        au 1/9/2025 aussi : l'annexe 14 C de la DGFiP (heures exonérées) les nomme toutes,
+        bien qu'INGRES marque encore 1300 imposable."""
+        codes = (200205, 200207, 200215, 200497, 200576, 201241, 201300, 201717, 202475, 202476)
         return sum(ligne.valeur for ligne in self if ligne.code in codes)
 
     # ── Somme calcul + reel ───────────────────────────────────────────────────
