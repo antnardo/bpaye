@@ -478,9 +478,13 @@ class ListeLignes:
         et des parts fonctionnelles du Pacte, qui ont le même régime : réduction de
         cotisations et exonération d'impôt (décret 2019-133, art. 1, 29°). Les heures, elles,
         le sont par le 2° du même article : toute heure supplémentaire du décret 50-1253
-        faite dans l'activité principale, quel que soit son code de paie. D'où 201241, 201717
-        et 201300, que la DGFiP code pourtant imposable (INGRES, IMPOSA 1 ; absente de
-        l'annexe 14 C) : si la paie ne l'exonère pas, l'écart le montre."""
+        faite dans l'activité principale, quel que soit son code de paie
+        (https://www.legifrance.gouv.fr/loda/id/JORFTEXT000038168767). D'où 201241, 201717
+        et 201300. Seul indice contraire pour 201300 : le référentiel INGRES V25.00.06 de la
+        DGFiP la marque R_FOR_IMPOSA = 1, sens déduit des heures exonérées qui portent 0
+        (feuille Annexes_14_15, ligne 1281, https://www.amue.fr/fileadmin/amue/ressources-humaines/2026/tour_de_web_special_paye/INGRES_C_V25.00.06_F25.00.00_P00_BG_ANNEXES14_ET_15.xlsx),
+        et aucune annexe 14 A, 14 B ou 14 C de 2026 ne la classe. Si la paie ne l'exonère
+        pas, l'écart le montre."""
         codes = (200205, 200207, 200215, 200497, 200576, 201241, 201300, 201717, 202475, 202476)
         return sum(ligne.valeur for ligne in self if ligne.code in codes)
 
