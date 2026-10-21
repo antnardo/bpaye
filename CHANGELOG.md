@@ -23,6 +23,9 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et la
   Pagani : chaque montant d'arrêté suit le point, au centime du mois d'avant ; les
   montants relevés sur les bulletins deviennent des montants calculés, datés de la hausse
   du point (juillet 2016 et juillet 2023, et non septembre).
+- **ISOE part modulable** : indexée sur le point depuis les arrêtés de 2009, 2021 et 2023
+  (auparavant refusée avant septembre 2023) ; 201228 et 202566 comparés comme une même
+  ligne, la paie portant encore l'ancien code en 2026 (`codes.CODES_EQUIVALENTS`).
 - **Option santé et prévoyance de la PSC, ancienne mutuelle** (`[[psc]]` d'`agent.toml`) :
   participations de l'employeur depuis mai 2026, la moitié du coût déclaré de l'option
   dans la limite de 5 € et 7 € pour l'adhésion à la prévoyance, d'après la page du
