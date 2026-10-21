@@ -7,11 +7,11 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et la
 
 ### Ajouté
 
-- **Anonymiser un bulletin** (`scripts/anonymise_bulletin.py`, autonome, sans bpaye) : un
-  bulletin réécrit qui garde tout, lignes inconnues comprises, sauf le NIR, le nom et
-  l'adresse, l'affectation, le SIRET, les cumuls de l'année, l'IBAN et le code-barres
-  DataMatrix ; la sortie est
-  contrôlée, l'original n'est jamais écrasé.
+- **Anonymiser un bulletin** (`scripts/anonymise_bulletin.py`, autonome, sans bpaye ;
+  `docs/anonymisation.md`) : une copie filtrée par la rédaction de reportlab_layout, qui
+  garde tout, lignes inconnues comprises, sauf le NIR, le nom et l'adresse, l'affectation,
+  le SIRET, les cumuls de l'année, l'IBAN et le code-barres DataMatrix ; la sortie est
+  contrôlée, l'original n'est jamais modifié ni aucun fichier écrasé.
 - **Lire un bulletin seul** : `bpaye-lire` et `bpaye.reconnaissance.reconnait` lisent
   l'en-tête d'un bulletin (grade, échelon, indice, enfants, temps partiel, taux du
   prélèvement à la source), situent l'indice dans les grilles, et en déduisent la
