@@ -29,6 +29,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from bpaye.codes import ALL_CODES
+from bpaye.colles import decrit_colles
 from bpaye.config import BAREME, Bareme
 from bpaye.grille import GRILLES
 from bpaye.pdf import DR_MONTH_FR, BulletinLu, ecart_totaux, extract_bulletin
@@ -236,7 +237,7 @@ def _fraction_connue(fraction: float) -> str:
     return f"{fraction:.1%} d'un temps plein"
 
 
-def _constats(lu: BulletinLu) -> list[str]:
+def _constats(lu: BulletinLu, jour: dt.date | None = None) -> list[str]:
     """Ce que trahissent les lignes du bulletin."""
     m = lu.montants
     present = {cle[:6] for cle in m}
@@ -266,6 +267,9 @@ def _constats(lu: BulletinLu) -> list[str]:
         constats.append(f"rappels : {libelles}")
     if lu.rappel_decompte:
         constats.append(f"rappel sur décompte : {lu.rappel_decompte:.2f} €")
+    colles = m.get("200207", 0.0) + m.get("200207_R", 0.0)
+    if colles and jour is not None:
+        constats.append("colles : " + decrit_colles(colles, jour))
     return constats
 
 
@@ -343,7 +347,7 @@ def reconnait(pdf_path: str | Path, bareme: Bareme = BAREME) -> Reconnaissance:
         else:
             enfants_sft = 0
 
-    constats = _constats(lu)
+    constats = _constats(lu, jour)
     if _hors_grille(en_tete):
         constats.insert(0, _HORS_GRILLE[_hors_grille(en_tete)])
     if fraction is not None:

@@ -8,11 +8,13 @@ DOSSIER_DES_PDF contient les bulletins de l'ENSAP, nommés AAAA_MM_BP_mois.pdf
 pip install "bpaye[pdf] @ git+https://github.com/antnardo/bpaye".
 """
 
+import datetime as dt
 import sys
 from pathlib import Path
 
 from bpaye import Paye, load_agent
 from bpaye.codes import ALL_CODES, equivalents
+from bpaye.colles import decrit_colles
 from bpaye.format import MOIS
 from bpaye.pdf import ecart_totaux, extract_bulletin, find_pdfs
 
@@ -60,6 +62,8 @@ def comparer(agent_dossier: Path, annee: int, lus: dict[int, dict]) -> None:
                 ecarts.append(
                     f"{code} {libelle[:24]:24} calcul {calcul.get(code, 0.0):9.2f}  bulletin {reel:9.2f}"
                 )
+                if code == "200207" and reel:  # ce que le montant du bulletin représente en heures
+                    ecarts.append("       " + decrit_colles(reel, dt.date(annee, mois, 1)))
         print(f"  {MOIS[mois - 1]:9}  " + ("identique" if not ecarts else f"{len(ecarts)} écart(s)"))
         for ligne in ecarts:
             print(f"             {ligne}")

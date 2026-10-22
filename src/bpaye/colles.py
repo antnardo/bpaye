@@ -16,7 +16,8 @@ from typing import Protocol
 
 from bpaye.classes import Ligne
 from bpaye.config import BAREME, Bareme
-from bpaye.hsa import code_colle, valeur_colle
+from bpaye.hsa import CODE, CORPS_DU_CODE, code_colle, valeur_colle
+from bpaye.ors import ORS_CPGE
 from bpaye.protocoles import Agent, BulletinMois
 from bpaye.utils import decalage_mois
 from bpaye.vacances import ZONE_PAR_DEFAUT, semaines_de_cours
@@ -29,9 +30,13 @@ __all__ = [
     "Colles",
     "CollesExternes",
     "CollesPrevues",
+    "LectureColles",
     "brut_colles_externes",
+    "decrit_colles",
+    "heures_du_montant",
     "inject_colles_prevues",
     "semaines_de_colles",
+    "sens_du_code",
 ]
 
 # Colles de seconde année. Le budget d'une classe compte SEMAINES_BUDGET semaines de
@@ -332,3 +337,83 @@ def brut_colles_externes(
         for code, heures in externes.heures.items():
             brut[paiement] += Colle(dt.date(y, m, 1), code, heures * semaines, bareme=bareme).total
     return {mois: round(montant, 2) for mois, montant in sorted(brut.items())}
+
+
+# ── Retrouver les heures d'un montant de colles ─────────────────────────────────────────
+
+_CLASSES = {
+    "sciences-2": "2e année scientifique",
+    "sciences-1": "1re année scientifique",
+    "lettres-2": "première supérieure",
+    "lettres-1": "lettres supérieures",
+    "autres": "autre classe préparatoire",
+}
+_EFFECTIFS = ("plus de 35 élèves", "20 à 35 élèves", "moins de 20 élèves")
+
+
+def sens_du_code(code: int) -> str:
+    """Ce que désigne un code de colle : le corps dont il donne le taux, et les classes dont
+    l'ORS est celle du code (décret 50-581, art. 6 et 7 ; ors.ORS_CPGE)."""
+    ors = CODE[code]
+    classes = [
+        f"{_CLASSES[cle]} de {_EFFECTIFS[rang]}"
+        for cle, valeurs in ORS_CPGE.items()
+        for rang, valeur in enumerate(valeurs)
+        if valeur == ors
+    ]
+    return f"taux {CORPS_DU_CODE[code].lower()}, classe à {ors} h de service : " + ", ".join(classes)
+
+
+@dataclass(frozen=True, slots=True)
+class LectureColles:
+    """Ce que vaut un montant de colles en heures, à un code et à un taux : ``heures`` est le
+    montant divisé par le taux, sans arrondi ; ``entiere`` dit si c'est un nombre entier
+    d'heures, au centime du montant près."""
+
+    code: int
+    taux: float
+    mois_du_taux: dt.date
+    heures: float
+    entiere: bool
+
+    def __str__(self) -> str:
+        heures = f"{round(self.heures):d} h" if self.entiere else f"{self.heures:.2f} h"
+        return f"{heures} au code {self.code:03d} ({self.taux:.2f} € l'heure en {self.mois_du_taux:%m/%Y})"
+
+
+def heures_du_montant(montant: float, date: dt.date, mois: int = 12) -> list[LectureColles]:
+    """Ce que représente ``montant``, payé le mois de ``date``, en heures de colles : pour
+    chaque code et chaque taux en vigueur sur les ``mois`` mois qui précèdent le paiement
+    (une colle se paie au taux du mois où elle est faite), le montant divisé par le taux.
+    Aucune hypothèse sur le code, la date des colles ni leur mélange : un total se partage
+    entre codes de bien des façons (9 h au code 006 valent 10 h au code 007), et seul un
+    nombre entier d'heures à un code est un indice, que l'appelant présente comme tel."""
+    lectures: list[LectureColles] = []
+    vus: set[tuple[int, float]] = set()
+    for recul in range(mois + 1):
+        annee, numero = decalage_mois(date.year, date.month, -recul)
+        jour = dt.date(annee, numero, 1)
+        for code in CODE:
+            try:
+                taux = valeur_colle(code, jour)
+            except ValueError:
+                continue  # pas de barème vérifié ce mois-là
+            if (code, round(taux, 6)) in vus:
+                continue
+            vus.add((code, round(taux, 6)))
+            heures = montant / taux
+            n = round(heures)
+            entiere = n > 0 and abs(round(taux * n, 2) - montant) <= 0.01
+            lectures.append(LectureColles(code, taux, jour, heures, entiere))
+    return lectures
+
+
+def decrit_colles(montant: float, date: dt.date) -> str:
+    """En une phrase, ce que représente ``montant`` de colles payé le mois de ``date`` : les
+    nombres entiers d'heures à un seul code, avec le sens du code, ou le constat qu'il n'y en
+    a pas (plusieurs codes, ou des colles de mois à taux différents, mêlés)."""
+    entieres = [lecture for lecture in heures_du_montant(montant, date) if lecture.entiere]
+    if not entieres:
+        return f"{montant:.2f} € : aucun nombre entier d'heures à un seul code (codes ou mois mêlés)"
+    lectures = " ; ou ".join(f"{lecture} — {sens_du_code(lecture.code)}" for lecture in entieres)
+    return f"{montant:.2f} € = {lectures}"

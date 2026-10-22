@@ -137,3 +137,41 @@ def test_colles_prevues_suivent_la_zone_du_lycee(configuration):
         mois_par_zone[zone] = {c.date.month: c.heures for c in inject_colles_prevues(paye, 2025)}
     # Février : les vacances des zones A et C ne tombent pas les mêmes semaines.
     assert mois_par_zone["A"][2] != mois_par_zone["C"][2]
+
+
+def test_heures_entieres_retrouvees_d_un_montant():
+    from bpaye.colles import heures_du_montant
+    from bpaye.hsa import valeur_colle
+
+    jour = dt.date(2025, 3, 1)
+    montant = round(valeur_colle(157, jour) * 22, 2)
+    entieres = [
+        (lecture.code, round(lecture.heures))
+        for lecture in heures_du_montant(montant, jour)
+        if lecture.entiere
+    ]
+    assert (157, 22) in entieres
+
+
+def test_un_montant_peut_se_lire_a_deux_codes():
+    # 8/10 = 28/35 : 28 h au code 157 valent 35 h au code 090, toutes deux affichées.
+    from bpaye.colles import decrit_colles
+    from bpaye.hsa import valeur_colle
+
+    jour = dt.date(2025, 1, 1)
+    texte = decrit_colles(round(valeur_colle(157, jour) * 28, 2), jour)
+    assert "28 h au code 157" in texte and "35 h au code 090" in texte
+
+
+def test_montant_melange_dit_tel_quel():
+    from bpaye.colles import decrit_colles
+
+    assert "aucun nombre entier" in decrit_colles(1216.94, dt.date(2019, 2, 1))
+
+
+def test_sens_du_code_tire_des_ors():
+    from bpaye.colles import sens_du_code
+
+    assert sens_du_code(161).startswith(
+        "taux agrégé, classe à 8 h de service : 2e année scientifique de plus de 35"
+    )
