@@ -29,6 +29,7 @@ from bpaye.vacances import VACANCES, ZONE_PAR_DEFAUT
 __all__ = [
     "PSC_DECLAREE",
     "Fonctionnaire",
+    "anciennete_conservee",
     "echelon_d_accueil",
     "load_agent",
 ]
@@ -308,8 +309,11 @@ class Fonctionnaire:
     def update_residence(self, date: dt.date, zone: int) -> None:
         self.residence.append(date, zone)
 
-    def update_grille(self, date: dt.date, echelon_depart: int, nouvelle_grille: Temporal[Grille]) -> None:
-        """Changement de corps : bascule sur nouvelle_grille à partir de date."""
+    def update_grille(
+        self, date: dt.date, echelon_depart: int, nouvelle_grille: Temporal[Grille], anciennete: float = 0.0
+    ) -> None:
+        """Changement de corps : bascule sur nouvelle_grille à partir de date, à
+        ``echelon_depart`` avec ``anciennete`` années déjà acquises (anciennete_conservee)."""
         grille_perso: Temporal[Grille] = Temporal()
         for d, g in self.grille.values:
             if d < date:
@@ -324,7 +328,7 @@ class Fonctionnaire:
         self.echelon.remove_after(date)
         self.anciennete.remove_after(date)
         self.echelon.append(date, echelon_depart)
-        self.anciennete.append(date, 0)
+        self.anciennete.append(date, anciennete)
         # L'ancienneté dans le nouveau corps part du changement : les échelons suivants
         # tombent à son jour (le 1er septembre 2023 → le 1er septembre 2025, rappel compris
         # sur les bulletins d'avril 2026), plus au jour anniversaire de l'entrée en carrière.
@@ -604,7 +608,8 @@ class Fonctionnaire:
             veille = jour - dt.timedelta(days=1)
             meme_famille = nouvelle.value(jour).corps == fonc.grille.value(veille).corps
             corps = cc.get("corps", fonc.corps(veille) if meme_famille else nouvelle.value(jour).corps)
-            fonc.update_grille(jour, echelon, nouvelle)
+            anciennete = anciennete_conservee(fonc, jour, nouvelle.value(jour), echelon)
+            fonc.update_grille(jour, echelon, nouvelle, anciennete)
             fonc.noms_grille.append(jour, cc["grille"])
             fonc.corps.append(jour, corps)
 
@@ -650,6 +655,31 @@ def load_agent(path: str | Path) -> Fonctionnaire:
     """Un agent nouveau, sa situation lue dans agent.toml ; sa carrière se lit ensuite
     par agent.load_carriere(chemin)."""
     return Fonctionnaire().load_agent(path)
+
+
+def anciennete_conservee(fonc: Fonctionnaire, jour: dt.date, accueil: Grille, echelon: int) -> float:
+    """L'ancienneté que l'agent garde en changeant de corps le ``jour``, classé à
+    ``echelon`` de la grille ``accueil``.
+
+    Chaire supérieure (décret 68-503, art. 5, inchangé depuis 1967) : l'ancienneté acquise
+    dans l'ancien échelon est conservée, dans la limite de la durée de l'échelon d'accueil,
+    si la nomination procure un gain d'indice inférieur à celui d'une promotion d'échelon
+    dans l'ancien grade, ou si l'agrégé était au 11e échelon ; sinon, aucune.
+    https://www.legifrance.gouv.fr/loda/id/JORFTEXT000000868842/2023-09-01/
+    Pour un autre corps, la règle de classement de son statut n'est pas relue : aucune
+    ancienneté conservée, comme jusqu'ici (supposé)."""
+    if accueil.corps != "Chaire Supérieure":
+        return 0.0
+    veille = jour - dt.timedelta(days=1)
+    ancienne, e, im = fonc.grille(veille), fonc.echelon(veille), fonc.indice(veille)
+    entree = max(d for d, v in fonc.echelon.values if v == e and d <= veille)
+    acquise = fonc.anciennete(entree) + (jour - entree).days / 365.25
+    gain_promotion = ancienne.indice(e + 1) - im if e < len(ancienne) else 0
+    au_onzieme_agrege = ancienne.corps == "Agrégé" and e == 11
+    if accueil.indice(echelon) - im >= gain_promotion and not au_onzieme_agrege:
+        return 0.0
+    duree = accueil.anciennete[echelon - 1]
+    return round(min(acquise, duree), 4) if duree is not None else round(acquise, 4)
 
 
 def echelon_d_accueil(grille: Grille, indice: float) -> int:

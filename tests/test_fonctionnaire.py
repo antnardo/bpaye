@@ -172,3 +172,41 @@ def test_indice_du_mois_d_un_avancement_identique_quel_que_soit_le_jour(configur
     attendu = round(14 / 30 * grille.indice(echelon - 1) + 16 / 30 * grille.indice(echelon), 2)
     for dans_le_mois in (jour.replace(day=1), jour, jour.replace(day=28)):
         assert fonc.indice(dans_le_mois) == pytest.approx(attendu, abs=0.01)
+
+
+AGREGE_PUIS_CHAIRE = """
+[depart]
+nom        = "Agent Fictif"
+grille     = "GRILLE_AGCN"
+echelon    = {echelon}
+anciennete = 0.0
+date       = {depart}
+
+[[detachements]]
+date    = {depart}
+detache = false
+
+[[changements_corps]]
+date   = 2023-09-01
+grille = "GRILLE_CHSUP"
+"""
+
+
+def _chaire(tmp_path, echelon, depart):
+    chemin = tmp_path / "carriere.toml"
+    chemin.write_text(AGREGE_PUIS_CHAIRE.format(echelon=echelon, depart=depart), encoding="utf-8")
+    return Fonctionnaire().load_carriere(chemin)
+
+
+def test_chaire_superieure_sans_anciennete_quand_le_gain_vaut_une_promotion(tmp_path):
+    # Agrégé CN 9e (IM 757) → chaire supérieure 4e (IM 800) : +43, autant que le 10e
+    # d'agrégé (IM 800). Décret 68-503, art. 5 : l'ancienneté n'est pas conservée.
+    fonc = _chaire(tmp_path, 9, "2021-03-01")
+    assert (fonc.echelon(dt.date(2023, 9, 1)), fonc.anciennete(dt.date(2023, 9, 1))) == (4, 0.0)
+
+
+def test_chaire_superieure_garde_l_anciennete_de_l_agrege_au_onzieme(tmp_path):
+    # Art. 5, 3e alinéa : l'agrégé du 11e échelon garde son ancienneté (ici un an et demi),
+    # dans la limite de la durée de l'échelon d'accueil.
+    fonc = _chaire(tmp_path, 11, "2022-03-01")
+    assert fonc.anciennete(dt.date(2023, 9, 1)) == pytest.approx(1.5, abs=0.01)
