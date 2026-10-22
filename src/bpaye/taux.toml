@@ -745,6 +745,17 @@ values = [
   { date = 2005-08-27, valeur = 1.25 },
 ]
 
+# Heures de surveillance (200216) : décret 50-1253, art. 5, version depuis le 1/1/2008 (décret
+# 2008-199, art. 5) : « les heures supplémentaires consacrées à des tâches de surveillance sont
+# rémunérées à raison d'un trente-sixième du taux annuel […], le taux obtenu étant réduit de
+# 50 % ». Avant 2008 : non relu (MANQUANT).
+# https://www.legifrance.gouv.fr/loda/id/JORFTEXT000000489039/2008-06-01/ et /2026-10-17/
+[hs_surveillance]
+type = "Taux"
+values = [
+  { date = 2008-01-01, valeur = 0.5 },
+]
+
 # ──────────────────────────────────────────────
 # SURCOTISATION D'UN TEMPS PARTIEL (code des pensions, L11 bis et D5 ; temps_partiel.py)
 # Taux employeur de la CNRACL (décret 91-613, art. 5 II), auquel renvoie l'art. D5 depuis

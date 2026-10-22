@@ -39,11 +39,11 @@ __all__ = [
     "calc_hsa",
     "code_colle",
     "compile_hs",
-    "ds",
     "hsa",
     "hsa_majo",
     "hse",
     "hsi",
+    "surveillance",
     "valeur_colle",
     "valeur_hse",
     "valeur_hsi",
@@ -268,13 +268,14 @@ def hsi(fonctionnaire: Agent, date: dt.date, heures: float, comm: str = "", bare
     return Ligne(total, f"H. Interr. HSI {heures}h [{comm}]", code=200207, classe="INDEM")
 
 
-def ds(fonctionnaire: Agent, date: dt.date, heures: float, comm: str = "", bareme: Bareme = BAREME) -> Ligne:
-    """Heures de devoir surveillé payées comme des HSE (200215), au taux des heures
-    d'interrogation réduit de moitié : relevé sur des bulletins, aucun texte lu ne le dit
-    (supposé)."""
-    taux_hsi = taux_hsa_annuel(fonctionnaire, date, rounded=False, bareme=bareme) / 36 * REDUCTION_HSI
-    total = round(taux_hsi * heures / 2, 2)
-    return Ligne(total, f"H. Interr. HSI {heures}h 50% - DS {comm}", code=200215, classe="INDEM")
+def surveillance(
+    fonctionnaire: Agent, date: dt.date, heures: float, comm: str = "", bareme: Bareme = BAREME
+) -> Ligne:
+    """Heures consacrées à des tâches de surveillance (200216) : un trente-sixième du taux
+    annuel de l'HSA, réduit de 50 % (décret 50-1253, art. 5 ; taux.toml, hs_surveillance)."""
+    taux_annuel = taux_hsa_annuel(fonctionnaire, date, rounded=False, bareme=bareme)
+    total = round(taux_annuel / 36 * bareme.load("hs_surveillance")(date) * heures, 2)
+    return Ligne(total, f"H. Sup. Surveillance {heures}h - {comm}", code=200216, classe="INDEM")
 
 
 # 01/07/10 : HSA = {8:2885.03, 9:2564.47, 10:2308.02, 11:2098.20}

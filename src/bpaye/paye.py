@@ -31,7 +31,7 @@ from bpaye.colles import Colle, Colles
 from bpaye.config import BAREME, Bareme
 from bpaye.fonctionnaire import Fonctionnaire
 from bpaye.gipa import gipa as ligne_gipa
-from bpaye.hsa import ds, hsa, hsa_majo, hse, hsi
+from bpaye.hsa import hsa, hsa_majo, hse, hsi, surveillance
 from bpaye.indemnite_comp_csg import indemnite_comp_csg
 from bpaye.indemnite_residence import indemnite_residence
 from bpaye.indemnites import (
@@ -93,7 +93,7 @@ CLASSES_CHARGES = ("CHARGE", "PC", "RAFP", "IMPOT")
 
 
 class HeureSup(Protocol):
-    """Une rubrique d'heures ponctuelles : hsa.hse, hsa.hsi, hsa.ds."""
+    """Une rubrique d'heures ponctuelles : hsa.hse, hsa.hsi, hsa.surveillance."""
 
     def __call__(
         self,
@@ -685,8 +685,9 @@ class Paye:
     def hsi(self, *args: Any, **kwargs: Any) -> None:
         self.heure_sup(hsi, *args, **kwargs)
 
-    def ds(self, *args: Any, **kwargs: Any) -> None:
-        self.heure_sup(ds, *args, **kwargs)
+    def surveillance(self, *args: Any, **kwargs: Any) -> None:
+        """Heures de surveillance (devoirs, examens), payées le mois donné (hsa.surveillance)."""
+        self.heure_sup(surveillance, *args, **kwargs)
 
     def colle(
         self,

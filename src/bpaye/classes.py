@@ -485,7 +485,7 @@ class ListeLignes:
         (feuille Annexes_14_15, ligne 1281, https://www.amue.fr/fileadmin/amue/ressources-humaines/2026/tour_de_web_special_paye/INGRES_C_V25.00.06_F25.00.00_P00_BG_ANNEXES14_ET_15.xlsx),
         et aucune annexe 14 A, 14 B ou 14 C de 2026 ne la classe. Si la paie ne l'exonère
         pas, l'écart le montre."""
-        codes = (200205, 200207, 200215, 200497, 200576, 201241, 201300, 201717, 202475, 202476)
+        codes = (200205, 200207, 200215, 200216, 200497, 200576, 201241, 201300, 201717, 202475, 202476)
         return sum(ligne.valeur for ligne in self if ligne.code in codes)
 
     # ── Somme calcul + reel ───────────────────────────────────────────────────

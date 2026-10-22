@@ -489,3 +489,27 @@ def test_isoe_modulable_lue_sous_l_un_ou_l_autre_code(configuration):
     bulletin.append(Ligne(124.82, "ISOE Part modulable", code=202566, classe="INDEM"))
     bulletin.join({"201228": 124.82})
     assert [ligne.valeur_reel for ligne in bulletin if ligne.code == 202566] == [124.82]
+
+
+def test_heures_de_surveillance_a_la_moitie_du_trente_sixieme(configuration):
+    from bpaye.hsa import taux_hsa_annuel
+
+    paye = _paye(configuration, 1, 12)
+    paye.surveillance((2025, 11), 4)
+    lignes = [ligne for ligne in paye(2025, 11) if ligne.code == 200216]
+    taux = taux_hsa_annuel(paye.fonctionnaire, dt.date(2025, 11, 30), rounded=False)
+    assert [ligne.valeur for ligne in lignes] == [round(taux / 36 * 0.5 * 4, 2)]  # décret 50-1253, art. 5
+
+
+def test_heures_de_surveillance_exonerees_comme_les_autres(configuration):
+    paye = _paye(configuration, 1, 12)
+    avant = paye(2025, 11).hs_brut
+    paye.surveillance((2025, 11), 4)
+    assert paye(2025, 11).hs_brut > avant
+
+
+def test_taux_des_heures_de_surveillance_refuse_avant_2008():
+    from bpaye.config import BAREME
+
+    with pytest.raises(ValueError, match="MANQUANT"):
+        BAREME.load("hs_surveillance")(dt.date(2007, 12, 31))

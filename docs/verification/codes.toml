@@ -244,6 +244,15 @@ imposable = false
 source    = "DGFiP, annexe 14 C 2026 (copie AMUE), ligne 14 ; annexe 14 C janvier 2023, p. 1 ; INGRES ligne 219 (IMPOSA 0) ; BJ janvier 2026 ligne 305"
 
 [[code]]
+code      = "200216"
+ir        = "0216"
+libelle   = "Heures supplémentaires de surveillance"
+categorie = "revenu"
+imposable = false
+note      = "Heures ponctuelles consacrées à des tâches de surveillance (décret 50-1253, art. 5) ; déclarées : paye.surveillance."
+source    = "DGFiP, annexe 14 C 2026 (copie AMUE), ligne 16, https://www.amue.fr/fileadmin/amue/ressources-humaines/2026/tour_de_web_special_paye/ANNEXE_14C_HS_EXO_20260101.xlsx ; INGRES V25.00.06 ligne 222 (IMPOSA 0)"
+
+[[code]]
 code      = "200215"
 ir        = "0215"
 libelle   = "Heures supplémentaires d’enseignement des professeurs titulaires du 2nd degré relevant du ministère de l’éducation nationale"
