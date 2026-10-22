@@ -225,6 +225,14 @@ def test_assiette_rafp_sans_traitement_ni_frais(configuration):
     assert bulletin.assiette_rafp == pytest.approx(attendu)
 
 
+def test_assiette_contribution_solidarite_nette_du_transfert_primes_points(configuration):
+    bulletin = _paye(configuration, 1, 12)(2025, 1)
+    assert bulletin.tpp < 0
+    frais = sum(ligne.valeur for ligne in bulletin if ligne.code in (200039, 200041))
+    attendu = bulletin.revenus - frais + bulletin.rafp + bulletin.pc + bulletin.tpp
+    assert bulletin.assiette_cs == pytest.approx(attendu)
+
+
 def _total(bulletin, code):
     return sum(ligne.valeur for ligne in bulletin if ligne.code == code)
 

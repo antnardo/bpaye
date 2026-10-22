@@ -81,6 +81,7 @@ import math
 from bpaye.classes import Ligne, Taux
 from bpaye.config import BAREME, Bareme
 from bpaye.point import calc_traitement_brut
+from bpaye.utils import truncate
 
 __all__ = [
     "NOUVEAU_LOGICIEL_PAIE",
@@ -232,13 +233,15 @@ def contribution_solidarite(
     (``assiette``), dans la limite du plafond de l'assurance chômage (4 PMSS, taux.toml) ;
     exonérée quand la rémunération mensuelle nette (traitement et indemnité de résidence,
     nets de la pension et de la RAFP : ``net_mensuel``) est sous le traitement brut de
-    l'indice de référence (taux.toml, contrisoli_seuil)."""
+    l'indice de référence (taux.toml, contrisoli_seuil). Tronquée au centime : aucun texte
+    lu ne fixe l'arrondi (MANQUANT) ; relevé sur les bulletins de 2017, où 1 % de
+    2 999,74 € donne 29,99 €."""
     taux = bareme.load("contrisoli")
     if taux(date) == 0.0:
         return Ligne(0.0, "Contribution Solidarité", code=555010, classe="CHARGE")
     seuil = calc_traitement_brut(bareme.get("contrisoli_seuil.indice_majore"), date, bareme)
     plafond = bareme.get("contrisoli_plafond.pmss") * bareme.load("pmss")(date)
-    montant = 0.0 if net_mensuel < seuil else round(taux.taux(min(assiette, plafond), date), 2)
+    montant = 0.0 if net_mensuel < seuil else truncate(taux.taux(min(assiette, plafond), date), 2)
     return Ligne(-montant, "Contribution Solidarité", code=555010, classe="CHARGE")
 
 

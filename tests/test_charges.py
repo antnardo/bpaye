@@ -128,3 +128,10 @@ def test_contribution_de_solidarite_supprimee_en_2018():
     from bpaye.charges import contribution_solidarite
 
     assert contribution_solidarite(3000.0, dt.date(2018, 1, 31), net_mensuel=2500.0).valeur == 0.0
+
+
+def test_contribution_de_solidarite_tronquee_au_centime():
+    # Juillet 2017 : 1 % de 2 999,74 € = 29,9974 €, payé 29,99 €.
+    from bpaye.charges import contribution_solidarite
+
+    assert contribution_solidarite(2999.74, JUIN_2017, net_mensuel=2685.4).valeur == -29.99

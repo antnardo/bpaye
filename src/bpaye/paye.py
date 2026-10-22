@@ -386,9 +386,12 @@ class Bulletin(ListeLignes):
     @property
     def assiette_cs(self) -> float:
         """La rémunération nette totale de la contribution de solidarité, hors remboursements
-        de frais professionnels (code du travail, L5423-27)."""
+        de frais professionnels (code du travail, L5423-27) : nette de la pension, de la RAFP
+        et du transfert primes/points, abattement sur les primes qui diminue la rémunération.
+        Le transfert n'est pas nommé par un texte lu ; relevé sur 11 bulletins de 2017 sur 12,
+        au centime (le douzième compte en plus le rappel net d'un décompte)."""
         frais = sum(ligne.valeur for ligne in self if ligne.code in self.FRAIS_EXONERES)
-        return self.revenus - frais + self.rafp + self.pc
+        return self.revenus - frais + self.rafp + self.pc + self.tpp
 
     @property
     def net_mensuel_cs(self) -> float:
