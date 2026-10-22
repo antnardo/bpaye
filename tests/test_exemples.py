@@ -39,3 +39,18 @@ def test_verifier_lit_controle_et_compare(tmp_path, capsys, monkeypatch, faux_bu
     assert "janvier    net à payer   2350.00 €  lecture complète" in sortie
     assert "rappels : 200205" in sortie
     assert "101000 TB" in sortie  # le traitement du faux bulletin n'est pas celui de l'agente
+
+
+def test_exporter_ecrit_un_fichier_par_mois_et_les_deux_tableaux(
+    tmp_path, capsys, monkeypatch, faux_bulletin_pdf
+):
+    faux_bulletin_pdf(tmp_path / "2026_01_BP_janvier.pdf")
+    sortie = tmp_path / "csv"
+    monkeypatch.setattr(sys, "argv", ["exporter.py", str(tmp_path), str(EXEMPLES / "college"), str(sortie)])
+    runpy.run_path(str(EXEMPLES / "exporter.py"), run_name="__main__")
+    assert "1 mois, de 01/2026 à 01/2026" in capsys.readouterr().out
+    assert sorted(p.name for p in sortie.iterdir()) == [
+        "2026-01.csv",
+        "bulletins_calcules.csv",
+        "bulletins_lus.csv",
+    ]
