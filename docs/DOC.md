@@ -397,6 +397,7 @@ paye.colle((2025, 10), {161: 6.0})                       # colles déclarées en
 paye.hse((2025, 11), 3)                                  # heures supplémentaires effectives
 paye.hse((2025, 11), 2, code=201241)                     # HSE de remplacement de courte durée
 paye.vacation((2025, 12), 6, 42.0)                       # 6 h de vacations de formation à 42 €
+paye.surveillance((2025, 12), 4)                         # 4 h de surveillance (devoir, examen)
 paye.erreur((2025, 4), (2025, 6), 50.0, 200364)          # un trop-versé repris deux mois après
 paye.gipa(2023, (2025, 12))                              # la GIPA de 2023, versée en décembre 2025
 ```
@@ -530,6 +531,7 @@ Ce qui ne se déduit pas devient une remarque, jamais une valeur devinée. Les b
 | 200207 | heures d'interrogation (colles) | 1/36 du taux annuel × 0,75, au code déclaré | décret 50-1253, art. 3 |
 | 200215 | HSE | 1/36 × 1,25 (1,15 avant 2008) | décret 50-1253, art. 5 |
 | 201241, 201717, 201300 | HSE de remplacement, de réussite au lycée, des dispositifs | `paye.hse(…, code=…)` : 1/36 × 1,25 ; remplacement : 1,25 dès 2005 | décret 50-1253, art. 5 ; décret 2005-1036 ; décret 2023-732 |
+| 200216 | heures de surveillance | `paye.surveillance` : 1/36 × 0,5 du taux annuel, depuis 2008 | décret 50-1253, art. 5 |
 | 201339, 201856 | vacations de formation, actions à pilotage national | `paye.vacation`, au taux déclaré | décret 2010-235 ; décret 2014-1394 |
 | 200364 | ISOE part fixe | second degré | décret 93-55 ; arrêté du 15/01/1993 |
 | 201228, 202566 | ISOE part modulable | professeur principal, par niveau, indexée sur le point depuis 2009 ; les deux codes comparés comme une même ligne (la paie porte encore 201228 en 2026) | arrêté du 15/01/1993, art. 2 ; décret 93-55, art. 4 |
