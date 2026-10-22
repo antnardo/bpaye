@@ -199,7 +199,7 @@ for mois in nets_prevus(carriere, agent, (2026, 8), 3):
 Somme [200364] réel=—  calcul=2428.56 € (0/12 mois PDF)
 2026 8 2755.62
 2026 9 2167.01
-2026 10 2167.01
+2026 10 2167.02
 ```
 
 En septembre 2026, l'agente passe à 80 % : la prévision le montre. Ce que la carrière ne

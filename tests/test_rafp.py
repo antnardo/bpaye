@@ -45,3 +45,12 @@ def test_mois_recalcule_redonne_la_meme_cotisation(primes):
     rafp = RAFP()
     premiere = -rafp(dt.date(2025, 3, 31), 3000, primes).valeur
     assert -rafp(dt.date(2025, 3, 31), 3000, primes).valeur == premiere
+
+
+def test_cotisation_cumulee_tronquee_varie_d_un_centime():
+    # 2025 : 20 % de 3 962,84 € = 792,568 € d'assiette par mois ; le cumul tronqué prélève
+    # 39,62 € en janvier et juillet, 39,63 € les autres mois, comme les bulletins.
+    rafp = RAFP()
+    mois = [-rafp(dt.date(2025, m, 28), 3962.84, 1000.0).valeur for m in range(1, 13)]
+    assert mois[0] == mois[6] == 39.62
+    assert set(mois[1:6] + mois[7:]) == {39.63}

@@ -4,6 +4,12 @@ L'assiette est plafonnée à 20 % du traitement indiciaire brut, cumulé sur l'a
 civile : chaque mois cotise sur le cumul des primes dans la limite du cumul des
 plafonds, moins ce qui a déjà cotisé. Un bulletin qui change fait donc recalculer
 les suivants de l'année ; RAFP garde l'année en mémoire pour cela.
+
+La cotisation cumulée de l'année est tronquée au centime, et le mois prélève ce qui s'y
+ajoute : la cotisation d'un mois varie d'un centime (39,62 € en janvier et juillet, 39,63 €
+les autres mois, sur une assiette de 792,568 € par mois). Aucun texte lu ne fixe l'arrondi
+(MANQUANT) ; cette règle retrouve tous les mois des années 2020, 2022, 2024 et 2025, quand
+un arrondi de la cotisation de chaque mois en manquait jusqu'à quatre par an.
 """
 
 import datetime as dt
@@ -12,6 +18,7 @@ from dataclasses import dataclass, field
 
 from bpaye.classes import Ligne
 from bpaye.config import BAREME, Bareme
+from bpaye.utils import truncate
 
 __all__ = [
     "RAFP",
@@ -57,7 +64,7 @@ class RAFP:
         par date : un bulletin d'une autre année, calculé après, ne se mêle pas au cumul.
         """
         annee = self._entries[start].date.year
-        plafond = primes = assiette = 0.0
+        plafond = primes = assiette = exacte = cotise = 0.0
         for e in self._entries:
             if e.date.year != annee:
                 continue
@@ -65,7 +72,9 @@ class RAFP:
             primes += e.prime
             e.assiette = min(plafond, primes) - assiette
             assiette += e.assiette
-            val = round(e.taux * e.assiette, 2)
+            exacte += e.taux * e.assiette  # la cotisation cumulée, avant troncature
+            val = round(truncate(exacte, 2) - cotise, 2)
+            cotise = round(cotise + val, 2)
             if e.ligne is None:
                 e.ligne = Ligne(-val, "RAFP", code=501080, classe="RAFP")
             else:
