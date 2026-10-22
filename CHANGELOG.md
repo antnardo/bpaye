@@ -71,6 +71,9 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et la
 
 ### Corrigé
 
+- HSA et majoration : arrondies au centime depuis le taux annuel exact, non depuis le taux
+  arrondi (sept HSA de 2018 : 2 132,98 € et non 2 132,99 €) ; 150 mois sur 154 relevés de
+  2017 à 2026, les quatre autres étant une erreur de la paie.
 - RAFP : la cotisation cumulée de l'année est tronquée au centime, et chaque mois prélève ce
   qui s'y ajoute (39,62 € en janvier et juillet, 39,63 € les autres mois) ; relevé sur tous
   les mois de 2020, 2022, 2024 et 2025.
