@@ -48,7 +48,7 @@ from bpaye.grille import GRILLES
 from bpaye.pdf import DR_MONTH_FR, BulletinLu, ecart_totaux, extract_bulletin
 from bpaye.point import calc_traitement_brut
 from bpaye.sft import valeur_sft
-from bpaye.utils import last_day_month
+from bpaye.utils import dernier_jour
 
 __all__ = [
     "EnTete",
@@ -173,7 +173,7 @@ def lire_en_tete(pdf_path: str | Path) -> EnTete:
     mois = None
     haut = _texte([c for c in caracteres if _Y_MOIS[0] <= c["top"] <= _Y_MOIS[1] and 290 <= c["x0"] < 420])
     if (m := _MOIS_RE.search(_sans_accents(haut).upper())) and m.group(1) in DR_MONTH_FR:
-        mois = last_day_month(dt.date(int(m.group(2)), DR_MONTH_FR[m.group(1)], 1))
+        mois = dernier_jour(int(m.group(2)), DR_MONTH_FR[m.group(1)])
     temps = _texte(
         [
             c

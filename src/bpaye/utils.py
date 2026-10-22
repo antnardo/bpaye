@@ -7,12 +7,14 @@ from math import ceil, floor
 __all__ = [
     "add_date_round",
     "decalage_mois",
+    "dernier_jour",
     "last_day_month",
     "next_month",
     "parse_toml_date",
     "previous_month",
     "range_mois",
     "truncate",
+    "veille",
 ]
 
 
@@ -58,7 +60,17 @@ def next_month(date: dt.date) -> dt.date:
 
 
 def last_day_month(date: dt.date) -> dt.date:
-    return next_month(date) - dt.timedelta(days=1)
+    return veille(next_month(date))
+
+
+def dernier_jour(year: int, mois: int) -> dt.date:
+    """Le dernier jour du mois ``mois`` de ``year`` : la date d'un bulletin."""
+    return last_day_month(dt.date(year, mois, 1))
+
+
+def veille(date: dt.date) -> dt.date:
+    """Le jour d'avant ``date``."""
+    return date - dt.timedelta(days=1)
 
 
 def decalage_mois(year: int, mois: int, decalage: int) -> tuple[int, int]:
@@ -68,8 +80,5 @@ def decalage_mois(year: int, mois: int, decalage: int) -> tuple[int, int]:
 
 
 def range_mois(start: tuple[int, int] = (2017, 9), n: int = 12) -> Iterator[tuple[int, int]]:
-    y, m = start
-    for _ in range(n):
-        yield y, m
-        y = y + m // 12
-        m = m % 12 + 1
+    for i in range(n):
+        yield decalage_mois(*start, i)

@@ -3,7 +3,7 @@ import datetime as dt
 import pytest
 
 from bpaye.classes import Temporal
-from bpaye.utils import add_date_round, truncate
+from bpaye.utils import add_date_round, dernier_jour, range_mois, truncate, veille
 
 
 @pytest.mark.parametrize(
@@ -42,3 +42,12 @@ def test_temporal_change_un_31_sans_planter():
     temporal = Temporal()
     temporal.append(dt.date(2024, 1, 31), 1)
     assert temporal.changed_trigger(dt.date(2024, 2, 15))
+
+
+def test_dernier_jour_et_veille():
+    assert dernier_jour(2024, 2) == dt.date(2024, 2, 29)
+    assert veille(dt.date(2025, 3, 1)) == dt.date(2025, 2, 28)
+
+
+def test_range_mois_passe_l_annee():
+    assert list(range_mois((2025, 11), 3)) == [(2025, 11), (2025, 12), (2026, 1)]

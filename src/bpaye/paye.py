@@ -66,7 +66,7 @@ from bpaye.point import (
 )
 from bpaye.sft import sft, sft_du_mois
 from bpaye.temps_partiel import reduit, taux_surcotisation
-from bpaye.utils import decalage_mois, last_day_month, previous_month, range_mois, truncate
+from bpaye.utils import decalage_mois, dernier_jour, previous_month, range_mois, truncate
 
 __all__ = [
     "CODE_RAPPEL",
@@ -150,7 +150,7 @@ class Bulletin(ListeLignes):
         self.fonctionnaire = fonctionnaire
         self.bareme = bareme
         self.rafp_calculateur = rafp
-        self.date = last_day_month(dt.date(year, month, 1))
+        self.date = dernier_jour(year, month)
         depart = getattr(fonctionnaire, "date_depart", None)
         if depart is not None and self.date < depart:
             raise ValueError(f"Bulletin de {month:02d}/{year} : avant l'entrée dans la carrière, le {depart}")
@@ -672,7 +672,7 @@ class Paye:
             pyear, pmois = original_date
         else:
             pyear, pmois = paiement_date
-        odate = last_day_month(dt.date(pyear, pmois, 1))
+        odate = dernier_jour(pyear, pmois)
         ligne = fonction(self.fonctionnaire, odate, heures, comm, bareme=self.bareme)
         self.addligne(pyear, pmois, ligne)
 
@@ -745,7 +745,7 @@ class Paye:
 
     def paye_colle(self, paiement_date: tuple[int, int], c: Colle) -> None:
         year, mois = paiement_date
-        self.addligne(year, mois, c.paiement(last_day_month(dt.date(year, mois, 1))))
+        self.addligne(year, mois, c.paiement(dernier_jour(year, mois)))
 
     def colle_troppercue(
         self, paiement_date: tuple[int, int], codesheures: dict[int, float], comm: str = ""
@@ -939,7 +939,7 @@ class Paye:
                 return arg
             if isinstance(arg, (tuple, list)):
                 y, m = arg
-                return last_day_month(dt.date(y, m, 1))
+                return dernier_jour(y, m)
             # int = année
             m = 12 if last else 1
             d = 31 if last else 1

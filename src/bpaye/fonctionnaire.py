@@ -24,7 +24,7 @@ from bpaye.ors import CORPS_SANS_ORS, ORS_CORPS, calc_ors
 from bpaye.point import POINT
 from bpaye.reclassement import DATE_PPCR, reclasse
 from bpaye.temps_partiel import fraction_remuneration
-from bpaye.utils import add_date_round, parse_toml_date, truncate
+from bpaye.utils import add_date_round, parse_toml_date, truncate, veille
 from bpaye.vacances import VACANCES, ZONE_PAR_DEFAUT
 
 __all__ = [
@@ -490,10 +490,9 @@ class Fonctionnaire:
         d = self.echelon.date_trigger(date)
         if d is None or d.day == 1 or d <= self.echelon.values[0][0]:
             return None
-        veille = d - dt.timedelta(days=1)
         # L'échelon d'avant se lit dans la grille d'avant (indice_detenu) : un changement de
         # grade ou de corps change aussi de grille.
-        return min(d.day - 1, 30), self.indice_detenu(veille), self.indice_detenu(d)
+        return min(d.day - 1, 30), self.indice_detenu(veille(d)), self.indice_detenu(d)
 
     def indice(self, date: dt.date) -> float:
         """L'indice du mois de ``date``, quel qu'en soit le jour : au prorata des jours de
@@ -645,12 +644,12 @@ class Fonctionnaire:
             nouvelle = grilles_map[cc["grille"]]
             echelon = cc.get("echelon_depart")
             if echelon is None:
-                echelon = echelon_d_accueil(nouvelle.value(jour), fonc.indice(jour - dt.timedelta(days=1)))
+                echelon = echelon_d_accueil(nouvelle.value(jour), fonc.indice(veille(jour)))
             # Un changement de grade dans une grille partagée (hors classe d'un PE) garde le corps ;
             # un changement de grille d'un autre corps (agrégation, chaire supérieure) le change.
-            veille = jour - dt.timedelta(days=1)
-            meme_famille = nouvelle.value(jour).corps == fonc.grille.value(veille).corps
-            corps = cc.get("corps", fonc.corps(veille) if meme_famille else nouvelle.value(jour).corps)
+            la_veille = veille(jour)
+            meme_famille = nouvelle.value(jour).corps == fonc.grille.value(la_veille).corps
+            corps = cc.get("corps", fonc.corps(la_veille) if meme_famille else nouvelle.value(jour).corps)
             anciennete = anciennete_conservee(fonc, jour, nouvelle.value(jour), echelon)
             fonc.update_grille(jour, echelon, nouvelle, anciennete)
             fonc.noms_grille.append(jour, cc["grille"])
@@ -713,9 +712,9 @@ def anciennete_conservee(fonc: Fonctionnaire, jour: dt.date, accueil: Grille, ec
     ancienneté conservée, comme jusqu'ici (supposé)."""
     if accueil.corps != "Chaire Supérieure":
         return 0.0
-    veille = jour - dt.timedelta(days=1)
-    ancienne, e, im = fonc.grille(veille), fonc.echelon(veille), fonc.indice(veille)
-    entree = max(d for d, v in fonc.echelon.values if v == e and d <= veille)
+    la_veille = veille(jour)
+    ancienne, e, im = fonc.grille(la_veille), fonc.echelon(la_veille), fonc.indice(la_veille)
+    entree = max(d for d, v in fonc.echelon.values if v == e and d <= la_veille)
     acquise = fonc.anciennete(entree) + (jour - entree).days / 365.25
     gain_promotion = ancienne.indice(e + 1) - im if e < len(ancienne) else 0
     au_onzieme_agrege = ancienne.corps == "Agrégé" and e == 11

@@ -30,6 +30,7 @@ from bpaye.codes import (
     SURVEILLANCE,
     TPP,
 )
+from bpaye.utils import last_day_month, next_month
 
 __all__ = [
     "AnnuelPonctuel",
@@ -123,10 +124,9 @@ class Temporal(Generic[T]):
         raise ValueError(f"Valeur ({value}) non trouvée dans les données")
 
     def date_trigger(self, date: dt.date) -> dt.date | None:
-        start_month = date.replace(day=1)
-        next_month = (start_month.replace(day=28) + dt.timedelta(4)).replace(day=1)
+        debut, suivant = date.replace(day=1), next_month(date)
         for d, _ in self.values:
-            if start_month <= d < next_month:
+            if debut <= d < suivant:
                 return d
         return None
 
@@ -171,8 +171,8 @@ class Temporal(Generic[T]):
 
     def changed_trigger(self, date: dt.date) -> bool:
         data_date = self.date(date)
-        suivant = (data_date.replace(day=28) + dt.timedelta(4)).replace(day=1)
-        dernier = (suivant.replace(day=28) + dt.timedelta(4)).replace(day=1) - dt.timedelta(days=1)
+        suivant = next_month(data_date)
+        dernier = last_day_month(suivant)
         next_month_same_dataday = suivant.replace(day=min(data_date.day, dernier.day))
         return data_date <= date < next_month_same_dataday
 
