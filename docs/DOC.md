@@ -443,6 +443,12 @@ Comparer mois par mois et rubrique par rubrique, c'est ce que fait
 ne dit pas encore (une colle déclarée, une promotion payée en retard : section
 précédente), ou une erreur de la paie.
 
+Pour les colles, un écart s'accompagne de ce que le montant du bulletin représente en heures
+(`colles.decrit_colles`) : les nombres entiers d'heures à un seul code, avec le sens du
+code (le corps dont il donne le taux, les classes dont l'ORS est la sienne), ou le constat
+d'un mélange. bpaye n'y suppose ni le code ni le mois des colles : 9 h au code 006 valent
+10 h au code 007, et un total ne départage pas un mélange de codes.
+
 ### Un autre barème
 
 Les taux, montants et barèmes viennent de `taux.toml`, dans le paquet. Pour calculer avec

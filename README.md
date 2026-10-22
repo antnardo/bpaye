@@ -269,6 +269,12 @@ Une incohérence devient une remarque (« ! ») : un indice qui n'est pas celui 
 l'échelon imprimé, par exemple, après une promotion pas encore payée. En Python :
 `bpaye.reconnaissance.reconnait(chemin)`.
 
+Un montant de colles se traduit en heures : pour chaque code et chaque taux de l'année
+écoulée, le montant divisé par le taux. Un nombre entier d'heures à un code est donné avec
+ce que le code désigne (« 16 h au code 007 — taux agrégé, classe à 10 h de service : … ») ;
+plusieurs lectures entières sont toutes données, et un montant qui n'en a aucune est dit
+mêlé (plusieurs codes, ou des colles de mois différents), sans autre hypothèse.
+
 ### Partager un bulletin
 
 Un bulletin dont une ligne est inconnue de bpaye aide à l'améliorer. Pour le joindre à une
