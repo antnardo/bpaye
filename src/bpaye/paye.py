@@ -579,8 +579,7 @@ class Paye:
             raise ValueError(f"Le bulletin de {y}-{m} existe déjà")
 
     def addligne(self, year: int, mois: int, ligne: Ligne, newcharge: bool | None = None) -> None:
-        bulletin = self(year, mois)
-        assert bulletin is not None, f"Bulletin {year}-{mois} introuvable"
+        bulletin = self.bulletin(year, mois)
         bulletin.append(ligne, recalc=True, newcharge=newcharge)
 
     def sort(self) -> None:
@@ -607,6 +606,13 @@ class Paye:
                 return bulletin
         return None
 
+    def bulletin(self, year: int, mois: int) -> Bulletin:
+        """Le bulletin du mois ; une erreur s'il n'a pas été généré (generate)."""
+        bulletin = self(year, mois)
+        if bulletin is None:
+            raise ValueError(f"pas de bulletin généré pour {mois:02d}/{year}")
+        return bulletin
+
     def retard_paiement(
         self,
         original_date: tuple[int, int],
@@ -615,8 +621,7 @@ class Paye:
         paiement_date: tuple[int, int] | None = None,
     ) -> None:
         year, mois = original_date
-        bulletin = self(year, mois)
-        assert bulletin is not None, f"Bulletin {year}-{mois} introuvable"
+        bulletin = self.bulletin(year, mois)
         ligne = bulletin.pop(code, recalc=True)
         ligne.sommable = True
         ligne.lib = f"[{year}-{mois}] RAPPEL {ligne.lib}"
@@ -636,8 +641,7 @@ class Paye:
         paiement_date: tuple[int, int] | None = None,
     ) -> None:
         year, mois = original_date
-        bulletin = self(year, mois)
-        assert bulletin is not None, f"Bulletin {year}-{mois} introuvable"
+        bulletin = self.bulletin(year, mois)
         if bulletin(code).type in CLASSES_CHARGES:
             # Une charge se recalcule : l'erreur s'y ajoute comme un écart, gardé au recalcul.
             calculee = bulletin.lignes[bulletin.getindex_fromcode_and_montant(code, montant_init)]
@@ -745,8 +749,7 @@ class Paye:
                 pyear, pmois = decalage_mois(year, mois, decalage)
             else:
                 pyear, pmois = paiement_date
-            bulletin = self(pyear, pmois)
-            assert bulletin is not None, f"Bulletin {pyear}-{pmois} introuvable"
+            bulletin = self.bulletin(pyear, pmois)
             Colles.paiement(bulletin, nouvelles)  # gère l'ajout dans bulletin
         return nouvelles
 
@@ -758,8 +761,7 @@ class Paye:
         self, paiement_date: tuple[int, int], codesheures: dict[int, float], comm: str = ""
     ) -> list[Colle]:
         year, mois = paiement_date
-        bulletin = self(year, mois)
-        assert bulletin is not None, f"Bulletin {year}-{mois} introuvable"
+        bulletin = self.bulletin(year, mois)
         return self.COLLES.paye(year, mois, codesheures, comm, bulletin)
 
     def from_prepa_plus(self, archive: ArchiveColles, comm: str = "prepa+") -> None:
@@ -815,8 +817,7 @@ class Paye:
             # parcoure tous les mois jusqu'à régulation
             # mise à jour des valeurs avec les données retardées
             # enregistrement des anciennes (dues)
-            bulletin = self(year, mois)
-            assert bulletin is not None, f"Bulletin {year}-{mois} introuvable"
+            bulletin = self.bulletin(year, mois)
             pc_due = bulletin(code_pc).valeur  # avant d'enlever des lignes, qui refont calculer...
             ligne_brut = bulletin.pop(code_brut)
             # Sans enfant à charge, le bulletin n'a pas de ligne de SFT.

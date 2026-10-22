@@ -577,3 +577,10 @@ def test_total_et_frais_exoneres_du_bulletin(configuration):
     fmd = sum(ligne.valeur for ligne in bulletin if ligne.code == 200041)
     assert bulletin.total(200039) == rdt
     assert bulletin.frais_exoneres == pytest.approx(rdt + fmd)
+
+
+def test_bulletin_d_un_mois_non_genere_refuse(configuration):
+    paye = _paye(configuration, 1, 1)
+    assert paye.bulletin(2025, 1) is paye(2025, 1)
+    with pytest.raises(ValueError, match="pas de bulletin généré pour 03/2025"):
+        paye.bulletin(2025, 3)
