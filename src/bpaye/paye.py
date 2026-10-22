@@ -822,9 +822,26 @@ class Paye:
             bulletin.generate_charges()  # pension et cotisations sur ce qui a été perçu
             pc_retard = bulletin(code_pc).valeur
             # cumuls :
-            du_traitement += ligne_brut.valeur - brut_retard
+            changement = self.fonctionnaire.changement_d_indice(jour)
+            if changement is not None:
+                # Le mois où l'échelon change, la paie ne rappelle que les jours à compter du
+                # changement, chaque traitement tronqué, et la pension sur chacun : décomptes
+                # de rappel de juillet 2018 (mars 2018, 23 jours : 2 496,86 − 2 320,83) et de
+                # juillet 2021 (septembre 2020 : 2 719,61 − 2 550,75 = 168,86, retenue PC
+                # 301,88 − 283,13). Le rappel passe d'un centime le dû moins le perçu.
+                jours, _, i_nouveau = changement
+                nouveau = reduit(calc_traitement_brut(i_nouveau, jour, self.bareme), fraction)
+                du_part = truncate(nouveau * (30 - jours) / 30, 2)
+                percu_part = truncate(brut_retard * (30 - jours) / 30, 2)
+                du_traitement += du_part - percu_part
+                charges_du += (
+                    pension_civile(du_part, jour, self.bareme).valeur
+                    - pension_civile(percu_part, jour, self.bareme).valeur
+                )
+            else:
+                du_traitement += ligne_brut.valeur - brut_retard
+                charges_du += pc_due - pc_retard
             du_sft += sft_du - sft_retard
-            charges_du += pc_due - pc_retard
             # incrémentation
             if every:
                 year, mois = decalage_mois(year, mois, 1)

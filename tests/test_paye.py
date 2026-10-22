@@ -10,11 +10,12 @@ from bpaye import load_agent
 from bpaye.classes import Ligne, ListeLignes
 from bpaye.indemnite_residence import calc_indemnite_residence
 from bpaye.mgen import mgen_part_employeur
-from bpaye.paye import Bulletin, Paye, signe_bpaye
+from bpaye.paye import CODE_RAPPEL_TRAITEMENT, Bulletin, Paye, signe_bpaye
 from bpaye.pdf import BulletinLu, EmployeurLu
 from bpaye.point import calc_traitement_brut, traitement_plein, valeur_point
 from bpaye.prevision import nets_prevus
 from bpaye.temps_partiel import reduit, taux_surcotisation
+from bpaye.utils import truncate
 
 
 def _paye(configuration, startmonth, n):
@@ -537,3 +538,32 @@ def test_taux_des_heures_de_surveillance_refuse_avant_2008():
 
     with pytest.raises(ValueError, match="MANQUANT"):
         BAREME.load("hs_surveillance")(dt.date(2007, 12, 31))
+
+
+def _paye_echelon_le_8(configuration):
+    """L'agent du conftest, entré le 8 septembre 2019 : ses échelons se prennent un 8."""
+    carriere, agent = configuration
+    carriere.write_text(carriere.read_text().replace("date       = 2019-09-01", "date       = 2019-09-08"))
+    fonc = load_agent(agent)
+    fonc.load_carriere(carriere)
+    changement = next(d for d, _ in fonc.echelon.values[1:] if d.day == 8 and d.year >= 2023)
+    paye = Paye(fonc)
+    paye.generate(startyear=changement.year, startmonth=changement.month, n=6)
+    return paye, fonc, changement
+
+
+def test_rappel_d_un_echelon_pris_en_cours_de_mois_au_centime_de_la_paie(configuration):
+    # La paie ne rappelle, le mois du changement, que les 23 jours à compter du 8, chaque
+    # traitement tronqué (décompte de juillet 2021 : 2 719,61 − 2 550,75 = 168,86, quand le
+    # dû moins le perçu fait 168,85).
+    paye, fonc, changement = _paye_echelon_le_8(configuration)
+    jours, ancien, nouveau = fonc.changement_d_indice(changement)
+    assert jours == 7
+    mois = (changement.year, changement.month)
+    paiement = (changement.year + (changement.month + 2) // 12, (changement.month + 2) % 12 + 1)
+    paye.retard_indice(mois, paiement, indice=ancien, every=False)
+    rappel = next(ligne for ligne in paye(*paiement) if ligne.code == CODE_RAPPEL_TRAITEMENT)
+    t_ancien = calc_traitement_brut(ancien, changement)
+    t_nouveau = calc_traitement_brut(nouveau, changement)
+    attendu = round(truncate(t_nouveau * 23 / 30, 2) - truncate(t_ancien * 23 / 30, 2), 2)
+    assert round(rappel.valeur, 2) == attendu
