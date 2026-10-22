@@ -446,6 +446,10 @@ class ListeLignes:
 
     # ── Agrégats (sur valeur = calcul) ────────────────────────────────────────
 
+    def total(self, *codes: int) -> float:
+        """Le total calculé des lignes de ces codes (somme : calcul et réel)."""
+        return sum(ligne.valeur for ligne in self if ligne.code in codes)
+
     @property
     def brut(self) -> float:
         return sum(ligne.valeur for ligne in self if ligne.type == "BRUT")
@@ -468,7 +472,7 @@ class ListeLignes:
 
     @property
     def tpp(self) -> float:
-        return sum(ligne.valeur for ligne in self if ligne.code == 604970)
+        return self.total(604970)
 
     @property
     def imposable(self) -> float:
@@ -500,7 +504,7 @@ class ListeLignes:
         et aucune annexe 14 A, 14 B ou 14 C de 2026 ne la classe. Si la paie ne l'exonère
         pas, l'écart le montre."""
         codes = (200205, 200207, 200215, 200216, 200497, 200576, 201241, 201300, 201717, 202475, 202476)
-        return sum(ligne.valeur for ligne in self if ligne.code in codes)
+        return self.total(*codes)
 
     # ── Somme calcul + reel ───────────────────────────────────────────────────
 

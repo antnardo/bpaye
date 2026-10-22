@@ -60,6 +60,6 @@ def nets_prevus(
         y, m = decalage_mois(annee, mois, rang)
         bulletin = paye(y, m)
         assert bulletin is not None  # généré ci-dessus
-        colles = sum(ligne.valeur for ligne in bulletin if ligne.code == 200207)
+        colles = bulletin.total(200207)
         nets.append(NetPrevu(y, m, round(bulletin.net, 2), round(colles, 2), round(externes[(y, m)], 2)))
     return nets

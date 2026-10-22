@@ -579,3 +579,11 @@ def test_rappels_d_une_rubrique_arrondis_depuis_leurs_montants_exacts(configurat
         bulletin.append(rappel)
     rappels = [ligne for ligne in bulletin if ligne.code == 200205 and ligne.sommable]
     assert [ligne.valeur for ligne in rappels] == [5484.81]
+
+
+def test_total_et_frais_exoneres_du_bulletin(configuration):
+    bulletin = _paye(configuration, 1, 1)(2025, 1)
+    rdt = sum(ligne.valeur for ligne in bulletin if ligne.code == 200039)
+    fmd = sum(ligne.valeur for ligne in bulletin if ligne.code == 200041)
+    assert bulletin.total(200039) == rdt
+    assert bulletin.frais_exoneres == pytest.approx(rdt + fmd)

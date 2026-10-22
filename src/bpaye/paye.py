@@ -178,11 +178,17 @@ class Bulletin(ListeLignes):
     FRAIS_EXONERES = (200039, 200041)
 
     @property
+    def frais_exoneres(self) -> float:
+        """Les remboursements de frais du mois (FRAIS_EXONERES), hors de l'impôt et des
+        cotisations."""
+        return self.total(*self.FRAIS_EXONERES)
+
+    @property
     def net_imposable(self) -> float:
         """Le net imposable : les frais exonérés en sortent ; la part employeur de la
         complémentaire santé obligatoire (MGEN, 720580), avantage imposable, y entre depuis
         mai 2026. Retrouve le montant imposable des bulletins de 2025 et 2026."""
-        frais = sum(ligne.valeur for ligne in self if ligne.code in self.FRAIS_EXONERES)
+        frais = self.frais_exoneres
         # Les heures exonérées en sortent, nettes (011200), avec leur CSG basculée en non
         # déductible : bulletins de janvier à mars 2024 à 2026, au centime.
         hs = self.hs_exonerees
@@ -249,7 +255,7 @@ class Bulletin(ListeLignes):
         # indiciaire (bulletin d'août 2026 sous le plafond : 24,78 € sur 3 403,54 € d'éléments
         # à payer, 19,60 € sur le traitement de 2 692,76 €). Les remboursements de frais n'en
         # sont pas, supposé : ce bulletin n'en a pas.
-        frais = sum(ligne.valeur for ligne in self if ligne.code in self.FRAIS_EXONERES)
+        frais = self.frais_exoneres
         for ligne in mgen_charges(self.revenus - frais, date, b):
             self.append(ligne)
         for ligne in psc_declaree(self.fonctionnaire, date, "CHARGE", b):
@@ -398,20 +404,20 @@ class Bulletin(ListeLignes):
         et du transfert primes/points, abattement sur les primes qui diminue la rémunération.
         Le transfert n'est pas nommé par un texte lu ; relevé sur 11 bulletins de 2017 sur 12,
         au centime (le douzième compte en plus le rappel net d'un décompte)."""
-        frais = sum(ligne.valeur for ligne in self if ligne.code in self.FRAIS_EXONERES)
+        frais = self.frais_exoneres
         return self.revenus - frais + self.rafp + self.pc + self.tpp
 
     @property
     def net_mensuel_cs(self) -> float:
         """La rémunération mensuelle nette du seuil de la contribution de solidarité :
         traitement et indemnité de résidence, nets de la pension et de la RAFP (L5423-32)."""
-        residence = sum(ligne.valeur for ligne in self if ligne.code == 102000)
+        residence = self.total(102000)
         return self.brut + residence + self.pc + self.rafp
 
     @property
     def assiette_csg(self) -> float:
         # RDT (200039) et FMD (200041) sont des remboursements de frais, exonérés de CSG/CRDS
-        frais_pro = sum(ligne.valeur for ligne in self if ligne.code in (200039, 200041))
+        frais_pro = self.frais_exoneres
         return self.revenus + self.tpp - frais_pro
 
     @property
@@ -423,7 +429,7 @@ class Bulletin(ListeLignes):
         """Le traitement indiciaire perçu ce mois, rappel de traitement compris : la base du
         plafond de la RAFP (décret 2004-569, art. 2 : « traitement indiciaire brut total […]
         perçu[] au cours de l'année »)."""
-        rappel = sum(ligne.valeur for ligne in self if ligne.code == CODE_RAPPEL_TRAITEMENT)
+        rappel = self.total(CODE_RAPPEL_TRAITEMENT)
         return self.brut + rappel
 
     @property
@@ -432,7 +438,7 @@ class Bulletin(ListeLignes):
         pension (traitement et NBI, de classe BRUT, et rappel de traitement) : décret
         2004-569, art. 2. Les remboursements de frais en sortent, comme de la CSG ; la part
         employeur de la PSC santé (720580) y entre."""
-        rappel = sum(ligne.valeur for ligne in self if ligne.code == CODE_RAPPEL_TRAITEMENT)
+        rappel = self.total(CODE_RAPPEL_TRAITEMENT)
         assiette_csg_hors_traitement = self.assiette_csg - self.brut - rappel
         return assiette_csg_hors_traitement + mgen_part_employeur(self.date, self.bareme)
 
