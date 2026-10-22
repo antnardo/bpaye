@@ -355,6 +355,26 @@ l'entrée dans la carrière. L'indemnité compensatrice de CSG déclarée (`[ic_
 couvrir tous les mois calculés depuis 2018 : avant son premier montant, bpaye refuse.
 Sans `[ic_csg]`, bpaye refuse les mois depuis 2018 : le montant est propre à chaque agent.
 
+**Pourquoi l'indemnité compensatrice de CSG se déclare.** Le décret 2017-1889 en donne la
+formule (art. 2), mais à partir de la rémunération réelle de l'agent :
+
+- en poste au 31 décembre 2017 (code 202206) : (rémunération brute de 2017 × 1,6702 % −
+  contribution de solidarité − cotisation maladie − contribution chômage de 2017) × 1,1053,
+  ces deux dernières valant zéro pour un fonctionnaire ;
+- nommé, recruté ou réintégré depuis le 1er janvier 2018 (code 202209) : 0,76 % de la
+  rémunération brute du premier mois complet ;
+- chaque 1er janvier (art. 5), le montant suit l'évolution de la rémunération d'une année
+  sur l'autre, changement de quotité et congé de maladie neutralisés ; seulement à la hausse
+  en 2019 et 2020.
+
+La « rémunération brute » compte tout ce qui est soumis à la CSG : traitement, primes,
+heures supplémentaires, colles, jurys, indemnités d'un autre employeur. bpaye ne connaît que
+ce que la carrière déclare, et les bulletins de 2017 n'existent souvent que sur papier : un
+montant recalculé partirait d'une base incomplète. L'agent déclare donc le montant que
+porte son bulletin. Pour le vérifier ou le retrouver, il suffit des cumuls de l'année que
+porte le pied du bulletin de décembre (base SS, montant imposable), celui de 2017 pour le
+montant de départ, ceux des années suivantes pour les réévaluations.
+
 bpaye calcule chaque ligne au mois où elle est due. Certains retards sont pourtant
 l'usage de la paie, chaque année les mêmes : le neuvième d'octobre des HSA payé en
 novembre, l'IFP de septembre en octobre. `academies.toml`, dans le paquet, les donne par
