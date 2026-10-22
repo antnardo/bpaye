@@ -275,8 +275,8 @@ pmss = 4
 # 1 057,80, 1 064,16, 1 101,41 et 1 117,92 €).
 # ÉCART AU TEXTE, CHOISI : l'arrêté, jamais converti en euros, dit toujours 6 270 F au
 # 1/9/1999. Convertis (6 270 / 6,55957 = 955,86 €) et indexés de même, ils donnent 0,07 %
-# de moins à toute date, quel que soit l'arrondi (93,10 € au lieu de 93,16 € par mois depuis
-# juillet 2023). Le décret dit seulement le taux « indexé sur la valeur du point », sans base
+# de moins à toute date, quel que soit l'arrondi (93,09 € au lieu de 93,16 € par mois depuis
+# juillet 2023 ; docs/indexation.md). Le décret dit seulement le taux « indexé sur la valeur du point », sans base
 # ni arrondi : bpaye suit donc le montant de la paie, et non le texte, sur ce seul point.
 [ifp_cpge]
 type = "IndexePoint"

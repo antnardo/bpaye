@@ -576,8 +576,8 @@ Chaque montant est dans `taux.toml` avec sa source ; chaque indice et chaque dur
 
 - **L'IFP suit la paie, pas le texte**, seul écart choisi : l'arrêté du 19/10/1999 dit
   toujours 6 270 F, indexés sur le point. Convertis (955,86 €) et indexés, ils donnent
-  0,07 % de moins que ce que verse la paie (93,10 € au lieu de 93,16 € par mois depuis
-  juillet 2023), quel que soit l'arrondi. Le décret 99-886 ne fixant ni la base ni l'arrondi
+  0,07 % de moins que ce que verse la paie (93,09 € au lieu de 93,16 € par mois depuis
+  juillet 2023 ; [`indexation.md`](indexation.md)), quel que soit l'arrondi. Le décret 99-886 ne fixant ni la base ni l'arrondi
   de l'indexation, bpaye part du premier montant payé relevé (1 034,76 € en mars 2008),
   qui redonne tous les bulletins depuis.
 - **Les cotisations patronales**, que le bulletin imprime « pour information » (part

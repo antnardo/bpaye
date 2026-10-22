@@ -108,7 +108,7 @@ def indemnite_fonctions_part_cpge(
 
     Écart au texte, choisi : le montant suit celui de la paie (taux.toml, ifp_cpge), 0,07 %
     au-dessus des 6 270 F de l'arrêté du 19/10/1999 convertis et indexés sur le point, faute
-    d'un texte qui fixe la base et l'arrondi de l'indexation."""
+    d'un texte qui fixe la base et l'arrondi de l'indexation (docs/indexation.md)."""
     if not _en_cpge(fonc, date):
         return None
     montant = reduit(bareme.load("ifp_cpge")(date), fonc.fraction(date))
