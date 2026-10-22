@@ -804,9 +804,6 @@ class Paye:
         n_enfants_retard: int | None = None,
         every: bool = True,
     ) -> None:
-        code_brut = TRAITEMENT
-        code_sft = SFT
-        code_pc = PENSION
         year, mois = original_date
         date = dt.date(year, mois, 1)
         previous_date = previous_month(date)
@@ -825,17 +822,17 @@ class Paye:
             # mise à jour des valeurs avec les données retardées
             # enregistrement des anciennes (dues)
             bulletin = self.bulletin(year, mois)
-            pc_due = bulletin(code_pc).valeur  # avant d'enlever des lignes, qui refont calculer...
-            ligne_brut = bulletin.pop(code_brut)
+            pc_due = bulletin(PENSION).valeur  # avant d'enlever des lignes, qui refont calculer...
+            ligne_brut = bulletin.pop(TRAITEMENT)
             # Sans enfant à charge, le bulletin n'a pas de ligne de SFT.
-            sft_du = bulletin.pop(code_sft).valeur if bulletin.get_all_fromcode(code_sft) else 0.0
+            sft_du = bulletin.pop(SFT).valeur if bulletin.get_all_fromcode(SFT) else 0.0
             # Le traitement et le SFT perçus à l'ancien indice, comme ceux du bulletin : à la
             # fraction d'un temps partiel, le SFT sur le traitement et la NBI d'un temps plein.
             jour = bulletin.date
             fraction = self.fonctionnaire.fraction(jour)
             plein_retard = calc_traitement_brut(indice_retard, jour, self.bareme)
             brut_retard = reduit(plein_retard, fraction)
-            bulletin.append(Ligne(brut_retard, f"Traitement Brut (indice {indice_retard})", code=code_brut))
+            bulletin.append(Ligne(brut_retard, f"Traitement Brut (indice {indice_retard})", code=TRAITEMENT))
             nbi = traitement_plein(self.fonctionnaire, jour, self.bareme) - traitement_indiciaire(
                 self.fonctionnaire, jour, self.bareme
             )
@@ -844,12 +841,12 @@ class Paye:
                 Ligne(
                     sft_retard,
                     f"Supplément familial traitement ({n_enfants_retard} enfants)",
-                    code=code_sft,
+                    code=SFT,
                     classe="INDEM",
                 )
             )
             bulletin.generate_charges()  # pension et cotisations sur ce qui a été perçu
-            pc_retard = bulletin(code_pc).valeur
+            pc_retard = bulletin(PENSION).valeur
             # cumuls :
             changement = self.fonctionnaire.changement_d_indice(jour)
             if changement is not None:
