@@ -107,6 +107,13 @@ _PIED = {
 }
 
 
+# Les lignes imprimées qui ne comptent dans aucun total du pied : les nets (011…) et le
+# montant simulé du prélèvement à la source de fin 2018 (558001), imprimé pour information
+# mais hors du total pour information (bulletins de décembre 2018 : les cotisations
+# patronales seules retrouvent ce total).
+HORS_TOTAUX = ("011", "558001")
+
+
 @dataclass(frozen=True, slots=True)
 class BulletinLu(Mapping[str, Any]):
     """Un bulletin PDF lu : ses montants par code (``"101000"``, et ``"101000_R"`` pour un
@@ -146,6 +153,38 @@ class BulletinLu(Mapping[str, Any]):
 
     def __len__(self) -> int:
         return len(self._cles())
+
+    def somme_colonne(self, nom: str) -> float:
+        """Les montants imprimés dans la colonne ``nom``, hors lignes qui ne comptent dans aucun
+        total (HORS_TOTAUX) ; les codes inconnus n'y sont pas, pour que leur absence se voie."""
+        return sum(
+            ligne.montant
+            for ligne in self.lignes
+            if ligne.colonne == nom and not ligne.code.startswith(HORS_TOTAUX)
+        )
+
+    def ecarts_colonnes(self) -> dict[str, float | None]:
+        """L'écart de chaque colonne avec son total du pied (None : rien à contrôler).
+
+        - à payer : ecart_totaux ;
+        - à déduire : le total des retenues, prélèvement à la source compris. Avec un rappel
+          sur décompte, les bulletins de 2019 ne comptaient pas la part de retenues du
+          décompte, ceux de 2026 la comptent : l'une ou l'autre somme est juste ;
+        - pour information : les cotisations patronales ; celles d'un décompte de rappel
+          n'ont pas de ligne sur le bulletin mais entrent dans le total : sans contrôle ces
+          mois-là.
+        """
+        ecarts: dict[str, float | None] = {"payer": ecart_totaux(self), "deduire": None, "information": None}
+        if not self.lignes:
+            return ecarts
+        if self.total_ret is not None:
+            deduire = round(self.total_ret - self.somme_colonne("deduire"), 2)
+            if self.rappel_decompte_ret and round(deduire + self.rappel_decompte_ret, 2) == 0:
+                deduire = 0.0
+            ecarts["deduire"] = deduire
+        if self.total_pat is not None and not self.rappel_decompte:
+            ecarts["information"] = round(self.total_pat - self.somme_colonne("information"), 2)
+        return ecarts
 
 
 def _lu(resultats: dict[str, Any], lignes: Sequence[LigneLue] = ()) -> BulletinLu:
@@ -435,23 +474,6 @@ def extract_bulletin(pdf_path: str | Path) -> BulletinLu:
 _TOTAL_DE = {"payer": "TOTAUX DU MOIS à payer", "deduire": "à déduire", "information": "pour information"}
 
 
-# Les lignes imprimées qui ne comptent dans aucun total du pied : les nets (011…) et le
-# montant simulé du prélèvement à la source de fin 2018 (558001), imprimé pour information
-# mais hors du total pour information (bulletins de décembre 2018 : les cotisations
-# patronales seules retrouvent ce total).
-HORS_TOTAUX = ("011", "558001")
-
-
-def _somme(lu: BulletinLu, nom: str) -> float:
-    """Les montants imprimés dans la colonne ``nom``, hors lignes qui ne comptent dans aucun
-    total (HORS_TOTAUX) ; les codes inconnus n'y sont pas, pour que leur absence se voie."""
-    return sum(
-        ligne.montant
-        for ligne in lu.lignes
-        if ligne.colonne == nom and not ligne.code.startswith(HORS_TOTAUX)
-    )
-
-
 def ecart_totaux(lu: Mapping[str, Any]) -> float | None:
     """TOTAUX DU MOIS (à payer) moins les montants lus dans la colonne à payer, rappel sur
     décompte compris, au centime : 0 quand toutes les lignes à payer ont été lues ; None
@@ -464,7 +486,7 @@ def ecart_totaux(lu: Mapping[str, Any]) -> float | None:
     if total is None:
         return None
     if isinstance(lu, BulletinLu) and lu.lignes:
-        lues = _somme(lu, "payer")
+        lues = lu.somme_colonne("payer")
     else:
         lues = sum(
             valeur
@@ -475,26 +497,8 @@ def ecart_totaux(lu: Mapping[str, Any]) -> float | None:
 
 
 def ecarts_colonnes(lu: BulletinLu) -> dict[str, float | None]:
-    """L'écart de chaque colonne avec son total du pied (None : rien à contrôler).
-
-    - à payer : ecart_totaux ;
-    - à déduire : le total des retenues, prélèvement à la source compris. Avec un rappel
-      sur décompte, les bulletins de 2019 ne comptaient pas la part de retenues du
-      décompte, ceux de 2026 la comptent : l'une ou l'autre somme est juste ;
-    - pour information : les cotisations patronales ; celles d'un décompte de rappel n'ont
-      pas de ligne sur le bulletin mais entrent dans le total : sans contrôle ces mois-là.
-    """
-    ecarts: dict[str, float | None] = {"payer": ecart_totaux(lu), "deduire": None, "information": None}
-    if not lu.lignes:
-        return ecarts
-    if lu.total_ret is not None:
-        deduire = round(lu.total_ret - _somme(lu, "deduire"), 2)
-        if lu.rappel_decompte_ret and round(deduire + lu.rappel_decompte_ret, 2) == 0:
-            deduire = 0.0
-        ecarts["deduire"] = deduire
-    if lu.total_pat is not None and not lu.rappel_decompte:
-        ecarts["information"] = round(lu.total_pat - _somme(lu, "information"), 2)
-    return ecarts
+    """L'écart de chaque colonne avec son total du pied : BulletinLu.ecarts_colonnes."""
+    return lu.ecarts_colonnes()
 
 
 # ── Décomptes de rappel (bulletins DR) ───────────────────────────────────────

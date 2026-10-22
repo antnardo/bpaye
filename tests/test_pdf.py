@@ -212,3 +212,15 @@ def test_montant_simule_du_pas_hors_du_total_pour_information():
         total_pat=170.98,
     )
     assert ecarts_colonnes(lu)["information"] == 0.0
+
+
+def test_somme_et_ecarts_des_colonnes_portes_par_la_lecture():
+    lu = pdf.BulletinLu(
+        lignes=(
+            pdf.LigneLue("101050", "RETENUE PC", "deduire", 300.0, False),
+            pdf.LigneLue("011100", "NET A PAYER AVANT IMPOT", "deduire", 9999.0, False),
+        ),
+        total_ret=300.0,
+    )
+    assert lu.somme_colonne("deduire") == 300.0  # le net n'entre dans aucun total
+    assert lu.ecarts_colonnes() == ecarts_colonnes(lu) == {"payer": None, "deduire": 0.0, "information": None}
