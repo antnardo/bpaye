@@ -33,6 +33,7 @@ __all__ = [
     "BulletinLu",
     "LigneLue",
     "Span",
+    "a_du_texte",
     "colonne",
     "ecart_totaux",
     "ecarts_colonnes",
@@ -200,6 +201,15 @@ def parse_amount(s: str) -> float | None:
 def extract_sirets(pdf_path: str | Path) -> set[str]:
     """Retourne les SIRETs (14 chiffres) présents dans l'en-tête du bulletin (y < 120)."""
     return {t for _, y, t in _pages(pdf_path)[0] if y < 120 and _SIRET_RE.match(t)}
+
+
+def a_du_texte(pdf_path: str | Path) -> bool:
+    """Vrai si la première page porte du texte : un bulletin de l'ENSAP en a toujours, un
+    scan (une image seule) n'en a pas et ne se lit pas comme un PDF vectoriel."""
+    import pdfplumber
+
+    with pdfplumber.open(pdf_path) as pdf:
+        return bool(pdf.pages) and bool(pdf.pages[0].chars)
 
 
 def is_agent_bulletin(pdf_path: str | Path, agent_siret: str) -> bool:
@@ -616,7 +626,8 @@ def _scan_pdfs(
 ) -> dict[int, list[Path]]:
     """Balaye bull_dir et ses sous-dossiers directs (un par employeur, par exemple) pour
     trouver les PDF correspondant au pattern et à l'année donnés ; le SIRET écarte ceux
-    d'un autre employeur. Retourne {mois: [chemins]}."""
+    d'un autre employeur, et un PDF sans texte (un scan) est écarté : ni sa lecture ni son
+    SIRET ne se lisent. Retourne {mois: [chemins]}."""
     base = Path(bull_dir)
     dirs = [base, *sorted(d for d in base.iterdir() if d.is_dir())] if base.is_dir() else []
     pdfs: dict[int, list[Path]] = {}
@@ -624,6 +635,9 @@ def _scan_pdfs(
         for fpath in sorted(dirpath.iterdir()):
             m = pattern.match(fpath.name)
             if not m or int(m.group(1)) != year:
+                continue
+            if not a_du_texte(fpath):
+                _log.info("  skip %s %s (sans texte : un scan)", label, fpath.name)
                 continue
             if agent_siret and not is_agent_bulletin(fpath, agent_siret):
                 _log.info("  skip %s %s (SIRET non correspondant)", label, fpath.name)

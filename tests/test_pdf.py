@@ -185,3 +185,15 @@ def test_decompte_lit_toute_ligne_d_un_code_connu():
 
     assert DR_ROW_CODES["TRAITEMENT BRUT"] == "101000"
     assert DR_ROW_CODES[ALL_CODES["101070"]["libelle"].upper()] == "101070"  # NBI
+
+
+def test_find_pdfs_ecarte_un_scan_sans_texte(tmp_path, faux_bulletin_pdf):
+    from reportlab_layout import PDFMaker
+
+    faux_bulletin_pdf(tmp_path / "2026_01_BP_janvier.pdf")
+    (tmp_path / "Scans").mkdir()
+    with PDFMaker(str(tmp_path / "Scans" / "2026_02_BP_fevrier.pdf"), pagesize=(595.0, 842.0)) as doc:
+        doc.canvas.rect(50, 50, 400, 600, fill=1)  # une image seule, sans caractère
+    assert {mois: [p.name for p in chemins] for mois, chemins in find_pdfs(tmp_path, 2026).items()} == {
+        1: ["2026_01_BP_janvier.pdf"]
+    }

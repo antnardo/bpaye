@@ -287,6 +287,9 @@ la lecture n'est plus modifiable. Pour sérialiser : `dict(lu)`.
 - Nommage attendu : `AAAA_MM_BP_….pdf` et `AAAA_MM_DR_….pdf`.
 - Le dossier et ses **sous-dossiers directs** sont parcourus (un sous-dossier par
   employeur, par exemple).
+- Un PDF sans texte, un scan de bulletin papier, est écarté (`a_du_texte`) : ce n'est
+  qu'une image, dont ni les lignes ni le SIRET ne se lisent. Les scans peuvent ainsi
+  rester dans un sous-dossier, à côté des bulletins de l'ENSAP.
 - Avec un SIRET (`siret` d'`agent.toml`), un fichier n'est gardé que si ce SIRET figure
   dans son en-tête (morceaux de 14 chiffres à y < 120) : cela écarte les bulletins d'un
   autre employeur (des vacations payées par un autre établissement, par exemple).

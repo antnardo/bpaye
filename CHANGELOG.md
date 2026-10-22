@@ -60,6 +60,8 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et la
 
 ### Corrigé
 
+- `find_pdfs` et `find_dr_pdfs` écartent un PDF sans texte (un scan) : il était pris pour
+  un bulletin vectoriel, et lu vide.
 - **Contribution de solidarité** (jusqu'en 2017) selon le code du travail, L5423-27 et
   L5423-32 : assiette hors remboursements de frais, plafonnée à 4 PMSS, exonération sous le
   traitement de l'IM 285 ; le taux de 1 % est sourcé.
