@@ -67,6 +67,9 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et la
 
 ### Corrigé
 
+- Le rappel d'un échelon pris en cours de mois et payé en retard (`retard_indice`,
+  `retard_statut`) suit la paie : le mois du changement, les seuls jours rappelés, chaque
+  traitement tronqué, et la pension sur chacun ; relevé sur deux décomptes de rappel.
 - Un échelon pris en cours de mois est payé par trentièmes des deux traitements, chacun
   tronqué (`point.traitement_indiciaire`), non au prorata de l'indice : relevé sur un
   décompte de rappel de 2018 (3 203,19 € au lieu de 3 203,17 €).

@@ -466,6 +466,12 @@ toutes exonérées comme les heures supplémentaires.
 promotion) : les bulletins de septembre et d'octobre le portent, et novembre rappelle
 l'écart.
 
+Un échelon pris en cours de mois est dû par trentièmes des deux traitements. Payé en
+retard, il se rappelle comme le fait la paie : ce mois-là, seuls les jours à compter du
+changement, nouveau et ancien traitement chacun tronqué, la pension sur chacun. Le rappel
+passe alors d'un centime le dû moins le perçu (relevé sur deux décomptes de rappel, de 2018
+et de 2021).
+
 ### Comparer au réel
 
 Il faut l'extra `pdf` (`pip install "bpaye[pdf] @ git+https://github.com/antnardo/bpaye"`)
