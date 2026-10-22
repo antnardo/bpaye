@@ -26,7 +26,18 @@ from bpaye.charges import (
 )
 from bpaye.charges_impots import ExonerationHS, facteur_hs_net, reduc_cotis_hs
 from bpaye.classes import Ligne, ListeLignes, Selection, Somme
-from bpaye.codes import FMD, HSE, PENSION, RDT, RESIDENCE, SFT, TRAITEMENT, equivalents
+from bpaye.codes import (
+    FMD,
+    HSE,
+    PENSION,
+    PRELEVEMENT_SOURCE,
+    RAFP,
+    RDT,
+    RESIDENCE,
+    SFT,
+    TRAITEMENT,
+    equivalents,
+)
 from bpaye.colles import Colle, Colles
 from bpaye.config import BAREME, Bareme
 from bpaye.fonctionnaire import Fonctionnaire
@@ -97,6 +108,20 @@ def _libelle_rappel(nature: str, mois_du: tuple[int, int], libelle: str) -> str:
     le même mois s'y fusionnent (Bulletin.append, « [2025-10][2025-11] RAPPEL … »)."""
     annee, mois = mois_du
     return f"[{annee}-{mois}] {nature} {libelle}"
+
+
+# La classe d'une ligne de retenue, par code ; les autres retenues sont des charges.
+_CLASSE_DE_RETENUE = {PENSION: "PC", RAFP: "RAFP", PRELEVEMENT_SOURCE: "IMPOT"}
+
+
+def _classe_du_code(code: int) -> tuple[str, int]:
+    """La classe d'une ligne de ce code et le signe de son montant (bpaye : une retenue est
+    négative), d'après la catégorie du code (codes.toml)."""
+    from bpaye.codes import ALL_CODES
+
+    if ALL_CODES.get(f"{code:06d}", {}).get("cat") == "retenue":
+        return _CLASSE_DE_RETENUE.get(code, "CHARGE"), -1
+    return ("BRUT" if code == TRAITEMENT else "INDEM"), 1
 
 
 def signe_bpaye(ligne: Ligne) -> int:
@@ -917,11 +942,16 @@ class Paye:
     def erreur(
         self, date: tuple[int, int], paiement_date: tuple[int, int], montant: float, code: int
     ) -> None:
+        """Une erreur de la paie : ``montant`` porté en trop le mois ``date`` sur la rubrique
+        ``code``, dans le sens de sa colonne (un trop-versé, ou pour une retenue un trop-
+        prélevé), puis repris le mois ``paiement_date``. La ligne prend la classe de la
+        catégorie du code (codes.toml) : une retenue reste une retenue."""
+        classe, signe = _classe_du_code(code)
         year, mois = date
         pyear, pmois = paiement_date
-        ligne_plus = Ligne(montant, "Erreur", code=code, classe="INDEM")
+        ligne_plus = Ligne(signe * montant, "Erreur", code=code, classe=classe)
         ligne_neg = Ligne(
-            -montant, _libelle_rappel("RATTRAPAGE", (year, mois), "Erreur"), code=code, classe="INDEM"
+            -signe * montant, _libelle_rappel("RATTRAPAGE", (year, mois), "Erreur"), code=code, classe=classe
         )
         self.addligne(year, mois, ligne_plus)
         self.addligne(pyear, pmois, ligne_neg)

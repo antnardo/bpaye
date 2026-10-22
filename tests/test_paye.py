@@ -591,3 +591,15 @@ def test_rattrapage_d_une_erreur_date_comme_un_rappel(configuration):
     paye.erreur((2025, 1), (2025, 3), 50.0, 200364)
     (rattrapage,) = [ligne for ligne in paye(2025, 3) if ligne.code == 200364 and ligne.valeur == -50.0]
     assert rattrapage.lib == "[2025-1] RATTRAPAGE Erreur"
+
+
+def test_erreur_sur_une_retenue_reste_une_retenue(configuration):
+    # 50 € de retenue PC prélevés en trop en janvier, rendus en mars.
+    temoin, paye = _paye(configuration, 1, 3), _paye(configuration, 1, 3)
+    paye.erreur((2025, 1), (2025, 3), 50.0, 101050)
+    (en_trop,) = [ligne for ligne in paye(2025, 1).autres_charges if ligne.code == 101050]
+    assert (en_trop.type, en_trop.valeur) == ("PC", -50.0)
+    # La pension du mois en porte 50 € de plus, rendus en mars (le net, lui, suit aussi
+    # l'impôt, sur un net imposable diminué).
+    assert round(paye(2025, 1).pc - temoin(2025, 1).pc, 2) == -50.0
+    assert round(paye(2025, 3).pc - temoin(2025, 3).pc, 2) == 50.0

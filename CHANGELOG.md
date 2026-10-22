@@ -71,6 +71,8 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et la
 
 ### Corrigé
 
+- `Paye.erreur` sur une retenue : la ligne garde la classe de sa catégorie (pension, RAFP,
+  impôt, charge) et son signe, au lieu d'une indemnité positive.
 - Code 202476 (ISAE part fonctionnelle, le Pacte des professeurs des écoles), que bpaye
   émettait sans le connaître : BJ, annexe 14 C et INGRES de 2026.
 - Traitement brut : le traitement annuel (indice × point annuel) arrondi au centime, puis
