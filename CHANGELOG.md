@@ -49,6 +49,9 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et la
 
 ### Corrigé
 
+- **Heures de surveillance** : `paye.surveillance` (code 200216) paie un trente-sixième du
+  taux annuel réduit de 50 %, comme le dit le décret 50-1253, art. 5 ; `paye.ds`, qui
+  payait 0,375 du trente-sixième sous le code des HSE sans source, disparaît.
 - **Plafond d'exonération des heures supplémentaires** : 7 500 € nets (8 037 € bruts) pour
   les heures faites depuis le 1er janvier 2022, d'après la loi 2022-1157, art. 4 (et non
   la loi 2022-1158) ; bpaye ne l'appliquait qu'en 2023, comme certaines paies.
