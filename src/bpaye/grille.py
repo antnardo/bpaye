@@ -10,12 +10,12 @@ n'a rien de vérifié : elle refuse (MANQUANT).
 """
 
 import datetime as dt
-import tomllib
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, overload
 
 from bpaye.classes import Temporal
+from bpaye.utils import lit_toml
 
 __all__ = [
     "GRILLES",
@@ -172,8 +172,7 @@ def _compose(
 
 def _load_grilles_toml() -> tuple[dict[str, Temporal[Grille]], list[dict[str, Any]]]:
     """Charge grilles.toml : les grilles par nom, et les versions du barème IB → IM."""
-    with (Path(__file__).parent / "grilles.toml").open("rb") as f:
-        cfg = tomllib.load(f)
+    cfg = lit_toml(Path(__file__).parent / "grilles.toml")
     baremes = sorted(cfg.pop("bareme", []), key=lambda e: e["date"])
     hors_echelle = sorted(cfg.pop("hors_echelle", []), key=lambda e: e["date"])
     grilles = {nom: _compose(nom, spec, baremes, hors_echelle) for nom, spec in cfg.items()}

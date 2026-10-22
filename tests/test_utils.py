@@ -3,7 +3,7 @@ import datetime as dt
 import pytest
 
 from bpaye.classes import Temporal
-from bpaye.utils import add_date_round, dernier_jour, range_mois, truncate, veille
+from bpaye.utils import add_date_round, date_de, dernier_jour, lit_toml, range_mois, truncate, veille
 
 
 @pytest.mark.parametrize(
@@ -51,3 +51,10 @@ def test_dernier_jour_et_veille():
 
 def test_range_mois_passe_l_annee():
     assert list(range_mois((2025, 11), 3)) == [(2025, 11), (2025, 12), (2026, 1)]
+
+
+def test_lit_toml_et_date_de(tmp_path):
+    chemin = tmp_path / "x.toml"
+    chemin.write_text('[[e]]\ndate = 2025-09-01\ndepuis = "2026-01-01"\n', encoding="utf-8")
+    entree = lit_toml(chemin)["e"][0]
+    assert (date_de(entree), date_de(entree, "depuis")) == (dt.date(2025, 9, 1), dt.date(2026, 1, 1))

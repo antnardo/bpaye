@@ -9,7 +9,6 @@ corps ; un échelon pris en cours de mois est payé par trentièmes des deux tra
 """
 
 import datetime as dt
-import tomllib
 from pathlib import Path
 from typing import Any, Self
 
@@ -24,7 +23,7 @@ from bpaye.ors import CORPS_SANS_ORS, ORS_CORPS, calc_ors
 from bpaye.point import POINT
 from bpaye.reclassement import DATE_PPCR, reclasse
 from bpaye.temps_partiel import fraction_remuneration
-from bpaye.utils import add_date_round, parse_toml_date, truncate, veille
+from bpaye.utils import add_date_round, date_de, lit_toml, truncate, veille
 from bpaye.vacances import VACANCES, ZONE_PAR_DEFAUT
 
 __all__ = [
@@ -196,8 +195,7 @@ class Fonctionnaire:
         """La situation de l'agent, lue dans agent.toml : taux du prélèvement à la source,
         enfants, zone de résidence, transport, FMD, indemnité compensatrice de CSG. Elle
         reste propre à cet agent : deux agents d'un même processus ne se mélangent pas."""
-        with Path(path).open("rb") as f:
-            cfg = tomllib.load(f)
+        cfg = lit_toml(path)
         self.siret = cfg.get("siret")
         for entry in cfg.get("employeur", []):
             self.employeurs.append(*lit_employeur(entry, "agent.toml [[employeur]]"))
@@ -205,7 +203,7 @@ class Fonctionnaire:
             # Un seul SIRET, sans [[employeur]] : l'employeur de toute la carrière.
             self.employeurs.append(dt.date.min, Employeur("", (self.siret,)))
         for entry in cfg["ir"]["values"]:
-            date = parse_toml_date(entry["date"])
+            date = date_de(entry)
             if date != dt.date(2001, 1, 1):  # valeur initiale déjà présente
                 self.taux_pas.append(date, entry["valeur"])
             else:
@@ -213,22 +211,22 @@ class Fonctionnaire:
         if cfg.get("fmd"):
             self._declare(self.fmd_niveau)
         for entry in cfg.get("fmd", []):
-            self.update_fmd_niveau(parse_toml_date(entry["date"]), entry["niveau"])
+            self.update_fmd_niveau(date_de(entry), entry["niveau"])
         if cfg.get("enfants"):
             self._declare(self.enfants)
         for e in cfg.get("enfants", []):
-            self.update_enfants(parse_toml_date(e["date"]), e["nombre"])
+            self.update_enfants(date_de(e), e["nombre"])
         if cfg.get("residence"):
             self._declare(self.residence)
         for r in cfg.get("residence", []):
-            self.update_residence(parse_toml_date(r["date"]), r["zone"])
+            self.update_residence(date_de(r), r["zone"])
         if cfg.get("transport"):
             self._declare(self.frais_transport)
         for t in cfg.get("transport", []):
-            self.update_transport(parse_toml_date(t["date"]), t["abonnement_annuel"])
+            self.update_transport(date_de(t), t["abonnement_annuel"])
         for entry in cfg.get("academie", []):
             retards_academie(entry["nom"])  # refuse une académie inconnue
-            self.academie.append(parse_toml_date(entry["date"]), entry["nom"])
+            self.academie.append(date_de(entry), entry["nom"])
         for entry in cfg.get("retards", []):
             self.retards_declares.append(lit_retard(entry, "agent.toml [[retards]]"))
         for entry in cfg.get("psc", []):
@@ -239,7 +237,7 @@ class Fonctionnaire:
                 raise ValueError(
                     f"[[psc]] : clés inconnues {sorted(inconnues)}, attendues {list(PSC_DECLAREE)}"
                 )
-            self.psc.append(parse_toml_date(entry["date"]), montants)
+            self.psc.append(date_de(entry), montants)
         if "ic_csg" in cfg:
             # Propre à l'agent : avant le premier montant déclaré, aucun n'est connu.
             self.ic_csg = depuis_section(cfg["ic_csg"])
@@ -595,15 +593,14 @@ class Fonctionnaire:
             from bpaye.grille import GRILLES
 
             grilles_map = GRILLES
-        with Path(path).open("rb") as f:
-            cfg = tomllib.load(f)
+        cfg = lit_toml(path)
 
         dep = cfg["depart"]
         grille = grilles_map[dep["grille"]]
 
         fonc = self
-        fonc._depart(dep["nom"], dep["echelon"], parse_toml_date(dep["date"]), grille, dep["anciennete"])
-        depart = parse_toml_date(dep["date"])
+        fonc._depart(dep["nom"], dep["echelon"], date_de(dep), grille, dep["anciennete"])
+        depart = date_de(dep)
         fonc.noms_grille.append(depart, dep["grille"])
         fonc.corps.append(depart, dep.get("corps", grille.value(depart).corps))
         fonc.zone_vacances = dep.get("zone_vacances", ZONE_PAR_DEFAUT)
@@ -611,7 +608,7 @@ class Fonctionnaire:
             raise ValueError(f"zone de vacances inconnue {fonc.zone_vacances!r}, attendu {sorted(VACANCES)}")
 
         for d in cfg.get("detachements", []):
-            fonc.update_detachement(parse_toml_date(d["date"]), d["detache"], d.get("indemnite_fonction"))
+            fonc.update_detachement(date_de(d), d["detache"], d.get("indemnite_fonction"))
 
         # Les avancements s'appliquent dans l'ordre chronologique, quel que soit leur ordre dans le
         # fichier : un choix de 2015 avant le reclassement de 2017, une accélération de 2020
@@ -621,7 +618,7 @@ class Fonctionnaire:
             if av["type"] == "PPCR":
                 return DATE_PPCR
             if av["type"] == "reclassement":
-                return parse_toml_date(av["date"])
+                return date_de(av)
             try:
                 return fonc.echelon.value_todate(av["echelon"] - 1)
             except ValueError:
@@ -635,12 +632,12 @@ class Fonctionnaire:
             if t == "PPCR":
                 reclasse(fonc, DATE_PPCR)
             elif t == "reclassement":
-                reclasse(fonc, parse_toml_date(av["date"]))
+                reclasse(fonc, date_de(av))
             else:
                 fonc.avancement(av["echelon"], t)
 
         for cc in cfg.get("changements_corps", []):
-            jour = parse_toml_date(cc["date"])
+            jour = date_de(cc)
             nouvelle = grilles_map[cc["grille"]]
             echelon = cc.get("echelon_depart")
             if echelon is None:

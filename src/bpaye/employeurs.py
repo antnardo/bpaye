@@ -18,7 +18,7 @@ from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from typing import Any
 
-from bpaye.utils import parse_toml_date
+from bpaye.utils import date_de
 
 __all__ = ["Employeur", "lit_employeur", "normalise_poste"]
 
@@ -58,4 +58,4 @@ def lit_employeur(entree: Mapping[str, Any], origine: str) -> tuple[dt.date, Emp
     postes = tuple(normalise_poste(p) for p in _liste(entree.get("poste"), "poste", origine))
     if not sirets and not postes:
         raise ValueError(f"{origine} : un employeur se reconnaît à un siret ou à un poste")
-    return parse_toml_date(entree["date"]), Employeur(str(entree.get("nom", "")), sirets, postes)
+    return date_de(entree), Employeur(str(entree.get("nom", "")), sirets, postes)

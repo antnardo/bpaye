@@ -5,8 +5,9 @@ de janvier 2026). La catégorie (revenu, retenue, patronal, special) est celle d
 bpaye : elle range les lignes du bulletin pour la lecture des PDF et leur affichage.
 """
 
-import tomllib
 from pathlib import Path
+
+from bpaye.utils import lit_toml
 
 __all__ = [
     "ALL_CODES",
@@ -68,8 +69,7 @@ TPP = 604970
 
 def load_codes(path: Path = CODES_TOML) -> dict[str, dict]:
     """Retourne {code: {libelle, has_rappel, cat, libelle_officiel, imposable, source}}."""
-    with path.open("rb") as f:
-        data = tomllib.load(f)
+    data = lit_toml(path)
     return {
         c["code"]: {
             "libelle": c["libelle"],
@@ -84,8 +84,7 @@ def load_codes(path: Path = CODES_TOML) -> dict[str, dict]:
 
 
 ALL_CODES = load_codes()
-with CODES_TOML.open("rb") as _f:
-    CATEGORIES: dict[str, str] = tomllib.load(_f)["categories"]
+CATEGORIES: dict[str, str] = lit_toml(CODES_TOML)["categories"]
 
 
 # Codes d'une même ligne, que la paie emploie l'un pour l'autre : la comparaison au calcul

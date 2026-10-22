@@ -12,13 +12,12 @@ mois et arrive en rappel le mois de paiement, comme sur le bulletin.
 """
 
 import datetime as dt
-import tomllib
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 from bpaye.codes import ALL_CODES
-from bpaye.utils import parse_toml_date
+from bpaye.utils import date_de, lit_toml
 
 __all__ = [
     "ACADEMIES",
@@ -62,13 +61,12 @@ def lit_retard(entree: dict[str, Any], origine: str) -> Retard:
         raise ValueError(f"{origine} : code {code} inconnu (codes.toml)")
     if not (1 <= du <= 12 and 1 <= paye <= 12) or du == paye:
         raise ValueError(f"{origine} : mois dû {du} et de paiement {paye} attendus de 1 à 12, distincts")
-    depuis = parse_toml_date(entree["depuis"]) if "depuis" in entree else None
+    depuis = date_de(entree, "depuis") if "depuis" in entree else None
     return Retard(code, du, paye, depuis)
 
 
 def _charge(path: Path = ACADEMIES_TOML) -> dict[str, dict[str, Any]]:
-    with path.open("rb") as f:
-        return tomllib.load(f)
+    return lit_toml(path)
 
 
 ACADEMIES = _charge()

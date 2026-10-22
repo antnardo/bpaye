@@ -12,12 +12,11 @@ celle qui l'atteint fait passer à l'échelon suivant le jour même, sans reliqu
 """
 
 import datetime as dt
-import tomllib
 from dataclasses import dataclass
 from pathlib import Path
 
 from bpaye.protocoles import Agent
-from bpaye.utils import parse_toml_date
+from bpaye.utils import date_de, lit_toml
 
 __all__ = [
     "DATE_PPCR",
@@ -60,8 +59,7 @@ class Reclassement:
 
 def charge_reclassements(path: Path = _TOML) -> dict[str, list[Reclassement]]:
     """Par nom de grille (GRILLE_AGCN…), ses reclassements dans l'ordre des dates."""
-    with path.open("rb") as f:
-        cfg = tomllib.load(f)
+    cfg = lit_toml(path)
     resultat: dict[str, list[Reclassement]] = {}
     for nom, entrees in cfg.items():
         for entree in entrees:
@@ -72,9 +70,7 @@ def charge_reclassements(path: Path = _TOML) -> dict[str, list[Reclassement]]:
                     raise ValueError(f"{nom} : règle d'ancienneté inconnue {regle!r}")
                 c = Correspondance(ligne["ancien"], ligne["nouveau"], regle, ligne.get("majoration", 0.0))
                 table[c.ancien] = c
-            resultat.setdefault(nom, []).append(
-                Reclassement(parse_toml_date(entree["date"]), entree["source"], table)
-            )
+            resultat.setdefault(nom, []).append(Reclassement(date_de(entree), entree["source"], table))
         resultat[nom].sort(key=lambda r: r.date)
     return resultat
 

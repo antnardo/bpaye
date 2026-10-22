@@ -1,14 +1,19 @@
 """Dates et arrondis communs au calcul."""
 
 import datetime as dt
-from collections.abc import Iterator
+import tomllib
+from collections.abc import Iterator, Mapping
 from math import ceil, floor
+from pathlib import Path
+from typing import Any
 
 __all__ = [
     "add_date_round",
+    "date_de",
     "decalage_mois",
     "dernier_jour",
     "last_day_month",
+    "lit_toml",
     "next_month",
     "parse_toml_date",
     "previous_month",
@@ -16,6 +21,17 @@ __all__ = [
     "truncate",
     "veille",
 ]
+
+
+def lit_toml(chemin: str | Path) -> dict[str, Any]:
+    """Le contenu d'un fichier TOML."""
+    with Path(chemin).open("rb") as f:
+        return tomllib.load(f)
+
+
+def date_de(entree: Mapping[str, Any], cle: str = "date") -> dt.date:
+    """La date ``cle`` d'une entrée TOML (parse_toml_date)."""
+    return parse_toml_date(entree[cle])
 
 
 def parse_toml_date(d: dt.date | str) -> dt.date:

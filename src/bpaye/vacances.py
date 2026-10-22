@@ -13,9 +13,10 @@ connues lève une erreur plutôt que de compter des vacances comme des semaines 
 """
 
 import datetime as dt
-import tomllib
 from collections import Counter, defaultdict
 from pathlib import Path
+
+from bpaye.utils import lit_toml
 
 __all__ = [
     "VACANCES",
@@ -34,8 +35,7 @@ ZONE_PAR_DEFAUT = "C"
 def charge_vacances(path: Path = _TOML) -> dict[str, list[tuple[str, dt.date, dt.date]]]:
     """Par zone, (année scolaire, premier jour sans cours, jour de la reprise) de chaque
     période."""
-    with Path(path).open("rb") as f:
-        cfg = tomllib.load(f)
+    cfg = lit_toml(path)
     par_zone: dict[str, list[tuple[str, dt.date, dt.date]]] = defaultdict(list)
     for v in cfg["vacances"]:
         par_zone[v["zone"]].append((v["annee"], v["debut"], v["reprise"]))

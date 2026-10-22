@@ -9,12 +9,11 @@ des fichiers donnés. BAREME est le barème du paquet, valeur par défaut partou
 load() et get() restent, pour lire le barème du paquet.
 """
 
-import tomllib
 from pathlib import Path
 from typing import Any, Self
 
 from bpaye.classes import AnnuelPonctuel, Fixe, Taux
-from bpaye.utils import parse_toml_date
+from bpaye.utils import date_de, lit_toml
 
 __all__ = [
     "BAREME",
@@ -36,11 +35,11 @@ def _load_temporal(section: dict[str, Any]) -> Fixe | Taux | AnnuelPonctuel:
         mois = section.get("mois_versement", 1)
         ponctuel = AnnuelPonctuel(mois_versement=mois)
         for entry in section["values"]:
-            ponctuel.append(parse_toml_date(entry["date"]), entry["valeur"])
+            ponctuel.append(date_de(entry), entry["valeur"])
         return ponctuel
     obj: Fixe | Taux = Fixe() if kind == "Fixe" else Taux()
     for entry in section["values"]:
-        date = parse_toml_date(entry["date"])
+        date = date_de(entry)
         val = entry["valeur"]
         if kind == "Fixe":
             assert isinstance(obj, Fixe)
@@ -75,11 +74,9 @@ class Bareme:
     def depuis_fichiers(cls, *chemins: str | Path) -> Self:
         """Le barème du paquet, où les sections des fichiers ``chemins`` remplacent les
         siennes (même format que taux.toml)."""
-        with TAUX_TOML.open("rb") as f:
-            cfg = tomllib.load(f)
+        cfg = lit_toml(TAUX_TOML)
         for chemin in chemins:
-            with Path(chemin).open("rb") as f:
-                _substitue(cfg, tomllib.load(f))
+            _substitue(cfg, lit_toml(chemin))
         return cls(cfg)
 
     def get(self, path: str) -> Any:
@@ -109,7 +106,7 @@ class Bareme:
         (1 183,68 €) depuis le relevé de 2007. Un montant recalculé chaque fois depuis la
         référence s'écarte d'un centime par mois (IFP de 2016 : 88,14 € au lieu de 88,15 €)."""
         point = self.load("point")
-        references = sorted((parse_toml_date(e["date"]), float(e["valeur"])) for e in section["values"])
+        references = sorted((date_de(e), float(e["valeur"])) for e in section["values"])
         fixe = Fixe()
         for i, (debut, montant) in enumerate(references):
             fin = references[i + 1][0] if i + 1 < len(references) else None
