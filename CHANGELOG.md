@@ -7,6 +7,10 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et la
 
 ### Ajouté
 
+- **Heures de colles lues dans un montant** (`colles.heures_du_montant`,
+  `colles.decrit_colles`) : `bpaye-lire` et `examples/verifier.py` disent ce que représente
+  le montant de colles d'un bulletin, en heures entières à un code avec le sens du code, ou
+  qu'il mêle plusieurs codes ou mois, sans hypothèse.
 - **Bulletins PAY18E V1.4, V1.6 et V2.1** (2017 à 2019) lus, totaux et pied vérifiés ;
   codes 200125 (vacations) et 604972 (transfert primes/points de catégorie C) ; lignes
   équivalentes à la comparaison : 202206/202209 (indemnité compensatrice de CSG) et
