@@ -210,3 +210,15 @@ def test_chaire_superieure_garde_l_anciennete_de_l_agrege_au_onzieme(tmp_path):
     # dans la limite de la durée de l'échelon d'accueil.
     fonc = _chaire(tmp_path, 11, "2022-03-01")
     assert fonc.anciennete(dt.date(2023, 9, 1)) == pytest.approx(1.5, abs=0.01)
+
+
+def test_indice_detenu_le_jour_sans_prorata(configuration):
+    carriere, agent = configuration
+    carriere.write_text(carriere.read_text().replace("date       = 2019-09-01", "date       = 2019-09-08"))
+    fonc = load_agent(agent)
+    fonc.load_carriere(carriere)
+    changement = next(d for d, _ in fonc.echelon.values[1:] if d.day == 8)
+    veille = changement - dt.timedelta(days=1)
+    _, ancien, nouveau = fonc.changement_d_indice(changement)
+    assert (fonc.indice_detenu(veille), fonc.indice_detenu(changement)) == (ancien, nouveau)
+    assert ancien < fonc.indice(changement) < nouveau  # le mois, au prorata

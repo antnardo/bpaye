@@ -461,6 +461,11 @@ class Fonctionnaire:
         externes = CollesExternes(zone, debut, fin, dict(heures), etablissement)
         self.colles_externes.setdefault(year, []).append(externes)
 
+    def indice_detenu(self, date: dt.date) -> int:
+        """L'indice majoré détenu le jour ``date`` : celui de l'échelon et de la grille de ce
+        jour, sans le prorata d'un échelon pris en cours de mois (indice)."""
+        return self.grille.value(date).indice(self.echelon(date))
+
     def changement_d_indice(self, date: dt.date) -> tuple[int, int, int] | None:
         """Pour un mois où un échelon est pris en cours de mois : (jours à l'ancien indice,
         ancien indice, nouvel indice) ; None sinon, et pour le premier échelon de la
@@ -469,10 +474,9 @@ class Fonctionnaire:
         if d is None or d.day == 1 or d <= self.echelon.values[0][0]:
             return None
         veille = d - dt.timedelta(days=1)
-        # L'échelon d'avant se lit dans la grille d'avant : un changement de grade ou de corps
-        # change aussi de grille.
-        i_prec = self.grille.value(veille).indice(self.echelon(veille))
-        return min(d.day - 1, 30), i_prec, self.grille.value(d).indice(self.echelon(d))
+        # L'échelon d'avant se lit dans la grille d'avant (indice_detenu) : un changement de
+        # grade ou de corps change aussi de grille.
+        return min(d.day - 1, 30), self.indice_detenu(veille), self.indice_detenu(d)
 
     def indice(self, date: dt.date) -> float:
         """L'indice du mois de ``date``, quel qu'en soit le jour : au prorata des jours de
@@ -482,7 +486,7 @@ class Fonctionnaire:
         if changement is not None:
             jours, i_prec, i = changement
             return truncate(jours / 30 * i_prec + (30 - jours) / 30 * i, 2)
-        return self.grille.value(date).indice(self.echelon(date))
+        return self.indice_detenu(date)
 
     def avancement(
         self,

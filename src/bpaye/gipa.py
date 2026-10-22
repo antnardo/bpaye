@@ -17,7 +17,6 @@ cotise comme les autres primes. Le mois de versement n'est fixé par aucun texte
 se donne à Paye.gipa.
 """
 
-import datetime as dt
 from typing import Any
 
 from bpaye.classes import Ligne
@@ -37,16 +36,11 @@ def _periode(annee: int, bareme: Bareme) -> dict[str, Any]:
     raise ValueError(f"pas de GIPA au titre de {annee} dans le barème")
 
 
-def _indice_au(fonc: Fonctionnaire, date: dt.date) -> int:
-    """L'indice majoré détenu à ``date``, sans le prorata d'un échelon pris en cours de mois."""
-    return fonc.grille.value(date).indice(fonc.echelon(date))
-
-
 def montant_gipa(fonc: Fonctionnaire, annee: int, bareme: Bareme = BAREME) -> float:
     """La GIPA au titre de ``annee``, au centime ; 0 si le traitement a suivi l'inflation."""
     p = _periode(annee, bareme)
-    tib_debut = _indice_au(fonc, p["debut"]) * p["point_debut"]
-    tib_fin = _indice_au(fonc, p["fin"]) * p["point_fin"]
+    tib_debut = fonc.indice_detenu(p["debut"]) * p["point_debut"]
+    tib_fin = fonc.indice_detenu(p["fin"]) * p["point_fin"]
     garantie = tib_debut * (1 + p["inflation"]) - tib_fin
     if garantie <= 0:
         return 0.0
