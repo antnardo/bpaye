@@ -19,6 +19,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from bpaye.charges import net_colles_seules
+from bpaye.codes import COLLES
 from bpaye.colles import brut_colles_externes, inject_colles_prevues
 from bpaye.config import BAREME, Bareme
 from bpaye.fonctionnaire import load_agent
@@ -60,6 +61,6 @@ def nets_prevus(
         y, m = decalage_mois(annee, mois, rang)
         bulletin = paye(y, m)
         assert bulletin is not None  # généré ci-dessus
-        colles = bulletin.total(200207)
+        colles = bulletin.total(COLLES)
         nets.append(NetPrevu(y, m, round(bulletin.net, 2), round(colles, 2), round(externes[(y, m)], 2)))
     return nets

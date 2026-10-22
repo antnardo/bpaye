@@ -9,6 +9,7 @@ import datetime as dt
 
 import bpaye.config as config
 from bpaye.classes import Ligne, Taux
+from bpaye.codes import PENSION
 from bpaye.config import BAREME, Bareme
 
 __all__ = [
@@ -21,4 +22,4 @@ PC: Taux = config.BAREME.load("pc")  # celui du barème du paquet
 
 def pension_civile(brut: float, date: dt.date, bareme: Bareme = BAREME) -> Ligne:
     taux = bareme.load("pc")
-    return Ligne(-round(taux.taux(brut, date), 2), "Pension civile", code=101050, classe="PC")
+    return Ligne(-round(taux.taux(brut, date), 2), "Pension civile", code=PENSION, classe="PC")

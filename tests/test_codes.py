@@ -68,3 +68,11 @@ def test_indemnites_de_corps_identiques_a_leur_releve():
     paquet = _paquet()
     assert {c for c in corps if paquet[c]["ir"] != corps[c]["code_ir"]} == set()
     assert {c for c in corps if paquet[c].get("imposable") != corps[c]["imposable"]} == set()
+
+
+def test_chaque_code_nomme_est_dans_codes_toml():
+    import bpaye.codes as codes
+
+    noms = [nom for nom in codes.__all__ if isinstance(getattr(codes, nom), int)]
+    assert noms
+    assert [nom for nom in noms if f"{getattr(codes, nom):06d}" not in ALL_CODES] == []

@@ -11,6 +11,7 @@ import datetime as dt
 
 import bpaye.config as config
 from bpaye.classes import Ligne
+from bpaye.codes import RESIDENCE
 from bpaye.config import BAREME, Bareme
 from bpaye.fonctionnaire import Fonctionnaire
 from bpaye.point import traitement_plein, valeur_point
@@ -48,6 +49,6 @@ def indemnite_residence(fonctionnaire: Fonctionnaire, date: dt.date, bareme: Bar
     return Ligne(
         reduit(montant, fonctionnaire.fraction(date)),
         "Indemnité de résidence",
-        code=102000,
+        code=RESIDENCE,
         classe="INDEM",
     )

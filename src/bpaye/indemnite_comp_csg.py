@@ -22,6 +22,7 @@ Sans lui, aucune valeur ne vaut pour tous les agents : bpaye refuse les mois dep
 import datetime as dt
 
 from bpaye.classes import Ligne
+from bpaye.codes import ICCSG
 from bpaye.config import BAREME, Bareme
 from bpaye.fonctionnaire import Fonctionnaire
 
@@ -48,4 +49,4 @@ def indemnite_comp_csg(
             "agent.toml ([ic_csg], le montant du bulletin) ; aucune valeur commune (MANQUANT)"
         )
     montant = propre(date)
-    return Ligne(montant, "Indemnité compensatrice CSG", code=202209, classe="INDEM")
+    return Ligne(montant, "Indemnité compensatrice CSG", code=ICCSG, classe="INDEM")

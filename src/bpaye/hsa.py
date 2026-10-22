@@ -24,6 +24,16 @@ from types import MappingProxyType
 
 import bpaye.config as config
 from bpaye.classes import Fixe, Ligne, Temporal
+from bpaye.codes import (
+    COLLES,
+    HSA,
+    HSE,
+    HSE_ACCOMPAGNEMENT,
+    HSE_REMPLACEMENT,
+    HSE_REUSSITE,
+    MAJORATION_HSA,
+    SURVEILLANCE,
+)
 from bpaye.config import BAREME, Bareme
 from bpaye.grille import GRILLE_AGCN, GRILLE_CHSUP, GRILLES, Grille
 from bpaye.protocoles import Agent
@@ -178,12 +188,12 @@ def hsa(fonctionnaire: Agent, date: dt.date, bareme: Bareme = BAREME) -> Ligne:
         ligne = Ligne(
             round(taux_hsa * heures, 2),
             f"Heures Année Enseignement (HSA - {heures}h)",
-            code=200205,
+            code=HSA,
             classe="INDEM",
         )
         ligne.exacte = taux_hsa * heures
         return ligne
-    return Ligne(0, f"Heures Année Enseignement (HSA - {heures}h)", code=200205, classe="INDEM")
+    return Ligne(0, f"Heures Année Enseignement (HSA - {heures}h)", code=HSA, classe="INDEM")
 
 
 def hsa_majo(fonctionnaire: Agent, date: dt.date, bareme: Bareme = BAREME) -> Ligne:
@@ -192,10 +202,10 @@ def hsa_majo(fonctionnaire: Agent, date: dt.date, bareme: Bareme = BAREME) -> Li
         taux_hsa_annuel(fonctionnaire, date, rounded=False, bareme=bareme) / 9 * MAJORATION_PREMIERE_HSA
     )
     if heures >= 1 and (date.month >= 10 or date.month <= 6):
-        ligne = Ligne(round(majoration, 2), "Majo 1ère HSA", code=200576, classe="INDEM")
+        ligne = Ligne(round(majoration, 2), "Majo 1ère HSA", code=MAJORATION_HSA, classe="INDEM")
         ligne.exacte = majoration
         return ligne
-    return Ligne(0, "Majo 1ère HSA", code=200576, classe="INDEM")
+    return Ligne(0, "Majo 1ère HSA", code=MAJORATION_HSA, classe="INDEM")
 
 
 def _resolve_ors(code: int | None = None, ors: int | None = None) -> int:
@@ -234,10 +244,10 @@ def valeur_hse(
 # les HSE des dispositifs (stages de réussite, accompagnement éducatif…) recodées 201300
 # au 1/9/2025, au taux de l'HSE.
 CODES_HSE = {
-    200215: "H. Eff. Ens. HSE",
-    201241: "HSE remplacement courte durée",
-    201717: "HSE réussite scolaire lycée",
-    201300: "HSE dispositifs 2nd degré",
+    HSE: "H. Eff. Ens. HSE",
+    HSE_REMPLACEMENT: "HSE remplacement courte durée",
+    HSE_REUSSITE: "HSE réussite scolaire lycée",
+    HSE_ACCOMPAGNEMENT: "HSE dispositifs 2nd degré",
 }
 
 
@@ -247,13 +257,13 @@ def hse(
     heures: float,
     comm: str = "",
     bareme: Bareme = BAREME,
-    code: int = 200215,
+    code: int = HSE,
 ) -> Ligne:
     """Heures supplémentaires effectives, au taux de l'HSE, sous le ``code`` de CODES_HSE."""
     if code not in CODES_HSE:
         raise ValueError(f"code d'HSE inconnu {code}, attendus {list(CODES_HSE)}")
     taux_annuel = taux_hsa_annuel(fonctionnaire, date, rounded=False, bareme=bareme)
-    majoration = "hse_majoration_rcd" if code == 201241 else "hse_majoration"
+    majoration = "hse_majoration_rcd" if code == HSE_REMPLACEMENT else "hse_majoration"
     taux_hse = taux_annuel / 36 * bareme.load(majoration)(date)
     total = round(taux_hse * heures, 2)
     return Ligne(total, f"{CODES_HSE[code]} {heures}h - {comm}", code=code, classe="INDEM")
@@ -273,7 +283,7 @@ def valeur_hsi(
 def hsi(fonctionnaire: Agent, date: dt.date, heures: float, comm: str = "", bareme: Bareme = BAREME) -> Ligne:
     taux_hsi = taux_hsa_annuel(fonctionnaire, date, rounded=False, bareme=bareme) / 36 * REDUCTION_HSI
     total = round(taux_hsi * heures, 2)
-    return Ligne(total, f"H. Interr. HSI {heures}h [{comm}]", code=200207, classe="INDEM")
+    return Ligne(total, f"H. Interr. HSI {heures}h [{comm}]", code=COLLES, classe="INDEM")
 
 
 def surveillance(
@@ -283,7 +293,7 @@ def surveillance(
     annuel de l'HSA, réduit de 50 % (décret 50-1253, art. 5 ; taux.toml, hs_surveillance)."""
     taux_annuel = taux_hsa_annuel(fonctionnaire, date, rounded=False, bareme=bareme)
     total = round(taux_annuel / 36 * bareme.load("hs_surveillance")(date) * heures, 2)
-    return Ligne(total, f"H. Sup. Surveillance {heures}h - {comm}", code=200216, classe="INDEM")
+    return Ligne(total, f"H. Sup. Surveillance {heures}h - {comm}", code=SURVEILLANCE, classe="INDEM")
 
 
 # 01/07/10 : HSA = {8:2885.03, 9:2564.47, 10:2308.02, 11:2098.20}

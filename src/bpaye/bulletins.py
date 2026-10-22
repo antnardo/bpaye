@@ -20,6 +20,7 @@ from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
+from bpaye.codes import TRAITEMENT
 from bpaye.fonctionnaire import Fonctionnaire
 from bpaye.pdf import BulletinLu, EmployeurLu, extract_bulletin, extract_employeur, find_pdfs
 
@@ -84,7 +85,7 @@ def bulletins_du_mois(
     if not declares:
         # Sans déclaration : le premier bulletin qui porte le traitement brut.
         for i, b in enumerate(trouves):
-            if "101000" in b.lu:
+            if str(TRAITEMENT) in b.lu:
                 trouves[i] = BulletinTrouve(b.chemin, date, b.lu, b.entete, b.nom, EMPLOYEUR)
                 break
     premier = next((i for i, b in enumerate(trouves) if b.compare), None)

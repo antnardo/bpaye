@@ -28,7 +28,20 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
-from bpaye.codes import ALL_CODES
+from bpaye.codes import (
+    ALL_CODES,
+    COLLES,
+    FMD,
+    HSA,
+    HSE,
+    PACTE_ISAE,
+    PACTE_ISOE,
+    RDT,
+    RESIDENCE,
+    SFT,
+    TRAITEMENT,
+    TRAITEMENT_NBI,
+)
 from bpaye.colles import decrit_colles
 from bpaye.config import BAREME, Bareme
 from bpaye.grille import GRILLES
@@ -246,13 +259,13 @@ def _constats(lu: BulletinLu, jour: dt.date | None = None) -> list[str]:
         ({"201882"}, "en éducation prioritaire renforcée (REP+)"),
         ({"201883"}, "en éducation prioritaire (REP)"),
         ({"201228", "202566"}, "professeur principal (ISOE part modulable)"),
-        ({"200205"}, "heures supplémentaires année (HSA)"),
-        ({"200207"}, "colles (heures d'interrogation)"),
-        ({"200215"}, "heures supplémentaires effectives (HSE)"),
-        ({"202475", "202476"}, "Pacte (part fonctionnelle)"),
-        ({"101070"}, "nouvelle bonification indiciaire"),
-        ({"200039"}, "remboursement domicile-travail"),
-        ({"200041"}, "forfait mobilités durables"),
+        ({str(HSA)}, "heures supplémentaires année (HSA)"),
+        ({str(COLLES)}, "colles (heures d'interrogation)"),
+        ({str(HSE)}, "heures supplémentaires effectives (HSE)"),
+        ({str(PACTE_ISOE), str(PACTE_ISAE)}, "Pacte (part fonctionnelle)"),
+        ({str(TRAITEMENT_NBI)}, "nouvelle bonification indiciaire"),
+        ({str(RDT)}, "remboursement domicile-travail"),
+        ({str(FMD)}, "forfait mobilités durables"),
         ({"201150"}, "détachement"),
         ({"720576", "720577"}, "PSC santé MGEN (contrat collectif depuis mai 2026)"),
         ({"202354"}, "participation forfaitaire PSC (15 €, jusqu'en avril 2026)"),
@@ -267,7 +280,7 @@ def _constats(lu: BulletinLu, jour: dt.date | None = None) -> list[str]:
         constats.append(f"rappels : {libelles}")
     if lu.rappel_decompte:
         constats.append(f"rappel sur décompte : {lu.rappel_decompte:.2f} €")
-    colles = m.get("200207", 0.0) + m.get("200207_R", 0.0)
+    colles = m.get(str(COLLES), 0.0) + m.get("200207_R", 0.0)
     if colles and jour is not None:
         constats.append("colles : " + decrit_colles(colles, jour))
     return constats
@@ -330,14 +343,14 @@ def reconnait(pdf_path: str | Path, bareme: Bareme = BAREME) -> Reconnaissance:
         corps, grille_nom, classe, echelon = _situe(en_tete, jour, remarques)
 
     fraction = zone = enfants_sft = None
-    traitement = lu.montants.get("101000")
+    traitement = lu.montants.get(str(TRAITEMENT))
     if jour is not None and en_tete.indice and traitement:
         plein = calc_traitement_brut(en_tete.indice, jour, bareme)
         fraction = round(traitement / plein, 4)
-        residence = lu.montants.get("102000", 0.0)
+        residence = lu.montants.get(str(RESIDENCE), 0.0)
         taux = residence / plein if plein else 0.0
         zone = min(((1, 0.03), (2, 0.01), (3, 0.0)), key=lambda z: abs(z[1] * fraction - taux))[0]
-        sft = lu.montants.get("104000")
+        sft = lu.montants.get(str(SFT))
         if sft:
             enfants_sft = next(
                 (n for n in range(1, 9) if abs(valeur_sft(n, plein, jour, bareme) - sft) < 0.015), None

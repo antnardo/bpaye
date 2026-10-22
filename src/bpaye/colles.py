@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import Protocol
 
 from bpaye.classes import Ligne
+from bpaye.codes import COLLES
 from bpaye.config import BAREME, Bareme
 from bpaye.hsa import CODE, CORPS_DU_CODE, code_colle, valeur_colle
 from bpaye.ors import ORS_CPGE
@@ -172,7 +173,7 @@ class Colle:
     def paiement(self, date: dt.date) -> Ligne:
         self.payee = True
         self.date_paiement = date
-        return Ligne(self.total, f"H. Interr. HSI Colles {self.commentaire}", code=200207, classe="INDEM")
+        return Ligne(self.total, f"H. Interr. HSI Colles {self.commentaire}", code=COLLES, classe="INDEM")
 
 
 class Colles:

@@ -23,7 +23,7 @@ from pathlib import Path
 from types import MappingProxyType
 from typing import Any
 
-from bpaye.codes import ALL_CODES
+from bpaye.codes import ALL_CODES, PENSION, RESIDENCE, SFT, TRAITEMENT
 
 __all__ = [
     "COLONNES",
@@ -527,10 +527,10 @@ DR_ROW_CODES: dict[str, str] = {
         for code, info in ALL_CODES.items()
         if info["cat"] in ("revenu", "retenue") and not code.startswith("011")
     },
-    "TRAITEMENT BRUT": "101000",
-    "RETENUE PC": "101050",
-    "INDEMNITE DE RESIDENCE": "102000",
-    "SUPP FAMILIAL TRAITEMENT": "104000",
+    "TRAITEMENT BRUT": str(TRAITEMENT),
+    "RETENUE PC": str(PENSION),
+    "INDEMNITE DE RESIDENCE": str(RESIDENCE),
+    "SUPP FAMILIAL TRAITEMENT": str(SFT),
 }
 
 

@@ -13,11 +13,57 @@ __all__ = [
     "CATEGORIES",
     "CODES_EQUIVALENTS",
     "CODES_TOML",
+    "COLLES",
+    "CONTRIBUTION_SOLIDARITE",
+    "FMD",
+    "HSA",
+    "HSE",
+    "HSE_ACCOMPAGNEMENT",
+    "HSE_REMPLACEMENT",
+    "HSE_REUSSITE",
+    "HSE_SUPPLEANCES",
+    "ICCSG",
+    "MAJORATION_HSA",
+    "PACTE_ISAE",
+    "PACTE_ISOE",
+    "PENSION",
+    "RDT",
+    "RESIDENCE",
+    "SFT",
+    "SURVEILLANCE",
+    "TPP",
+    "TRAITEMENT",
+    "TRAITEMENT_NBI",
     "equivalents",
     "load_codes",
 ]
 
 CODES_TOML = Path(__file__).parent / "codes.toml"
+
+# Les rubriques que le calcul manipule hors de la fonction qui les crée : sommes,
+# exclusions, retards, comparaisons, lecture. Chacune est vérifiée dans codes.toml
+# (tests/test_codes.py) ; les autres restent écrites dans la fonction de leur rubrique.
+TRAITEMENT = 101000
+PENSION = 101050
+TRAITEMENT_NBI = 101070
+RESIDENCE = 102000
+SFT = 104000
+RDT = 200039  # remboursement domicile-travail
+FMD = 200041  # forfait mobilités durables
+HSA = 200205
+COLLES = 200207  # heures d'interrogation
+HSE = 200215
+SURVEILLANCE = 200216
+HSE_SUPPLEANCES = 200497
+MAJORATION_HSA = 200576
+HSE_REMPLACEMENT = 201241
+HSE_ACCOMPAGNEMENT = 201300
+HSE_REUSSITE = 201717
+PACTE_ISOE = 202475
+PACTE_ISAE = 202476
+ICCSG = 202209
+CONTRIBUTION_SOLIDARITE = 555010
+TPP = 604970
 
 
 def load_codes(path: Path = CODES_TOML) -> dict[str, dict]:

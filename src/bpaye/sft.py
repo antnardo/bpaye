@@ -12,6 +12,7 @@ https://www.legifrance.gouv.fr/loda/id/LEGITEXT000006064738/2026-10-17/
 import datetime as dt
 
 from bpaye.classes import Ligne
+from bpaye.codes import SFT
 from bpaye.config import BAREME, Bareme
 from bpaye.fonctionnaire import Fonctionnaire
 from bpaye.grille import indice_majore
@@ -63,6 +64,6 @@ def sft(fonc: Fonctionnaire, date: dt.date, bareme: Bareme = BAREME) -> Ligne:
     return Ligne(
         montant,
         "Supplément familial traitement",
-        code=104000,
+        code=SFT,
         classe="INDEM",
     )

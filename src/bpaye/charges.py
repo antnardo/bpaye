@@ -79,6 +79,7 @@ import datetime as dt
 import math
 
 from bpaye.classes import Ligne, Taux
+from bpaye.codes import CONTRIBUTION_SOLIDARITE, TPP
 from bpaye.config import BAREME, Bareme
 from bpaye.point import calc_traitement_brut
 from bpaye.utils import truncate
@@ -238,16 +239,16 @@ def contribution_solidarite(
     2 999,74 € donne 29,99 €."""
     taux = bareme.load("contrisoli")
     if taux(date) == 0.0:
-        return Ligne(0.0, "Contribution Solidarité", code=555010, classe="CHARGE")
+        return Ligne(0.0, "Contribution Solidarité", code=CONTRIBUTION_SOLIDARITE, classe="CHARGE")
     seuil = calc_traitement_brut(bareme.get("contrisoli_seuil.indice_majore"), date, bareme)
     plafond = bareme.get("contrisoli_plafond.pmss") * bareme.load("pmss")(date)
     montant = 0.0 if net_mensuel < seuil else truncate(taux.taux(min(assiette, plafond), date), 2)
-    return Ligne(-montant, "Contribution Solidarité", code=555010, classe="CHARGE")
+    return Ligne(-montant, "Contribution Solidarité", code=CONTRIBUTION_SOLIDARITE, classe="CHARGE")
 
 
 def transfertprimepoint(date: dt.date, bareme: Bareme = BAREME) -> Ligne:
     montant = bareme.load("transfertpp")(date)
-    return Ligne(-round(montant, 2), "Transfert Prime Point", code=604970, classe="CHARGE")
+    return Ligne(-round(montant, 2), "Transfert Prime Point", code=TPP, classe="CHARGE")
 
 
 def ir(assiette: float, date: dt.date, taux_pas: Taux) -> Ligne:

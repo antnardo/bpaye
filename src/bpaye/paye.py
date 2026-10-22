@@ -26,7 +26,7 @@ from bpaye.charges import (
 )
 from bpaye.charges_impots import ExonerationHS, facteur_hs_net, reduc_cotis_hs
 from bpaye.classes import Ligne, ListeLignes, Selection, Somme
-from bpaye.codes import equivalents
+from bpaye.codes import FMD, HSE, PENSION, RDT, RESIDENCE, SFT, TRAITEMENT, equivalents
 from bpaye.colles import Colle, Colles
 from bpaye.config import BAREME, Bareme
 from bpaye.fonctionnaire import Fonctionnaire
@@ -175,7 +175,7 @@ class Bulletin(ListeLignes):
         return truncate(self.hs_exonerees * facteur_hs_net(self.date, self.bareme), 2)
 
     # Frais exonérés d'impôt : remboursement domicile-travail et forfait mobilités durables.
-    FRAIS_EXONERES = (200039, 200041)
+    FRAIS_EXONERES = (RDT, FMD)
 
     @property
     def frais_exoneres(self) -> float:
@@ -281,7 +281,7 @@ class Bulletin(ListeLignes):
             return pension_civile(self.brut, date, b)
         taux = taux_surcotisation(quotite, date, option, b)
         montant = round(traitement_plein(fonc, date, b) * taux, 2)
-        return Ligne(-montant, "Pension civile (surcotisation)", code=101050, classe="PC")
+        return Ligne(-montant, "Pension civile (surcotisation)", code=PENSION, classe="PC")
 
     def check_changes(self) -> str:
         s = ""
@@ -411,7 +411,7 @@ class Bulletin(ListeLignes):
     def net_mensuel_cs(self) -> float:
         """La rémunération mensuelle nette du seuil de la contribution de solidarité :
         traitement et indemnité de résidence, nets de la pension et de la RAFP (L5423-32)."""
-        residence = self.total(102000)
+        residence = self.total(RESIDENCE)
         return self.brut + residence + self.pc + self.rafp
 
     @property
@@ -682,7 +682,7 @@ class Paye:
         heures: float,
         comm: str = "",
         paiement_date: tuple[int, int] | None = None,
-        code: int = 200215,
+        code: int = HSE,
     ) -> None:
         """Heures supplémentaires effectives, sous ``code`` (hsa.CODES_HSE) : 201241 pour
         un remplacement de courte durée, 201717 puis 201300 pour la réussite au lycée."""
@@ -788,9 +788,9 @@ class Paye:
         n_enfants_retard: int | None = None,
         every: bool = True,
     ) -> None:
-        code_brut = 101000
-        code_sft = 104000
-        code_pc = 101050
+        code_brut = TRAITEMENT
+        code_sft = SFT
+        code_pc = PENSION
         year, mois = original_date
         date = dt.date(year, mois, 1)
         previous_date = previous_month(date)

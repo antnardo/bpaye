@@ -29,6 +29,7 @@ from typing import Any
 
 import bpaye.config as config
 from bpaye.classes import Ligne
+from bpaye.codes import FMD, PACTE_ISAE, PACTE_ISOE, RDT
 from bpaye.config import BAREME, Bareme
 from bpaye.fonctionnaire import Fonctionnaire
 from bpaye.temps_partiel import reduit
@@ -192,7 +193,7 @@ def part_fonctionnelle(fonc: Fonctionnaire, date: dt.date, bareme: Bareme = BARE
     if not parts or date.month not in MOIS_PACTE:
         return None
     montant = round(parts * bareme.load("pacte_part").value_annuel(date) / 9, 2)
-    code = 202476 if fonc.corps_au(date) in CORPS_ISAE else 202475
+    code = PACTE_ISAE if fonc.corps_au(date) in CORPS_ISAE else PACTE_ISOE
     return Ligne(montant, "Part fonctionnelle (Pacte)", code=code, classe="INDEM")
 
 
@@ -200,7 +201,7 @@ def indemnite_transport(fonc: Fonctionnaire, date: dt.date, bareme: Bareme = BAR
     return Ligne(
         calc_transport(fonc.frais_transport(date), date, bareme),
         "REMBT DOMICILE-TRAVAIL",
-        code=200039,
+        code=RDT,
         classe="INDEM",
     )
 
@@ -249,7 +250,7 @@ def forfait_mobilite_durable(fonc: Fonctionnaire, date: dt.date, bareme: Bareme 
     montant = bareme.load(f"fmd.n{int(niveau)}")(date)
     if montant == 0.0:
         return None
-    return Ligne(montant, "Forfait Mobilité Durable", code=200041, classe="INDEM")
+    return Ligne(montant, "Forfait Mobilité Durable", code=FMD, classe="INDEM")
 
 
 def prime_equipement_info(date: dt.date, bareme: Bareme = BAREME) -> Ligne | None:
