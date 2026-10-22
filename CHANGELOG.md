@@ -67,6 +67,11 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et la
 
 ### Corrigé
 
+- Un échelon pris en cours de mois est payé par trentièmes des deux traitements, chacun
+  tronqué (`point.traitement_indiciaire`), non au prorata de l'indice : relevé sur un
+  décompte de rappel de 2018 (3 203,19 € au lieu de 3 203,17 €).
+- Contribution exceptionnelle de solidarité (jusqu'en 2017) : assiette nette du transfert
+  primes/points, montant tronqué au centime ; relevé sur les bulletins de 2017.
 - Code 558001 (montant simulé du prélèvement à la source, bulletins de fin 2018 ; BJ
   janvier 2026), hors de tout total du pied : `pdf.HORS_TOTAUX`.
 - `find_pdfs` et `find_dr_pdfs` écartent un PDF sans texte (un scan) : il était pris pour
