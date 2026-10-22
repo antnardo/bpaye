@@ -80,6 +80,7 @@ import math
 
 from bpaye.classes import Ligne, Taux
 from bpaye.config import BAREME, Bareme
+from bpaye.point import calc_traitement_brut
 
 __all__ = [
     "NOUVEAU_LOGICIEL_PAIE",
@@ -223,13 +224,22 @@ def net_colles_seules(brut: float, date: dt.date, bareme: Bareme = BAREME) -> fl
     return round(brut - csg_entiere + crds(brut, date, bareme=bareme).valeur, 2)
 
 
-def contribution_solidarite(assiette: float, date: dt.date, bareme: Bareme = BAREME) -> Ligne:
-    return Ligne(
-        -round(bareme.load("contrisoli").taux(assiette, date), 2),
-        "Contribution Solidarité",
-        code=555010,
-        classe="CHARGE",
-    )
+def contribution_solidarite(
+    assiette: float, date: dt.date, net_mensuel: float, bareme: Bareme = BAREME
+) -> Ligne:
+    """Contribution exceptionnelle de solidarité (555010), jusqu'en 2017. Code du travail,
+    L5423-27 et L5423-32 : 1 % de la rémunération nette totale hors remboursements de frais
+    (``assiette``), dans la limite du plafond de l'assurance chômage (4 PMSS, taux.toml) ;
+    exonérée quand la rémunération mensuelle nette (traitement et indemnité de résidence,
+    nets de la pension et de la RAFP : ``net_mensuel``) est sous le traitement brut de
+    l'indice de référence (taux.toml, contrisoli_seuil)."""
+    taux = bareme.load("contrisoli")
+    if taux(date) == 0.0:
+        return Ligne(0.0, "Contribution Solidarité", code=555010, classe="CHARGE")
+    seuil = calc_traitement_brut(bareme.get("contrisoli_seuil.indice_majore"), date, bareme)
+    plafond = bareme.get("contrisoli_plafond.pmss") * bareme.load("pmss")(date)
+    montant = 0.0 if net_mensuel < seuil else round(taux.taux(min(assiette, plafond), date), 2)
+    return Ligne(-montant, "Contribution Solidarité", code=555010, classe="CHARGE")
 
 
 def transfertprimepoint(date: dt.date, bareme: Bareme = BAREME) -> Ligne:

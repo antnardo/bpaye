@@ -94,3 +94,37 @@ def test_load_agent_deux_agents_gardent_chacun_leur_taux(configuration, tmp_path
     second.load_agent(autre)
     jour = dt.date(2025, 3, 31)
     assert (ir(1000, jour, premier.taux_pas).valeur, ir(1000, jour, second.taux_pas).valeur) == (-50, -120)
+
+
+JUIN_2017 = dt.date(2017, 6, 30)
+
+
+def test_contribution_de_solidarite_un_pour_cent_de_l_assiette():
+    from bpaye.charges import contribution_solidarite
+
+    assert contribution_solidarite(3000.0, JUIN_2017, net_mensuel=2500.0).valeur == -30.0
+
+
+def test_contribution_de_solidarite_plafonnee_a_quatre_pmss():
+    from bpaye.charges import contribution_solidarite
+    from bpaye.config import BAREME
+
+    plafond = 4 * BAREME.load("pmss")(JUIN_2017)
+    assert contribution_solidarite(plafond + 5000, JUIN_2017, net_mensuel=9000.0).valeur == -round(
+        plafond / 100, 2
+    )
+
+
+def test_contribution_de_solidarite_exoneree_sous_le_seuil():
+    from bpaye.charges import contribution_solidarite
+    from bpaye.point import calc_traitement_brut
+
+    seuil = calc_traitement_brut(285, JUIN_2017)
+    assert contribution_solidarite(1500.0, JUIN_2017, net_mensuel=seuil - 0.01).valeur == 0.0
+    assert contribution_solidarite(1500.0, JUIN_2017, net_mensuel=seuil).valeur == -15.0
+
+
+def test_contribution_de_solidarite_supprimee_en_2018():
+    from bpaye.charges import contribution_solidarite
+
+    assert contribution_solidarite(3000.0, dt.date(2018, 1, 31), net_mensuel=2500.0).valeur == 0.0

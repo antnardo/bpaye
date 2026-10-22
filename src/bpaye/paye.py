@@ -236,7 +236,7 @@ class Bulletin(ListeLignes):
         self.append(csg(self.assiette_csg, date, mge, hs_exonerees, b))
         self.append(crds(self.assiette_csg, date, mge, hs_exonerees, b))
         self.append(self.rafp_calculateur(date, self.traitement_percu, self.assiette_rafp))
-        self.append(contribution_solidarite(self.assiette_cs, date, b))
+        self.append(contribution_solidarite(self.assiette_cs, date, self.net_mensuel_cs, b))
         if self.hs_brut > 0 and (reduction := reduc_cotis_hs(self.hs_brut, self.brut * 12, date, b)):
             self.append(reduction)
         # La part solidaire suit la rémunération brute du mois, pas le seul traitement
@@ -379,7 +379,17 @@ class Bulletin(ListeLignes):
 
     @property
     def assiette_cs(self) -> float:
-        return self.revenus + self.rafp + self.pc
+        """La rémunération nette totale de la contribution de solidarité, hors remboursements
+        de frais professionnels (code du travail, L5423-27)."""
+        frais = sum(ligne.valeur for ligne in self if ligne.code in self.FRAIS_EXONERES)
+        return self.revenus - frais + self.rafp + self.pc
+
+    @property
+    def net_mensuel_cs(self) -> float:
+        """La rémunération mensuelle nette du seuil de la contribution de solidarité :
+        traitement et indemnité de résidence, nets de la pension et de la RAFP (L5423-32)."""
+        residence = sum(ligne.valeur for ligne in self if ligne.code == 102000)
+        return self.brut + residence + self.pc + self.rafp
 
     @property
     def assiette_csg(self) -> float:
