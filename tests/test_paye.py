@@ -470,9 +470,9 @@ def test_retards_de_l_academie_a_la_date_du_bulletin(configuration):
         set(fonc.retards(dt.date(2019, 8, 31)))
         == set(fonc.retards(dt.date(2025, 10, 31)))
         == {
-            200205,
-            200576,
-            200597,
+            (200205, 10),
+            (200576, 10),
+            (200597, 9),
         }
     )
 

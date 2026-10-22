@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from bpaye.academies import ACADEMIE_PAR_DEFAUT, ACADEMIES, Retard, lit_retard, retards_academie
+from bpaye.academies import ACADEMIE_PAR_DEFAUT, ACADEMIES, Retard, lit_retard, remplace, retards_academie
 
 RELEVE = Path(__file__).resolve().parents[1] / "docs" / "verification" / "academies.toml"
 
@@ -52,3 +52,16 @@ def test_retard_de_decembre_paye_en_janvier():
     assert retard.decalage == 1
     assert retard.concerne(dt.date(2024, 12, 31))
     assert not retard.concerne(dt.date(2023, 12, 31))
+
+
+def test_remplace_garde_deux_mois_d_une_meme_rubrique():
+    octobre, novembre = Retard(200205, 10, 12), Retard(200205, 11, 12)
+    assert remplace({}, [octobre, novembre]) == {(200205, 10): octobre, (200205, 11): novembre}
+
+
+def test_remplace_tous_les_retards_d_une_rubrique():
+    herites = retards_academie()  # dont les HSA d'octobre, payées en novembre
+    propre = Retard(200205, 11, 12)
+    retards = remplace(herites, [propre])
+    assert [r for r in retards.values() if r.code == 200205] == [propre]
+    assert (200597, 9) in retards  # les autres rubriques restent

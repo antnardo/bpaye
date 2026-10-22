@@ -13,7 +13,7 @@ import tomllib
 from pathlib import Path
 from typing import Any, Self
 
-from bpaye.academies import ACADEMIE_PAR_DEFAUT, Retard, lit_retard, retards_academie
+from bpaye.academies import ACADEMIE_PAR_DEFAUT, CleRetard, Retard, lit_retard, remplace, retards_academie
 from bpaye.classes import Fixe, Taux, Temporal
 from bpaye.colles import CollesExternes, CollesPrevues
 from bpaye.config import depuis_section
@@ -75,7 +75,7 @@ class Fonctionnaire:
         self.psc: Temporal[dict[str, float]] = Temporal()
         # Retards habituels de la paie (academies.toml), puis ceux de l'agent (agent.toml).
         self.academie: Temporal[str] = Temporal()
-        self.retards_declares: dict[int, Retard] = {}
+        self.retards_declares: list[Retard] = []
         self.siret: str | None = None  # du gestionnaire (agent.toml) : trie les bulletins PDF
         # Ses employeurs, par dates (agent.toml, [[employeur]]) : désignent, parmi les
         # bulletins d'un mois, celui qui se compare au calcul (employeurs.py).
@@ -230,8 +230,7 @@ class Fonctionnaire:
             retards_academie(entry["nom"])  # refuse une académie inconnue
             self.academie.append(parse_toml_date(entry["date"]), entry["nom"])
         for entry in cfg.get("retards", []):
-            retard = lit_retard(entry, "agent.toml [[retards]]")
-            self.retards_declares[retard.code] = retard
+            self.retards_declares.append(lit_retard(entry, "agent.toml [[retards]]"))
         for entry in cfg.get("psc", []):
             montants = {cle: float(v) for cle, v in entry.items() if cle != "date"}
             if not isinstance(entry.get("prevoyance", False), bool):
@@ -247,14 +246,14 @@ class Fonctionnaire:
             self.ic_csg.strict = True
         return self
 
-    def retards(self, date: dt.date) -> dict[int, Retard]:
+    def retards(self, date: dt.date) -> dict[CleRetard, Retard]:
         """Les retards habituels de son académie à ``date`` (le défaut avant la première
-        déclarée), et les siens, qui les remplacent."""
+        déclarée), et les siens, qui remplacent tous ceux de leurs rubriques."""
         if not len(self.academie) or date < self.academie.values[0][0]:
             nom = ACADEMIE_PAR_DEFAUT
         else:
             nom = self.academie(date)
-        return retards_academie(nom) | self.retards_declares
+        return remplace(retards_academie(nom), self.retards_declares)
 
     def employeur(self, date: dt.date) -> Employeur | None:
         """L'employeur déclaré à ``date`` ; aucun avant le premier, ni sans déclaration."""

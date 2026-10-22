@@ -24,8 +24,10 @@ __all__ = [
     "ACADEMIES",
     "ACADEMIES_TOML",
     "ACADEMIE_PAR_DEFAUT",
+    "CleRetard",
     "Retard",
     "lit_retard",
+    "remplace",
     "retards_academie",
 ]
 
@@ -72,14 +74,24 @@ def _charge(path: Path = ACADEMIES_TOML) -> dict[str, dict[str, Any]]:
 ACADEMIES = _charge()
 
 
-def retards_academie(nom: str = ACADEMIE_PAR_DEFAUT) -> dict[int, Retard]:
-    """Les retards de l'académie ``nom``, par code : ceux dont elle hérite, puis les siens,
-    qui remplacent ceux du même code."""
+# Un retard se range sous sa rubrique et son mois dû : une rubrique peut avoir plusieurs
+# mois en retard (les HSA d'octobre et de novembre, payées en décembre).
+CleRetard = tuple[int, int]
+
+
+def remplace(retards: dict[CleRetard, Retard], nouveaux: list[Retard]) -> dict[CleRetard, Retard]:
+    """``retards``, dont ``nouveaux`` remplacent tous ceux de leurs rubriques."""
+    codes = {r.code for r in nouveaux}
+    gardes = {cle: r for cle, r in retards.items() if r.code not in codes}
+    return gardes | {(r.code, r.du): r for r in nouveaux}
+
+
+def retards_academie(nom: str = ACADEMIE_PAR_DEFAUT) -> dict[CleRetard, Retard]:
+    """Les retards de l'académie ``nom``, par rubrique et mois dû : ceux dont elle hérite,
+    puis les siens, qui remplacent tous ceux de leurs rubriques."""
     if nom not in ACADEMIES:
         raise ValueError(f"académie inconnue {nom!r}, connues : {sorted(ACADEMIES)}")
     section = ACADEMIES[nom]
-    retards = retards_academie(section["herite"]) if "herite" in section else {}
-    for entree in section.get("retards", []):
-        retard = lit_retard(entree, f"academies.toml [{nom}]")
-        retards[retard.code] = retard
-    return retards
+    herites = retards_academie(section["herite"]) if "herite" in section else {}
+    propres = [lit_retard(entree, f"academies.toml [{nom}]") for entree in section.get("retards", [])]
+    return remplace(herites, propres)
