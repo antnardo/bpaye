@@ -71,6 +71,9 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et la
 
 ### Corrigé
 
+- Traitement brut : le traitement annuel (indice × point annuel) arrondi au centime, puis
+  divisé par douze et tronqué ; il retrouve les 115 traitements relevés de 2017 à 2026, dont
+  deux qu'un centime séparait.
 - Des rappels d'une même rubrique versés le même mois s'arrondissent depuis la somme de
   leurs montants exacts (`Ligne.exacte`) : deux neuvièmes d'HSA font 5 484,81 €, non
   2 × 2 742,41 €.
