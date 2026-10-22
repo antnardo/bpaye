@@ -546,7 +546,7 @@ Ce qui ne se déduit pas devient une remarque, jamais une valeur devinée. Les b
 | 201339, 201856 | vacations de formation, actions à pilotage national | `paye.vacation`, au taux déclaré | décret 2010-235 ; décret 2014-1394 |
 | 200364 | ISOE part fixe | second degré | décret 93-55 ; arrêté du 15/01/1993 |
 | 201228, 202566 | ISOE part modulable | professeur principal, par niveau, indexée sur le point depuis 2009 ; les deux codes comparés comme une même ligne (la paie porte encore 201228 en 2026) | arrêté du 15/01/1993, art. 2 ; décret 93-55, art. 4 |
-| 200597 | IFP | CPGE seulement | décret 99-886 |
+| 200597 | IFP | CPGE seulement ; suit le montant de la paie, 0,07 % au-dessus du texte (voir « Limites ») | décret 99-886 ; arrêté du 19/10/1999 |
 | 201914 | ISAE | professeurs des écoles | décret 2013-790 |
 | 201883, 201882 | REP, REP+ (part fixe) | rentrée en éducation prioritaire | décret 2015-1087 |
 | 202326 | prime d'attractivité | échelon de classe normale ; ni HC, ni CE, ni chaire supérieure | décret 2021-276 |
@@ -574,6 +574,12 @@ Chaque montant est dans `taux.toml` avec sa source ; chaque indice et chaque dur
 
 ## 9. Limites
 
+- **L'IFP suit la paie, pas le texte**, seul écart choisi : l'arrêté du 19/10/1999 dit
+  toujours 6 270 F, indexés sur le point. Convertis (955,86 €) et indexés, ils donnent
+  0,07 % de moins que ce que verse la paie (93,10 € au lieu de 93,16 € par mois depuis
+  juillet 2023), quel que soit l'arrondi. Le décret 99-886 ne fixant ni la base ni l'arrondi
+  de l'indexation, bpaye part du premier montant payé relevé (1 034,76 € en mars 2008),
+  qui redonne tous les bulletins depuis.
 - **Les cotisations patronales**, que le bulletin imprime « pour information » (part
   employeur de la pension, de la RAFP, des cotisations maladie, famille…), sont hors du
   sujet de bpaye : elles ne changent pas ce que perçoit l'agent. La lecture des PDF les
