@@ -71,6 +71,9 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et la
 
 ### Corrigé
 
+- Des rappels d'une même rubrique versés le même mois s'arrondissent depuis la somme de
+  leurs montants exacts (`Ligne.exacte`) : deux neuvièmes d'HSA font 5 484,81 €, non
+  2 × 2 742,41 €.
 - HSA et majoration : arrondies au centime depuis le taux annuel exact, non depuis le taux
   arrondi (sept HSA de 2018 : 2 132,98 € et non 2 132,99 €) ; 150 mois sur 154 relevés de
   2017 à 2026, les quatre autres étant une erreur de la paie.
