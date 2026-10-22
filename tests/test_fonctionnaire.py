@@ -247,3 +247,9 @@ class TestCeQueSaitLAgent:
         fonc.employeurs.append(dt.date(2021, 9, 1), Employeur("Autre", ("2",)))
         fonc.employeurs.append(dt.date(2023, 9, 1), lycee)
         assert [e.nom for e in fonc.employeurs_declares()] == ["Lycée", "Autre"]
+
+    def test_au_prorata_de_la_fraction_du_mois(self, fonc):
+        from bpaye.temps_partiel import reduit
+
+        jour = dt.date(2025, 1, 31)
+        assert fonc.au_prorata(1000.0, jour) == reduit(1000.0, fonc.fraction(jour))

@@ -32,7 +32,6 @@ from bpaye.classes import Ligne
 from bpaye.codes import FMD, PACTE_ISAE, PACTE_ISOE, RDT
 from bpaye.config import BAREME, Bareme
 from bpaye.fonctionnaire import Fonctionnaire
-from bpaye.temps_partiel import reduit
 
 __all__ = [
     "calc_transport",
@@ -90,7 +89,7 @@ def indemnite_detachement(fonc: Fonctionnaire, date: dt.date) -> Ligne | None:
             f"détachement à la Défense le {date} : déclarer indemnite_fonction, le montant annuel "
             "de la décision individuelle, dans [[detachements]] (décret 2003-745, art. 2)"
         )
-    montant = reduit(round(annuel / 12, 2), fonc.fraction(date))
+    montant = fonc.au_prorata(round(annuel / 12, 2), date)
     return Ligne(montant, "Indemnité de fonction (Défense)", code=201150, classe="INDEM")
 
 
@@ -104,7 +103,7 @@ def indemnite_fonctions_part_cpge(
     d'un texte qui fixe la base et l'arrondi de l'indexation (docs/indexation.md)."""
     if not fonc.en_cpge(date):
         return None
-    montant = reduit(bareme.load("ifp_cpge")(date), fonc.fraction(date))
+    montant = fonc.au_prorata(bareme.load("ifp_cpge")(date), date)
     return Ligne(montant, "Indemnité Fonctions particulières CPGE", code=200597, classe="INDEM")
 
 
@@ -114,7 +113,7 @@ def indemnite_isoe(fonc: Fonctionnaire, date: dt.date, bareme: Bareme = BAREME) 
         return None
     if len(fonc.documentaliste) and fonc.documentaliste(date):
         return None  # leur indemnité de sujétions particulières (indemnites_corps.py)
-    montant = reduit(bareme.load("isoe")(date), fonc.fraction(date))
+    montant = fonc.au_prorata(bareme.load("isoe")(date), date)
     return Ligne(montant, "ISOE Part fixe", code=200364, classe="INDEM")
 
 
@@ -122,7 +121,7 @@ def indemnite_isae(fonc: Fonctionnaire, date: dt.date, bareme: Bareme = BAREME) 
     """ISAE part fixe (201914), aux professeurs des écoles."""
     if fonc.corps_au(date) not in CORPS_ISAE:
         return None
-    montant = reduit(bareme.load("isae")(date), fonc.fraction(date))
+    montant = fonc.au_prorata(bareme.load("isae")(date), date)
     return Ligne(montant, "ISAE", code=201914, classe="INDEM")
 
 
@@ -134,12 +133,11 @@ def indemnite_education_prioritaire(
     reseau = fonc.education_prioritaire.au(date, None)
     if reseau is None:
         return None
-    fraction = fonc.fraction(date)
     if reseau == "REP":
-        montant = reduit(bareme.load("rep")(date), fraction)
+        montant = fonc.au_prorata(bareme.load("rep")(date), date)
         return Ligne(montant, "Indemnité de sujétion REP", code=201883, classe="INDEM")
     if reseau == "REP+":
-        montant = reduit(bareme.load("rep_plus")(date), fraction)
+        montant = fonc.au_prorata(bareme.load("rep_plus")(date), date)
         return Ligne(montant, "Indemnité de sujétion REP+", code=201882, classe="INDEM")
     raise ValueError(f"éducation prioritaire inconnue {reseau!r}, attendu « REP » ou « REP+ »")
 
@@ -154,7 +152,7 @@ def isoe_part_modulable(fonc: Fonctionnaire, date: dt.date, bareme: Bareme = BAR
     if niveau not in bareme.get("isoe_modulable"):
         raise ValueError(f"niveau de professeur principal inconnu {niveau!r}")
     code = 202566 if date >= DATE_RECODAGE_ISOE_MODULABLE else 201228
-    montant = reduit(bareme.load(f"isoe_modulable.{niveau}")(date), fonc.fraction(date))
+    montant = fonc.au_prorata(bareme.load(f"isoe_modulable.{niveau}")(date), date)
     return Ligne(montant, "ISOE Part modulable", code=code, classe="INDEM")
 
 
@@ -178,7 +176,7 @@ def prime_attractivite(fonc: Fonctionnaire, date: dt.date, bareme: Bareme = BARE
     annuel = montant_par_echelon(bareme.get("prime_attractivite"), fonc.echelon(date), date)
     if annuel == 0.0:
         return None
-    montant = reduit(round(annuel / 12, 2), fonc.fraction(date))
+    montant = fonc.au_prorata(round(annuel / 12, 2), date)
     return Ligne(montant, "Prime d'attractivité", code=202326, classe="INDEM")
 
 

@@ -22,7 +22,7 @@ from bpaye.hsa import CODE
 from bpaye.ors import CORPS_SANS_ORS, ORS_CORPS, calc_ors
 from bpaye.point import POINT
 from bpaye.reclassement import DATE_PPCR, reclasse
-from bpaye.temps_partiel import fraction_remuneration
+from bpaye.temps_partiel import fraction_remuneration, reduit
 from bpaye.utils import add_date_round, date_de, lit_toml, truncate, veille
 from bpaye.vacances import VACANCES, ZONE_PAR_DEFAUT
 
@@ -316,6 +316,10 @@ class Fonctionnaire:
     def fraction(self, date: dt.date) -> float:
         """La fraction de rémunération du mois : 1 à temps plein (temps_partiel.py)."""
         return fraction_remuneration(self.quotite_au(date))
+
+    def au_prorata(self, montant: float, date: dt.date) -> float:
+        """``montant``, à la fraction de rémunération du mois (temps_partiel.reduit)."""
+        return reduit(montant, self.fraction(date))
 
     def reclasse(self, date: dt.date, echelon: int, anciennete: float) -> None:
         """À partir de ``date``, l'échelon ``echelon`` avec ``anciennete`` années déjà

@@ -31,7 +31,6 @@ from bpaye.classes import Ligne
 from bpaye.codes import TRAITEMENT, TRAITEMENT_NBI
 from bpaye.config import BAREME, Bareme
 from bpaye.protocoles import Agent
-from bpaye.temps_partiel import reduit
 from bpaye.utils import truncate
 
 __all__ = [
@@ -67,7 +66,7 @@ def traitement_indiciaire(fonctionnaire: Agent, date: dt.date, bareme: Bareme = 
 def traitement_brut(fonctionnaire: Agent, date: dt.date, bareme: Bareme = BAREME) -> Ligne:
     """Le traitement du mois, à la fraction de rémunération d'un temps partiel."""
     brut = traitement_indiciaire(fonctionnaire, date, bareme)
-    return Ligne(reduit(brut, fonctionnaire.fraction(date)), "Traitement Brut", code=TRAITEMENT)
+    return Ligne(fonctionnaire.au_prorata(brut, date), "Traitement Brut", code=TRAITEMENT)
 
 
 def traitement_nbi(fonctionnaire: Agent, date: dt.date, bareme: Bareme = BAREME) -> Ligne | None:
@@ -80,7 +79,7 @@ def traitement_nbi(fonctionnaire: Agent, date: dt.date, bareme: Bareme = BAREME)
     if not points:
         return None
     montant = calc_traitement_brut(points, date, bareme)
-    return Ligne(reduit(montant, fonctionnaire.fraction(date)), "Traitement brut NBI", code=TRAITEMENT_NBI)
+    return Ligne(fonctionnaire.au_prorata(montant, date), "Traitement brut NBI", code=TRAITEMENT_NBI)
 
 
 def traitement_plein(fonctionnaire: Agent, date: dt.date, bareme: Bareme = BAREME) -> float:

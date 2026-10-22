@@ -15,7 +15,6 @@ from bpaye.codes import RESIDENCE
 from bpaye.config import BAREME, Bareme
 from bpaye.fonctionnaire import Fonctionnaire
 from bpaye.point import traitement_plein, valeur_point
-from bpaye.temps_partiel import reduit
 from bpaye.utils import truncate
 
 __all__ = [
@@ -47,7 +46,7 @@ def indemnite_residence(fonctionnaire: Fonctionnaire, date: dt.date, bareme: Bar
     zone = fonctionnaire.residence(date)
     montant = calc_indemnite_residence(zone, brut, pt, date, bareme)
     return Ligne(
-        reduit(montant, fonctionnaire.fraction(date)),
+        fonctionnaire.au_prorata(montant, date),
         "Indemnité de résidence",
         code=RESIDENCE,
         classe="INDEM",

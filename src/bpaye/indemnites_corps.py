@@ -25,7 +25,6 @@ import datetime as dt
 from bpaye.classes import Ligne
 from bpaye.config import BAREME, Bareme
 from bpaye.fonctionnaire import Fonctionnaire
-from bpaye.temps_partiel import reduit
 
 __all__ = [
     "DATE_RECODAGE_DIRECTEUR",
@@ -55,7 +54,7 @@ def _mensuel(section: str, date: dt.date, bareme: Bareme) -> float:
 def indemnite_cpe(fonc: Fonctionnaire, date: dt.date, bareme: Bareme = BAREME) -> Ligne | None:
     if fonc.corps.au(date, None) != "CPE":
         return None
-    montant = reduit(_mensuel("ind_cpe", date, bareme), fonc.fraction(date))
+    montant = fonc.au_prorata(_mensuel("ind_cpe", date, bareme), date)
     return Ligne(montant, "Indemnité forfaitaire CPE", code=200414, classe="INDEM")
 
 
@@ -65,14 +64,14 @@ def indemnite_psyen(fonc: Fonctionnaire, date: dt.date, bareme: Bareme = BAREME)
     specialite = fonc.specialite.au(date, None)
     if specialite not in ("EDA", "EDO"):
         raise ValueError(f"PsyEN : spécialité « EDA » ou « EDO » attendue, pas {specialite!r}")
-    montant = reduit(_mensuel(f"ind_psyen.{specialite.lower()}", date, bareme), fonc.fraction(date))
+    montant = fonc.au_prorata(_mensuel(f"ind_psyen.{specialite.lower()}", date, bareme), date)
     return Ligne(montant, f"Indemnité de fonctions PsyEN {specialite}", code=202205, classe="INDEM")
 
 
 def indemnite_documentaliste(fonc: Fonctionnaire, date: dt.date, bareme: Bareme = BAREME) -> Ligne | None:
     if not fonc.documentaliste.au(date, None):
         return None
-    montant = reduit(_mensuel("ind_documentaliste", date, bareme), fonc.fraction(date))
+    montant = fonc.au_prorata(_mensuel("ind_documentaliste", date, bareme), date)
     return Ligne(montant, "Indemnité de sujétions particulières", code=200413, classe="INDEM")
 
 
@@ -103,6 +102,6 @@ def indemnite_directeur(fonc: Fonctionnaire, date: dt.date, bareme: Bareme = BAR
         )
     reseau = fonc.education_prioritaire.au(date, None)
     annuel = montant_directeur(int(classes), reseau, date, bareme)
-    montant = reduit(round(annuel / 12, 2), fonc.fraction(date))
+    montant = fonc.au_prorata(round(annuel / 12, 2), date)
     code = 202568 if date >= DATE_RECODAGE_DIRECTEUR else 202217
     return Ligne(montant, "ISS directeur d'école", code=code, classe="INDEM")
