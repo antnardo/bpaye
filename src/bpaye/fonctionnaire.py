@@ -17,6 +17,7 @@ from bpaye.academies import ACADEMIE_PAR_DEFAUT, Retard, lit_retard, retards_aca
 from bpaye.classes import Fixe, Taux, Temporal
 from bpaye.colles import CollesExternes, CollesPrevues
 from bpaye.config import depuis_section
+from bpaye.employeurs import Employeur, lit_employeur
 from bpaye.grille import Grille
 from bpaye.hsa import CODE
 from bpaye.ors import CORPS_SANS_ORS, ORS_CORPS, calc_ors
@@ -76,6 +77,9 @@ class Fonctionnaire:
         self.academie: Temporal[str] = Temporal()
         self.retards_declares: dict[int, Retard] = {}
         self.siret: str | None = None  # du gestionnaire (agent.toml) : trie les bulletins PDF
+        # Ses employeurs, par dates (agent.toml, [[employeur]]) : désignent, parmi les
+        # bulletins d'un mois, celui qui se compare au calcul (employeurs.py).
+        self.employeurs: Temporal[Employeur] = Temporal()
         self.zone_vacances = ZONE_PAR_DEFAUT  # celle du lycée d'affectation, pour les colles
         self.colles_prevues: dict[int, CollesPrevues] = {}  # par année de rentrée
         self.colles_externes: dict[int, list[CollesExternes]] = {}  # idem
@@ -195,6 +199,11 @@ class Fonctionnaire:
         with Path(path).open("rb") as f:
             cfg = tomllib.load(f)
         self.siret = cfg.get("siret")
+        for entry in cfg.get("employeur", []):
+            self.employeurs.append(*lit_employeur(entry, "agent.toml [[employeur]]"))
+        if self.siret and not len(self.employeurs):
+            # Un seul SIRET, sans [[employeur]] : l'employeur de toute la carrière.
+            self.employeurs.append(dt.date.min, Employeur("", (self.siret,)))
         for entry in cfg["ir"]["values"]:
             date = parse_toml_date(entry["date"])
             if date != dt.date(2001, 1, 1):  # valeur initiale déjà présente
@@ -246,6 +255,12 @@ class Fonctionnaire:
         else:
             nom = self.academie(date)
         return retards_academie(nom) | self.retards_declares
+
+    def employeur(self, date: dt.date) -> Employeur | None:
+        """L'employeur déclaré à ``date`` ; aucun avant le premier, ni sans déclaration."""
+        if not len(self.employeurs) or date < self.employeurs.values[0][0]:
+            return None
+        return self.employeurs(date)
 
     def psc_declaree(self, date: dt.date) -> dict[str, float]:
         """Les montants de [[psc]] en vigueur à ``date`` ; aucun avant la première entrée."""
