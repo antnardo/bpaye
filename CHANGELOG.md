@@ -67,6 +67,9 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et la
 
 ### Corrigé
 
+- RAFP : la cotisation cumulée de l'année est tronquée au centime, et chaque mois prélève ce
+  qui s'y ajoute (39,62 € en janvier et juillet, 39,63 € les autres mois) ; relevé sur tous
+  les mois de 2020, 2022, 2024 et 2025.
 - Le rappel d'un échelon pris en cours de mois et payé en retard (`retard_indice`,
   `retard_statut`) suit la paie : le mois du changement, les seuls jours rappelés, chaque
   traitement tronqué, et la pension sur chacun ; relevé sur deux décomptes de rappel.
