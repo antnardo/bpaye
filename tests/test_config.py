@@ -85,3 +85,8 @@ def test_isoe_modulable_suit_le_point_entre_deux_arretes(niveau, date, annuel):
 def test_isoe_modulable_du_referent_refusee_avant_2021():
     with pytest.raises(ValueError, match="MANQUANT"):
         BAREME.load("isoe_modulable.1re-terminale-referent")(dt.date(2020, 9, 30))
+
+
+def test_au_la_valeur_du_bareme_a_une_date():
+    jour = dt.date(2025, 1, 31)
+    assert BAREME.au("point", jour) == BAREME.load("point")(jour)

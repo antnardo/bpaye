@@ -71,7 +71,7 @@ def calc_transport(mensuel: float, date: dt.date, bareme: Bareme = BAREME) -> fl
     if not mensuel:
         return 0.0  # sans abonnement, ni taux ni plafond à lire
     val = bareme.load("transport.taux").taux(mensuel, date)
-    return min(val, bareme.load("transport.plafond")(date))
+    return min(val, bareme.au("transport.plafond", date))
 
 
 def indemnite_detachement(fonc: Fonctionnaire, date: dt.date) -> Ligne | None:
@@ -103,7 +103,7 @@ def indemnite_fonctions_part_cpge(
     d'un texte qui fixe la base et l'arrondi de l'indexation (docs/indexation.md)."""
     if not fonc.en_cpge(date):
         return None
-    montant = fonc.au_prorata(bareme.load("ifp_cpge")(date), date)
+    montant = fonc.au_prorata(bareme.au("ifp_cpge", date), date)
     return Ligne(montant, "Indemnité Fonctions particulières CPGE", code=200597, classe="INDEM")
 
 
@@ -113,7 +113,7 @@ def indemnite_isoe(fonc: Fonctionnaire, date: dt.date, bareme: Bareme = BAREME) 
         return None
     if len(fonc.documentaliste) and fonc.documentaliste(date):
         return None  # leur indemnité de sujétions particulières (indemnites_corps.py)
-    montant = fonc.au_prorata(bareme.load("isoe")(date), date)
+    montant = fonc.au_prorata(bareme.au("isoe", date), date)
     return Ligne(montant, "ISOE Part fixe", code=200364, classe="INDEM")
 
 
@@ -121,7 +121,7 @@ def indemnite_isae(fonc: Fonctionnaire, date: dt.date, bareme: Bareme = BAREME) 
     """ISAE part fixe (201914), aux professeurs des écoles."""
     if fonc.corps_au(date) not in CORPS_ISAE:
         return None
-    montant = fonc.au_prorata(bareme.load("isae")(date), date)
+    montant = fonc.au_prorata(bareme.au("isae", date), date)
     return Ligne(montant, "ISAE", code=201914, classe="INDEM")
 
 
@@ -134,10 +134,10 @@ def indemnite_education_prioritaire(
     if reseau is None:
         return None
     if reseau == "REP":
-        montant = fonc.au_prorata(bareme.load("rep")(date), date)
+        montant = fonc.au_prorata(bareme.au("rep", date), date)
         return Ligne(montant, "Indemnité de sujétion REP", code=201883, classe="INDEM")
     if reseau == "REP+":
-        montant = fonc.au_prorata(bareme.load("rep_plus")(date), date)
+        montant = fonc.au_prorata(bareme.au("rep_plus", date), date)
         return Ligne(montant, "Indemnité de sujétion REP+", code=201882, classe="INDEM")
     raise ValueError(f"éducation prioritaire inconnue {reseau!r}, attendu « REP » ou « REP+ »")
 
@@ -152,7 +152,7 @@ def isoe_part_modulable(fonc: Fonctionnaire, date: dt.date, bareme: Bareme = BAR
     if niveau not in bareme.get("isoe_modulable"):
         raise ValueError(f"niveau de professeur principal inconnu {niveau!r}")
     code = 202566 if date >= DATE_RECODAGE_ISOE_MODULABLE else 201228
-    montant = fonc.au_prorata(bareme.load(f"isoe_modulable.{niveau}")(date), date)
+    montant = fonc.au_prorata(bareme.au(f"isoe_modulable.{niveau}", date), date)
     return Ligne(montant, "ISOE Part modulable", code=code, classe="INDEM")
 
 
@@ -206,7 +206,7 @@ def indemnite_transport(fonc: Fonctionnaire, date: dt.date, bareme: Bareme = BAR
 
 def participation_psc(date: dt.date, bareme: Bareme = BAREME) -> Ligne:
     """Participation mensuelle employeur à la mutuelle (PSC)."""
-    return Ligne(bareme.load("psc")(date), "Participation PSC", code=202354, classe="INDEM")
+    return Ligne(bareme.au("psc", date), "Participation PSC", code=202354, classe="INDEM")
 
 
 def psc_declaree(fonc: Fonctionnaire, date: dt.date, classe: str, bareme: Bareme = BAREME) -> list[Ligne]:
@@ -224,11 +224,11 @@ def psc_declaree(fonc: Fonctionnaire, date: dt.date, classe: str, bareme: Bareme
     lignes = []
     if classe == "INDEM":
         if cout := declare.get("cout_option", 0.0):
-            taux, plafond = bareme.load("psc_option.taux")(date), bareme.load("psc_option.plafond")(date)
+            taux, plafond = bareme.au("psc_option.taux", date), bareme.au("psc_option.plafond", date)
             participation = round(min(taux * cout, plafond), 2)
             lignes.append(Ligne(participation, "Participation PSC option santé", code=202483, classe="INDEM"))
         if declare.get("prevoyance", 0.0):
-            prevoyance = bareme.load("psc_prevoyance")(date)
+            prevoyance = bareme.au("psc_prevoyance", date)
             lignes.append(Ligne(prevoyance, "Participation PSC prévoyance", code=202510, classe="INDEM"))
     elif classe == "CHARGE":
         for cle, code, libelle in (
@@ -245,7 +245,7 @@ def forfait_mobilite_durable(fonc: Fonctionnaire, date: dt.date, bareme: Bareme 
     niveau = fonc.fmd_niveau(date)
     if not niveau:
         return None
-    montant = bareme.load(f"fmd.n{int(niveau)}")(date)
+    montant = bareme.au(f"fmd.n{int(niveau)}", date)
     if montant == 0.0:
         return None
     return Ligne(montant, "Forfait Mobilité Durable", code=FMD, classe="INDEM")
@@ -253,7 +253,7 @@ def forfait_mobilite_durable(fonc: Fonctionnaire, date: dt.date, bareme: Bareme 
 
 def prime_equipement_info(date: dt.date, bareme: Bareme = BAREME) -> Ligne | None:
     """PRIME ÉQUIP. INFO : versement annuel unique, uniquement le mois de versement."""
-    montant = bareme.load("prime_eq_info")(date)
+    montant = bareme.au("prime_eq_info", date)
     if montant == 0.0:
         return None
     return Ligne(montant, "Prime équipement informatique", code=202321, classe="INDEM")

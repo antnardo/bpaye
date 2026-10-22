@@ -114,10 +114,10 @@ def _au_centime(montant: float, date: dt.date) -> float:
 def seuil_abattement(date: dt.date, bareme: Bareme = BAREME) -> float:
     """Le montant mensuel sous lequel l'assiette est abattue : 4 plafonds mensuels de la
     sécurité sociale du mois depuis le 22/12/2010, aucun seuil avant (math.inf)."""
-    plafonds = bareme.load("csg.abattement_plafonds")(date)
+    plafonds = bareme.au("csg.abattement_plafonds", date)
     if math.isinf(plafonds):
         return math.inf
-    return plafonds * bareme.load("pmss")(date)
+    return plafonds * bareme.au("pmss", date)
 
 
 def _abattu(
@@ -241,13 +241,13 @@ def contribution_solidarite(
     if taux(date) == 0.0:
         return Ligne(0.0, "Contribution Solidarité", code=CONTRIBUTION_SOLIDARITE, classe="CHARGE")
     seuil = calc_traitement_brut(bareme.get("contrisoli_seuil.indice_majore"), date, bareme)
-    plafond = bareme.get("contrisoli_plafond.pmss") * bareme.load("pmss")(date)
+    plafond = bareme.get("contrisoli_plafond.pmss") * bareme.au("pmss", date)
     montant = 0.0 if net_mensuel < seuil else truncate(taux.taux(min(assiette, plafond), date), 2)
     return Ligne(-montant, "Contribution Solidarité", code=CONTRIBUTION_SOLIDARITE, classe="CHARGE")
 
 
 def transfertprimepoint(date: dt.date, bareme: Bareme = BAREME) -> Ligne:
-    montant = bareme.load("transfertpp")(date)
+    montant = bareme.au("transfertpp", date)
     return Ligne(-round(montant, 2), "Transfert Prime Point", code=TPP, classe="CHARGE")
 
 

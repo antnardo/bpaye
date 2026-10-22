@@ -70,14 +70,14 @@ def reduc_cotis_hs(hs_brut: float, tb_annuel: float, date: dt.date, bareme: Bare
     if date < DEBUT_EXONERATION_HS:
         return None
     assiette = min(hs_brut, bareme.get("rafp.plafond_pct.valeur") * tb_annuel)
-    val = round(assiette * bareme.load("rafp")(date), 2)
+    val = round(assiette * bareme.au("rafp", date), 2)
     return Ligne(val, "Réduction cot. heures sup.", code=453000, classe="CHARGE")
 
 
 def facteur_hs_net(date: dt.date, bareme: Bareme = BAREME) -> float:
     """Le net d'un euro d'heures exonérées (011200) : sa CSG déductible ne se déduit pas,
     1 − abattement × taux déductible, 1 − 98,25 % × 6,8 % = 0,93319 depuis 2018."""
-    return 1 - bareme.load("csg.abattement_taux")(date) * bareme.load("csg.deductible")(date)
+    return 1 - bareme.au("csg.abattement_taux", date) * bareme.au("csg.deductible", date)
 
 
 class ExonerationHS:

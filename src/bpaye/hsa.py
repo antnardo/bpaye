@@ -146,7 +146,7 @@ def compile_hs(
     for _, ors in CODE.items():
         hsa_value = calc_hsa(ors, point, grille, date)
         taux_hsa[ors] = fmt(hsa_value)  # annuelle
-        taux_hse[ors] = fmt(hsa_value / 36 * bareme.load("hse_majoration")(date))  # horaire
+        taux_hse[ors] = fmt(hsa_value / 36 * bareme.au("hse_majoration", date))  # horaire
         taux_hsi[ors] = fmt(hsa_value / 36 * REDUCTION_HSI)  # horaire
     return TauxHeures(MappingProxyType(taux_hsa), MappingProxyType(taux_hse), MappingProxyType(taux_hsi))
 
@@ -264,7 +264,7 @@ def hse(
         raise ValueError(f"code d'HSE inconnu {code}, attendus {list(CODES_HSE)}")
     taux_annuel = taux_hsa_annuel(fonctionnaire, date, rounded=False, bareme=bareme)
     majoration = "hse_majoration_rcd" if code == HSE_REMPLACEMENT else "hse_majoration"
-    taux_hse = taux_annuel / 36 * bareme.load(majoration)(date)
+    taux_hse = taux_annuel / 36 * bareme.au(majoration, date)
     total = round(taux_hse * heures, 2)
     return Ligne(total, f"{CODES_HSE[code]} {heures}h - {comm}", code=code, classe="INDEM")
 
@@ -292,7 +292,7 @@ def surveillance(
     """Heures consacrées à des tâches de surveillance (200216) : un trente-sixième du taux
     annuel de l'HSA, réduit de 50 % (décret 50-1253, art. 5 ; taux.toml, hs_surveillance)."""
     taux_annuel = taux_hsa_annuel(fonctionnaire, date, rounded=False, bareme=bareme)
-    total = round(taux_annuel / 36 * bareme.load("hs_surveillance")(date) * heures, 2)
+    total = round(taux_annuel / 36 * bareme.au("hs_surveillance", date) * heures, 2)
     return Ligne(total, f"H. Sup. Surveillance {heures}h - {comm}", code=SURVEILLANCE, classe="INDEM")
 
 

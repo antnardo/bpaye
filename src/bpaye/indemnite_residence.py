@@ -32,7 +32,7 @@ min_inm = config.load("indemnite_residence.indice_min")  # daté : art. 9, puis 
 def calc_indemnite_residence(
     zone: int, brut: float, point: float, date: dt.date | None = None, bareme: Bareme = BAREME
 ) -> float:
-    plancher = bareme.load("indemnite_residence.indice_min")(date)
+    plancher = bareme.au("indemnite_residence.indice_min", date)
     taux = bareme.get("indemnite_residence.taux_zone")
     brut_mini = max(brut, plancher * point)
     return truncate(taux[zone - 1] * brut_mini, 2)

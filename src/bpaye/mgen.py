@@ -50,22 +50,22 @@ __all__ = [
 def _part(taux: float, date: dt.date, bareme: Bareme) -> float:
     """Une part de la cotisation d'équilibre (mgen.base), au centime : 20 % de 75,40 €
     vaut 15,08 €, non 15,080000000000002."""
-    return round(taux * bareme.load("mgen.base")(date), 2)
+    return round(taux * bareme.au("mgen.base", date), 2)
 
 
 def mgen_part_employeur(date: dt.date, bareme: Bareme = BAREME) -> float:
     """Part patronale MGEN (720580) à inclure dans l'assiette CSG sans abattement."""
-    return _part(bareme.load("mgen.taux_employeur")(date), date, bareme)
+    return _part(bareme.au("mgen.taux_employeur", date), date, bareme)
 
 
 def _part_solidaire(brut: float, date: dt.date, bareme: Bareme = BAREME) -> float:
     """720577 : la formule de la paie, TPP compté deux fois (docs/mgen.md)."""
-    base = bareme.load("mgen.taux_solidaire_base")(date) * bareme.load("mgen.base")(date)
+    base = bareme.au("mgen.taux_solidaire_base", date) * bareme.au("mgen.base", date)
     if base == 0.0:
         return 0.0
-    pmss = bareme.load("pmss")(date)
-    tpp = bareme.load("transfertpp")(date)  # mensuel (annuel ÷ 12)
-    coeff = (min(brut - tpp, pmss + tpp) + tpp) / bareme.load("mgen.brut_moyen")(date)
+    pmss = bareme.au("pmss", date)
+    tpp = bareme.au("transfertpp", date)  # mensuel (annuel ÷ 12)
+    coeff = (min(brut - tpp, pmss + tpp) + tpp) / bareme.au("mgen.brut_moyen", date)
     return round(base * coeff, 2)
 
 
@@ -75,13 +75,13 @@ def mgen_charges(brut: float, date: dt.date, bareme: Bareme = BAREME) -> list[Li
     brut : la rémunération brute du mois (éléments à payer, hors remboursements de frais).
     Retourne [] avant mai 2026 (part_forfaitaire == 0).
     """
-    val_forfait = _part(bareme.load("mgen.taux_forfaitaire")(date), date, bareme)
+    val_forfait = _part(bareme.au("mgen.taux_forfaitaire", date), date, bareme)
     if val_forfait == 0.0:
         return []
     val_solidaire = _part_solidaire(brut, date, bareme)
-    base_ats = (val_forfait + val_solidaire) / (1 + bareme.load("mgen.taux_taxe")(date))
-    val_action = round(bareme.load("mgen.taux_action_sociale")(date) * base_ats, 2)
-    val_retraites = round(bareme.load("mgen.taux_aide_retraites")(date) * base_ats, 2)
+    base_ats = (val_forfait + val_solidaire) / (1 + bareme.au("mgen.taux_taxe", date))
+    val_action = round(bareme.au("mgen.taux_action_sociale", date) * base_ats, 2)
+    val_retraites = round(bareme.au("mgen.taux_aide_retraites", date) * base_ats, 2)
     return [
         Ligne(-val_forfait, "MGEN PART FORFAITAIRE", code=720576, classe="CHARGE"),
         Ligne(-val_solidaire, "MGEN PART SOLIDAIRE", code=720577, classe="CHARGE"),

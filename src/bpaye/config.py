@@ -9,6 +9,7 @@ des fichiers donnés. BAREME est le barème du paquet, valeur par défaut partou
 load() et get() restent, pour lire le barème du paquet.
 """
 
+import datetime as dt
 from pathlib import Path
 from typing import Any, Self
 
@@ -97,6 +98,10 @@ class Bareme:
             temporal.strict = True
             self._cache[path] = temporal
         return self._cache[path]
+
+    def au(self, path: str, date: dt.date | None) -> Any:
+        """La valeur du barème ``path`` à ``date`` (load(path)(date))."""
+        return self.load(path)(date)
 
     def _load_indexe(self, section: dict[str, Any]) -> Fixe:
         """Un montant annuel indexé sur le point (type « IndexePoint ») : chaque montant de
