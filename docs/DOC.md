@@ -391,10 +391,12 @@ l'usage de la paie, chaque année les mêmes : le neuvième d'octobre des HSA pa
 novembre, l'IFP de septembre en octobre. `academies.toml`, dans le paquet, les donne par
 académie (code de l'éducation, R222-2, et lycées de la Défense ; relevé dans
 `docs/verification/academies.toml`) : un défaut, relevé sur des bulletins de Paris, dont
-chaque académie hérite tant que les siens ne sont pas relevés. `[[academie]]` choisit
-celle de l'agent à chaque date (le défaut avant la première) ; `[[retards]]` ajoute les
-siens, qui remplacent ceux de l'académie pour le même code (`depuis`, facultatif, en fixe
-le premier mois dû). Un retard s'applique comme `Paye.retard_paiement` : la ligne reste
+chaque académie hérite tant que les siens ne sont pas relevés ; les lycées de la Défense
+ont leur propre calendrier (HSA d'octobre et de novembre payées en décembre, IFP à son
+mois). Une rubrique peut avoir plusieurs mois en retard. `[[academie]]` choisit celle de
+l'agent à chaque date (le défaut avant la première) ; `[[retards]]` ajoute les siens, qui
+remplacent tous ceux de l'académie pour la même rubrique (`depuis`, facultatif, en fixe le
+premier mois dû). Un retard s'applique comme `Paye.retard_paiement` : la ligne reste
 due son mois et arrive en rappel le mois de paiement. Un retard ponctuel reste un
 événement (`paye.retard_paiement`, section 5).
 

@@ -7,6 +7,10 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et la
 
 ### Ajouté
 
+- **Retards de la Défense** : `[defense]` a son propre calendrier dans `academies.toml`
+  (HSA et majoration d'octobre et de novembre payées en décembre, IFP à son mois), relevé
+  sur des bulletins papier de 2017 et 2018 ; une rubrique peut avoir plusieurs mois en
+  retard (`academies.remplace`).
 - **Plusieurs bulletins par mois, plusieurs employeurs** : `[[employeur]]` dans
   `agent.toml` (SIRET ou code de gestion du poste, par dates), `pdf.extract_employeur` et
   `bulletins.trouve_bulletins`. Chaque bulletin est lu à part et rattaché à son employeur ;
