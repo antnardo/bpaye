@@ -7,9 +7,16 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et la
 
 ### Ajouté
 
-- **Export CSV** (`bpaye.export`, `examples/exporter.py`) : un fichier par mois, le
-  bulletin lu colonne par colonne avec le calcul en regard, et deux tableaux de tous les
-  mois, une ligne par mois et une colonne par code, l'un lu, l'autre calculé.
+- **Plusieurs bulletins par mois, plusieurs employeurs** : `[[employeur]]` dans
+  `agent.toml` (SIRET ou code de gestion du poste, par dates), `pdf.extract_employeur` et
+  `bulletins.trouve_bulletins`. Chaque bulletin est lu à part et rattaché à son employeur ;
+  le calcul ne se compare qu'à celui de l'employeur du mois, quel que soit le nom du
+  fichier. `examples/verifier.py`, `examples/exporter.py` et `Paye.select` lisent ainsi
+  tous les bulletins : ceux d'un ancien employeur, écartés jusqu'ici par le SIRET, se
+  comparent, et un rappel versé après le départ se lit à part.
+- **Export CSV** (`bpaye.export`, `examples/exporter.py`) : un fichier par bulletin, lu
+  colonne par colonne avec le calcul en regard, et deux tableaux de tous les mois, une
+  ligne par bulletin et une colonne par code, l'un lu, l'autre calculé.
 - **Heures de colles lues dans un montant** (`colles.heures_du_montant`,
   `colles.decrit_colles`) : `bpaye-lire` et `examples/verifier.py` disent ce que représente
   le montant de colles d'un bulletin, en heures entières à un code avec le sens du code, ou

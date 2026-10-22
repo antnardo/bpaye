@@ -238,12 +238,15 @@ mois et rubrique par rubrique :
 python examples/verifier.py Bulletins/ 2025 examples/college
 ```
 
-Pour chaque mois, il affiche le net à payer, le contrôle de la lecture et les rappels,
-puis chaque rubrique où le calcul et le bulletin diffèrent.
+Pour chaque bulletin, il affiche le net à payer, le contrôle de la lecture, les rappels et
+l'employeur ; puis, mois par mois, chaque rubrique où le calcul et le bulletin de
+l'employeur diffèrent. Les bulletins d'un même mois restent distincts : un jury, des colles
+payées par un autre établissement ou le rappel d'un ancien employeur se lisent à part, sans
+se comparer au calcul (`[[employeur]]` d'`agent.toml` : docs/DOC.md, section 4).
 
 `examples/exporter.py` écrit les mêmes données en CSV, pour un tableur : un fichier par
-mois, le bulletin colonne par colonne avec le calcul en regard, puis deux tableaux de tous
-les mois, une ligne par mois et une colonne par code, l'un lu, l'autre calculé :
+bulletin, colonne par colonne avec le calcul en regard, puis deux tableaux de tous les
+mois, une ligne par bulletin et une colonne par code, l'un lu, l'autre calculé :
 
 ```bash
 python examples/exporter.py Bulletins/ examples/college export/

@@ -301,7 +301,18 @@ bpaye prend le montant annuel déclaré et refuse de calculer un détachement sa
 ## 4. `agent.toml`
 
 ```toml
-siret = "19750000000000"       # facultatif : seuls les bulletins de ce gestionnaire sont lus
+siret = "19750000000000"       # facultatif : l'employeur de toute la carrière (sans [[employeur]])
+
+[[employeur]]                  # facultatif : l'employeur à chaque date
+date  = 2015-09-01
+nom   = "Lycée militaire"
+siret = "10800000000000"       # un texte ou une liste ; ou :
+poste = "08 A445 072 0314"     # le code de gestion du poste, tel qu'imprimé
+
+[[employeur]]
+date  = 2019-09-01
+nom   = "Lycée"
+siret = "19750000000000"
 
 [ir]                           # seule section obligatoire
 type   = "Taux"
@@ -386,6 +397,17 @@ siens, qui remplacent ceux de l'académie pour le même code (`depuis`, facultat
 le premier mois dû). Un retard s'applique comme `Paye.retard_paiement` : la ligne reste
 due son mois et arrive en rappel le mois de paiement. Un retard ponctuel reste un
 événement (`paye.retard_paiement`, section 5).
+
+Un mois peut avoir plusieurs bulletins : celui de l'employeur, un jury ou des colles payés
+par un autre établissement, un rappel versé par un ancien employeur après le départ. Ce
+sont des bulletins distincts, jamais additionnés, et le calcul de bpaye, celui d'une seule
+carrière, ne se compare qu'au bulletin de l'employeur du mois. `[[employeur]]` le désigne :
+chaque entrée vaut à partir de sa date, et se reconnaît sur un bulletin à son SIRET ou au
+code de gestion de son poste (en-tête, sous « GESTION POSTE »). Les deux se déclarent
+ensemble quand l'un manque parfois : un rappel versé après le départ peut n'avoir pas de
+SIRET, et un établissement change parfois de code de gestion. Le nom du fichier n'entre
+pas dans le choix (« -1 », « copie »). Sans `[[employeur]]`, `siret` désigne l'employeur
+de toute la carrière ; sans l'un ni l'autre, le bulletin qui porte le traitement brut.
 
 `[[psc]]` déclare ce que le barème ne peut connaître de la complémentaire de l'agent.
 Chaque entrée vaut à partir de sa date et remplace la précédente ; une clé absente vaut
@@ -477,16 +499,19 @@ décimale, UTF-8 avec BOM), pour un tableur :
 ```python
 from bpaye.export import ecrit_mois, ecrit_tous_les_mois
 
-ecrit_mois("2025-03.csv", lu, paye(2025, 3))
-ecrit_tous_les_mois("lus.csv", "calcules.csv", [(dt.date(2025, 3, 1), lu, paye(2025, 3)), ...])
+ecrit_mois("2025_03_BP_mars.csv", lu, paye(2025, 3))
+ecrit_tous_les_mois(
+    "lus.csv", "calcules.csv", [(dt.date(2025, 3, 1), "Lycée", lu, paye(2025, 3)), ...]
+)
 ```
 
-Le fichier d'un mois suit le bulletin : ses lignes dans l'ordre imprimé, le montant lu dans
+Le fichier d'un bulletin le suit : ses lignes dans l'ordre imprimé, le montant lu dans
 sa colonne (à payer, à déduire, pour information), une remarque (rappel, code inconnu de
 bpaye, ligne du seul calcul), et le montant calculé ; puis le net à payer et le montant
-imposable. Les deux tableaux de tous les mois ont une ligne par mois (`AAAA-MM`) et les
-mêmes colonnes, un code chacune : l'un porte les montants lus, l'autre les montants
-calculés, cellule pour cellule.
+imposable. Les deux tableaux de tous les mois ont une ligne par bulletin (le mois
+`AAAA-MM` et l'employeur) et les mêmes colonnes, un code chacune : l'un porte les montants
+lus, l'autre les montants calculés, cellule pour cellule. Deux bulletins d'un même mois,
+de deux employeurs, font deux lignes ; seul celui de l'employeur du mois a un calcul.
 
 Un montant calculé s'écrit comme le bulletin l'imprime, positif dans sa colonne : une
 retenue, négative pour bpaye, y est positive. Le calcul d'un code réunit ses rappels et ses
@@ -496,7 +521,8 @@ ligne lue du code ; dans les tableaux, les montants lus sont réunis de la même
 cellule vide est un code absent ce mois-là ; une ligne patronale n'a pas de calcul.
 
 `examples/exporter.py DOSSIER_DES_PDF DOSSIER_DE_L_AGENT DOSSIER_DE_SORTIE` exporte tous
-les bulletins du dossier, quel que soit l'employeur, avec le calcul de la carrière seule :
+les bulletins du dossier, de tous les employeurs, un fichier par bulletin nommé comme son
+PDF, avec le calcul de la carrière seule :
 un script qui ajoute des événements à sa `Paye` (colles, retards) passe cette `Paye` aux
 mêmes fonctions.
 
@@ -565,9 +591,12 @@ total du pied (`ecarts_colonnes(lu)` ; `ecart_totaux(lu)` pour TOTAUX DU MOIS, r
 décompte compris). Un écart, signe d'une ligne manquée, déclenche un avertissement. Les
 cotisations patronales d'un mois de décompte de rappel ne se contrôlent pas : celles du
 décompte entrent dans le total sans ligne sur le bulletin. `extract_dr` lit un décompte
-de rappel, ligne par ligne pour chaque code connu ; `find_pdfs(dossier, année, siret)`
-trouve les bulletins principaux d'une année, ceux d'un autre gestionnaire écartés par le
-SIRET. Le détail de la lecture : [`lecture_pdf.md`](lecture_pdf.md).
+de rappel, ligne par ligne pour chaque code connu ; `find_pdfs(dossier, année)` trouve
+les bulletins d'une année, de tous les employeurs, et `extract_employeur` lit l'employeur
+imprimé en en-tête. `bulletins.trouve_bulletins(dossier, agent, années)` les lit et
+rattache chacun à son employeur (section 4) : `employeur` (celui du mois, le seul que le
+calcul compare), `ancien employeur` (un employeur déclaré pour une autre période) ou
+`autre employeur`. Le détail de la lecture : [`lecture_pdf.md`](lecture_pdf.md).
 
 ### Reconnaître un bulletin sans carrière
 
