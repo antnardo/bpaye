@@ -241,6 +241,14 @@ python examples/verifier.py Bulletins/ 2025 examples/college
 Pour chaque mois, il affiche le net à payer, le contrôle de la lecture et les rappels,
 puis chaque rubrique où le calcul et le bulletin diffèrent.
 
+`examples/exporter.py` écrit les mêmes données en CSV, pour un tableur : un fichier par
+mois, le bulletin colonne par colonne avec le calcul en regard, puis deux tableaux de tous
+les mois, une ligne par mois et une colonne par code, l'un lu, l'autre calculé :
+
+```bash
+python examples/exporter.py Bulletins/ examples/college export/
+```
+
 ### Lire un bulletin seul
 
 Sans décrire de carrière, `bpaye-lire` reconnaît un bulletin : il en lit l'en-tête

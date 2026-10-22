@@ -469,6 +469,37 @@ code (le corps dont il donne le taux, les classes dont l'ORS est la sienne), ou 
 d'un mélange. bpaye n'y suppose ni le code ni le mois des colles : 9 h au code 006 valent
 10 h au code 007, et un total ne départage pas un mélange de codes.
 
+### Exporter en CSV
+
+`bpaye.export` écrit les bulletins lus et leur calcul en CSV (point-virgule, virgule
+décimale, UTF-8 avec BOM), pour un tableur :
+
+```python
+from bpaye.export import ecrit_mois, ecrit_tous_les_mois
+
+ecrit_mois("2025-03.csv", lu, paye(2025, 3))
+ecrit_tous_les_mois("lus.csv", "calcules.csv", [(dt.date(2025, 3, 1), lu, paye(2025, 3)), ...])
+```
+
+Le fichier d'un mois suit le bulletin : ses lignes dans l'ordre imprimé, le montant lu dans
+sa colonne (à payer, à déduire, pour information), une remarque (rappel, code inconnu de
+bpaye, ligne du seul calcul), et le montant calculé ; puis le net à payer et le montant
+imposable. Les deux tableaux de tous les mois ont une ligne par mois (`AAAA-MM`) et les
+mêmes colonnes, un code chacune : l'un porte les montants lus, l'autre les montants
+calculés, cellule pour cellule.
+
+Un montant calculé s'écrit comme le bulletin l'imprime, positif dans sa colonne : une
+retenue, négative pour bpaye, y est positive. Le calcul d'un code réunit ses rappels et ses
+codes équivalents, parce que bpaye sait qu'une ligne est payée un autre mois, pas sous
+quelle mention la paie l'imprimera : dans le fichier d'un mois, il se place sur la première
+ligne lue du code ; dans les tableaux, les montants lus sont réunis de la même façon. Une
+cellule vide est un code absent ce mois-là ; une ligne patronale n'a pas de calcul.
+
+`examples/exporter.py DOSSIER_DES_PDF DOSSIER_DE_L_AGENT DOSSIER_DE_SORTIE` exporte tous
+les bulletins du dossier, quel que soit l'employeur, avec le calcul de la carrière seule :
+un script qui ajoute des événements à sa `Paye` (colles, retards) passe cette `Paye` aux
+mêmes fonctions.
+
 ### Un autre barème
 
 Les taux, montants et barèmes viennent de `taux.toml`, dans le paquet. Pour calculer avec

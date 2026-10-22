@@ -7,6 +7,9 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et la
 
 ### Ajouté
 
+- **Export CSV** (`bpaye.export`, `examples/exporter.py`) : un fichier par mois, le
+  bulletin lu colonne par colonne avec le calcul en regard, et deux tableaux de tous les
+  mois, une ligne par mois et une colonne par code, l'un lu, l'autre calculé.
 - **Heures de colles lues dans un montant** (`colles.heures_du_montant`,
   `colles.decrit_colles`) : `bpaye-lire` et `examples/verifier.py` disent ce que représente
   le montant de colles d'un bulletin, en heures entières à un code avec le sens du code, ou
