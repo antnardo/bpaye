@@ -28,8 +28,7 @@ def main(dossier: str, agent_dossier: str, sortie: str) -> None:
         sys.exit(f"Aucun bulletin dans {dossier}")
     premier, dernier = trouves[0].date, trouves[-1].date
     paye = Paye(agent)
-    n = (dernier.year - premier.year) * 12 + dernier.month  # depuis janvier : RAFP, exonérations
-    paye.generate(startyear=premier.year, startmonth=1, n=n)
+    paye.generate_annees(premier.year, dernier.year)
 
     Path(sortie).mkdir(parents=True, exist_ok=True)
     lignes = []

@@ -15,7 +15,7 @@ EXEMPLE = Path(__file__).resolve().parents[1] / "examples" / "college"
 def paye():
     agente = charge_dossier(EXEMPLE)
     paye = Paye(agente)
-    paye.generate(startyear=2025, startmonth=1, n=12)
+    paye.generate_annees(2025)
     return paye
 
 
@@ -48,14 +48,14 @@ def _blocs(nom, langue):
 def test_readme_montre_la_vraie_sortie_du_bulletin():
     agente = charge_dossier(EXEMPLE)
     paye = Paye(agente)
-    paye.generate(startyear=2026, startmonth=1, n=12)
+    paye.generate_annees(2026)
     assert str(paye(2026, 1)).strip() == _blocs("README.md", "text")[0].strip()
 
 
 def test_readme_montre_la_vraie_somme_et_les_nets_prevus():
     agente = charge_dossier(EXEMPLE)
     paye = Paye(agente)
-    paye.generate(startyear=2026, startmonth=1, n=12)
+    paye.generate_annees(2026)
     sortie = _blocs("README.md", "text")[1].splitlines()
     assert sortie[0] == str(paye.select(200364, 2026).somme())
     mois = nets_prevus(EXEMPLE / "carriere.toml", EXEMPLE / "agent.toml", (2026, 8), 3)

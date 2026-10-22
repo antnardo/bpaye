@@ -158,7 +158,7 @@ def _paye_temps_plein_et_partiel(configuration):
     partielle.write_text(texte[: texte.rindex("[[rentrees]]")] + TEMPS_PARTIEL, encoding="utf-8")
     fonc = charge_agent(agent, partielle)
     partiel = Paye(fonc)
-    partiel.generate(startyear=2025, startmonth=1, n=24)
+    partiel.generate_annees(2025, 2026)
     return plein, partiel
 
 

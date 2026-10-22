@@ -16,7 +16,7 @@ def paye(configuration):
     carriere, agent = configuration
     fonc = charge_agent(agent, carriere)
     paye = Paye(fonc)
-    paye.generate(startyear=2025, startmonth=1, n=24)
+    paye.generate_annees(2025, 2026)
     inject_colles_prevues(paye, 2025)
     return paye
 

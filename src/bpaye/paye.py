@@ -551,6 +551,13 @@ class Paye:
                 if retard.concerne(b.date):
                     self._paie_en_retard(b, retard)
 
+    def generate_annees(self, premiere: int, derniere: int | None = None) -> None:
+        """Les bulletins de janvier ``premiere`` à décembre ``derniere`` (``premiere`` seule
+        par défaut). Des années entières : la RAFP se plafonne sur l'année civile, comme
+        l'exonération des heures supplémentaires."""
+        fin = premiere if derniere is None else derniere
+        self.generate(startyear=premiere, startmonth=1, n=12 * (fin - premiere + 1))
+
     def _paie_en_retard(self, bulletin: Bulletin, retard: Retard) -> None:
         if not bulletin.get_all_fromcode(retard.code) or bulletin.get_fromcode(retard.code).valeur == 0:
             return

@@ -430,7 +430,7 @@ from bpaye import Paye, charge_dossier
 
 agente = charge_dossier(".")  # agent.toml et carriere.toml de ce dossier
 paye = Paye(agente)
-paye.generate(startyear=2025, startmonth=1, n=12)
+paye.generate_annees(2025)
 ```
 
 `charge_dossier` lit les deux fichiers d'un dossier ; `charge_agent(agent, carriere)`,
@@ -439,8 +439,9 @@ d'`agent.toml`, et `load_carriere`, qui y ajoute sa carrière ; chacune rend l'a
 l'ordre est libre (`Fonctionnaire().load_carriere(…)` pour une carrière seule). Ce qu'aucun des deux fichiers ne donne prend sa valeur par
 défaut (section 4).
 
-Générer depuis janvier : la RAFP se plafonne sur l'année civile, comme l'exonération des
-heures supplémentaires. `paye(2025, 3)` est le bulletin de mars ; ses lignes (`code`,
+`generate_annees` génère des années entières, de janvier à décembre : la RAFP se plafonne
+sur l'année civile, comme l'exonération des heures supplémentaires (`generate` part d'un
+mois quelconque). `paye(2025, 3)` est le bulletin de mars ; ses lignes (`code`,
 `lib`, `valeur`) s'itèrent, et il a `net`, `net_imposable`, `brut`, `revenus`.
 
 ### Ce que la carrière ne prévoit pas

@@ -60,7 +60,7 @@ def comparer(agent: Fonctionnaire, annee: int, lus: dict[int, BulletinLu]) -> No
     """Pour chaque mois, les rubriques où le calcul de bpaye et le bulletin de l'employeur
     diffèrent ; les bulletins d'autres employeurs ne se comparent pas."""
     paye = Paye(agent)
-    paye.generate(startyear=annee, startmonth=1, n=12)  # depuis janvier : RAFP, exonérations
+    paye.generate_annees(annee)
 
     print(f"\n== Calcul et bulletin, rubrique par rubrique ({agent.nom})")
     for mois, lu in sorted(lus.items()):

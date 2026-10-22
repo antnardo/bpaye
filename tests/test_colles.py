@@ -34,7 +34,7 @@ def paye_avec_reliquat(configuration):
     )
     fonc = charge_agent(agent, carriere)
     paye = Paye(fonc)
-    paye.generate(startyear=2025, startmonth=1, n=24)
+    paye.generate_annees(2025, 2026)
     return paye
 
 
@@ -63,7 +63,7 @@ def test_sans_budget_de_classe_pas_de_reliquat(configuration):
     carriere, agent = configuration
     fonc = charge_agent(agent, carriere)
     paye = Paye(fonc)
-    paye.generate(startyear=2025, startmonth=1, n=24)
+    paye.generate_annees(2025, 2026)
     colles = inject_colles_prevues(paye, 2025)
     assert sum(c.heures for c in colles) == 4.0 * SEMAINES_COLLES
     assert not [c for c in colles if "reliquat" in c.comm]
@@ -107,7 +107,7 @@ def test_paiement_all_paie_chaque_colle_sur_le_bulletin(configuration):
     carriere, agent = configuration
     fonc = charge_agent(agent, carriere)
     paye = Paye(fonc)
-    paye.generate(startyear=2025, startmonth=1, n=12)
+    paye.generate_annees(2025)
     colles = Colles()
     colles.append(2025, 3, {161: 2.0, 6: 1.0})
     bulletin = paye(2025, 5)
@@ -129,7 +129,7 @@ def test_colles_prevues_suivent_la_zone_du_lycee(configuration):
         )
         fonc = charge_agent(agent, carriere)
         paye = Paye(fonc)
-        paye.generate(startyear=2025, startmonth=1, n=24)
+        paye.generate_annees(2025, 2026)
         mois_par_zone[zone] = {c.date.month: c.heures for c in inject_colles_prevues(paye, 2025)}
     # Février : les vacances des zones A et C ne tombent pas les mêmes semaines.
     assert mois_par_zone["A"][2] != mois_par_zone["C"][2]

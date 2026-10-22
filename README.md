@@ -37,7 +37,7 @@ from bpaye import Paye, charge_dossier
 agente = charge_dossier("examples/college")  # agent.toml et carriere.toml
 
 paye = Paye(agente)
-paye.generate(startyear=2026, startmonth=1, n=12)
+paye.generate_annees(2026)
 print(paye(2026, 1))
 ```
 

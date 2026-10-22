@@ -30,7 +30,7 @@ def main(nom: str = "college") -> None:
     # Tous ses bulletins, de sa première année civile complète (2011 au plus tôt) à la dernière.
     debut = max(agent.echelon.values[0][0].year + 1, PREMIERE_ANNEE)
     paye = Paye(agent, libelle=nom)
-    paye.generate(startyear=debut, startmonth=1, n=12 * (DERNIERE_ANNEE - debut + 1))
+    paye.generate_annees(debut, DERNIERE_ANNEE)
     print(f"\n== Brut et net par année civile, de {debut} à {DERNIERE_ANNEE}")
     for annee in range(debut, DERNIERE_ANNEE + 1):
         bulletins = paye.annee(annee)
