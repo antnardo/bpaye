@@ -83,6 +83,14 @@ CODE_RAPPEL = 999999
 CODE_RAPPEL_TRAITEMENT = 999998
 
 
+def _mois_de_paiement(
+    mois_du: tuple[int, int], decalage: int, paiement_date: tuple[int, int] | None
+) -> tuple[int, int]:
+    """Le mois où un rappel est payé : ``paiement_date``, sinon ``decalage`` mois après le
+    mois dû."""
+    return paiement_date if paiement_date is not None else decalage_mois(*mois_du, decalage)
+
+
 def signe_bpaye(ligne: Ligne) -> int:
     """Le signe qu'un montant lu sur le PDF (positif dans sa colonne, négatif pour un
     trop-perçu) prend dans la convention de bpaye : celui de la ligne calculée, ou, pour une
@@ -625,10 +633,7 @@ class Paye:
         ligne = bulletin.pop(code, recalc=True)
         ligne.sommable = True
         ligne.lib = f"[{year}-{mois}] RAPPEL {ligne.lib}"
-        if paiement_date is None:
-            pyear, pmois = decalage_mois(year, mois, decalage)
-        else:
-            pyear, pmois = paiement_date
+        pyear, pmois = _mois_de_paiement((year, mois), decalage, paiement_date)
         self.addligne(pyear, pmois, ligne)
 
     def erreur_montant(
@@ -652,7 +657,7 @@ class Paye:
             rattrapage = ecart.copy()
             rattrapage.valeur = -ecart.valeur
             rattrapage.lib = f"[{year % 2000}-{mois}] RATTRAPAGE {calculee.lib}"
-            pyear, pmois = paiement_date or decalage_mois(year, mois, decalage)
+            pyear, pmois = _mois_de_paiement((year, mois), decalage, paiement_date)
             self.addligne(pyear, pmois, rattrapage)
             return
         ligne = bulletin.pop_montant(code, montant_init)
@@ -665,10 +670,7 @@ class Paye:
         ligne.sommable = True
         ligne.valeur = montant_init - montant_final
         ligne.lib = f"[{year % 2000}-{mois}] RATTRAPAGE {ligne.lib}"
-        if paiement_date is None:
-            pyear, pmois = decalage_mois(year, mois, decalage)
-        else:
-            pyear, pmois = paiement_date
+        pyear, pmois = _mois_de_paiement((year, mois), decalage, paiement_date)
         self.addligne(pyear, pmois, ligne)
 
     def heure_sup(
@@ -745,10 +747,7 @@ class Paye:
         year, mois = original_date
         nouvelles = self.COLLES.append(year, mois, codesheures, comm)
         if payee:
-            if paiement_date is None:
-                pyear, pmois = decalage_mois(year, mois, decalage)
-            else:
-                pyear, pmois = paiement_date
+            pyear, pmois = _mois_de_paiement((year, mois), decalage, paiement_date)
             bulletin = self.bulletin(pyear, pmois)
             Colles.paiement(bulletin, nouvelles)  # gère l'ajout dans bulletin
         return nouvelles
