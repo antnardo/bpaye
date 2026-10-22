@@ -336,6 +336,15 @@ imposable = false
 note      = "ISOE part fonctionnelle (Pacte), en annexe 14 C depuis 2024."
 source    = "DGFiP, annexe 14 C 2026 (copie AMUE), ligne 153 ; annexe 14C 2024, p. 6, https://www.amue.fr/fileadmin/amue/ressources-humaines/veille-reglementaire/2024/Paye2024/annexe6.pdf ; INGRES ligne 2655 (IMPOSA 0) ; BJ janvier 2026 ligne 2107"
 
+[[code]]
+code      = "202476"
+ir        = "2476"
+libelle   = "Indemnité de suivi et d’accompagnement des élèves – Part fonctionnelle allouée aux enseignants du 1er degré"
+categorie = "revenu"
+imposable = false
+note      = "ISAE part fonctionnelle (Pacte) des professeurs des écoles, pendant de 202475."
+source    = "DGFiP, annexe 14 C 2026 (copie AMUE), ligne 154 ; INGRES lignes 2662 à 2664 (IMPOSA 0) ; BJ janvier 2026 ligne 2108"
+
 # ───────────────────────── Indemnités imposables (annexe 14 B) ─────────────────────────
 
 [[code]]

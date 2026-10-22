@@ -621,6 +621,17 @@ source = "DGFiP, annexe 14 C 2026 (copie AMUE), ligne 153 ; annexe 14C 2024, p. 
 note = "ISOE part fonctionnelle (Pacte), en annexe 14 C depuis 2024."
 
 [[code]]
+code = "202476"
+libelle = "Indemnité de suivi et d’acco"
+libelle_officiel = "Indemnité de suivi et d’accompagnement des élèves – Part fonctionnelle allouée aux enseignants du 1er degré"
+ir = "2476"
+rappel = true
+categorie = "revenu"
+imposable = false
+source = "DGFiP, annexe 14 C 2026 (copie AMUE), ligne 154 ; INGRES lignes 2662 à 2664 (IMPOSA 0) ; BJ janvier 2026 ligne 2108"
+note = "ISAE part fonctionnelle (Pacte) des professeurs des écoles, pendant de 202475."
+
+[[code]]
 code = "202483"
 libelle = "PARTICIPATION PSC OPTIONS"
 libelle_officiel = "Participation PSC options (dispositif pérenne)"
