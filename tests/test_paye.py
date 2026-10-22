@@ -584,3 +584,10 @@ def test_bulletin_d_un_mois_non_genere_refuse(configuration):
     assert paye.bulletin(2025, 1) is paye(2025, 1)
     with pytest.raises(ValueError, match="pas de bulletin généré pour 03/2025"):
         paye.bulletin(2025, 3)
+
+
+def test_rattrapage_d_une_erreur_date_comme_un_rappel(configuration):
+    paye = _paye(configuration, 1, 3)
+    paye.erreur((2025, 1), (2025, 3), 50.0, 200364)
+    (rattrapage,) = [ligne for ligne in paye(2025, 3) if ligne.code == 200364 and ligne.valeur == -50.0]
+    assert rattrapage.lib == "[2025-1] RATTRAPAGE Erreur"

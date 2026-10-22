@@ -91,6 +91,14 @@ def _mois_de_paiement(
     return paiement_date if paiement_date is not None else decalage_mois(*mois_du, decalage)
 
 
+def _libelle_rappel(nature: str, mois_du: tuple[int, int], libelle: str) -> str:
+    """Le libellé d'une ligne payée un autre mois : « [2025-3] RAPPEL Majo 1ère HSA ». Le
+    mois dû vient en tête, sur neuf caractères au plus : deux rappels d'une rubrique versés
+    le même mois s'y fusionnent (Bulletin.append, « [2025-10][2025-11] RAPPEL … »)."""
+    annee, mois = mois_du
+    return f"[{annee}-{mois}] {nature} {libelle}"
+
+
 def signe_bpaye(ligne: Ligne) -> int:
     """Le signe qu'un montant lu sur le PDF (positif dans sa colonne, négatif pour un
     trop-perçu) prend dans la convention de bpaye : celui de la ligne calculée, ou, pour une
@@ -632,7 +640,7 @@ class Paye:
         bulletin = self.bulletin(year, mois)
         ligne = bulletin.pop(code, recalc=True)
         ligne.sommable = True
-        ligne.lib = f"[{year}-{mois}] RAPPEL {ligne.lib}"
+        ligne.lib = _libelle_rappel("RAPPEL", (year, mois), ligne.lib)
         pyear, pmois = _mois_de_paiement((year, mois), decalage, paiement_date)
         self.addligne(pyear, pmois, ligne)
 
@@ -656,7 +664,7 @@ class Paye:
             self.addligne(year, mois, ecart)
             rattrapage = ecart.copy()
             rattrapage.valeur = -ecart.valeur
-            rattrapage.lib = f"[{year % 2000}-{mois}] RATTRAPAGE {calculee.lib}"
+            rattrapage.lib = _libelle_rappel("RATTRAPAGE", (year, mois), calculee.lib)
             pyear, pmois = _mois_de_paiement((year, mois), decalage, paiement_date)
             self.addligne(pyear, pmois, rattrapage)
             return
@@ -669,7 +677,7 @@ class Paye:
         ligne = ligne.copy()
         ligne.sommable = True
         ligne.valeur = montant_init - montant_final
-        ligne.lib = f"[{year % 2000}-{mois}] RATTRAPAGE {ligne.lib}"
+        ligne.lib = _libelle_rappel("RATTRAPAGE", (year, mois), ligne.lib)
         pyear, pmois = _mois_de_paiement((year, mois), decalage, paiement_date)
         self.addligne(pyear, pmois, ligne)
 
@@ -915,7 +923,9 @@ class Paye:
         year, mois = date
         pyear, pmois = paiement_date
         ligne_plus = Ligne(montant, "Erreur", code=code, classe="INDEM")
-        ligne_neg = Ligne(-montant, f"Erreur rattrapage ({year}-{mois})", code=code, classe="INDEM")
+        ligne_neg = Ligne(
+            -montant, _libelle_rappel("RATTRAPAGE", (year, mois), "Erreur"), code=code, classe="INDEM"
+        )
         self.addligne(year, mois, ligne_plus)
         self.addligne(pyear, pmois, ligne_neg)
 
