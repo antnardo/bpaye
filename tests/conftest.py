@@ -75,62 +75,77 @@ LIGNES_FAUX_BULLETIN = [
 ]
 
 
+def ecrit_pdf(chemin, morceaux, hauteur=842.0, version=("PAY18E-V4.2-29", 570.0, 300.0)):
+    """Un PDF d'une page, du texte seul, placé comme sur un bulletin PAY18E.
+
+    ``morceaux`` : des (police, corps, x, ligne, texte), où ``ligne`` est la ligne de base
+    en points depuis le haut de la page. ``version`` : (texte, x, ligne de la première
+    lettre), écrit à la verticale en Helvetica 6, une lettre tous les 7 points."""
+    from reportlab_layout import PDFMaker
+
+    with PDFMaker(str(chemin), pagesize=(595.0, hauteur)) as doc:
+        c = doc.canvas
+        texte, x, ligne = version
+        c.setFont("Helvetica", 6)
+        for i, lettre in enumerate(texte):
+            c.drawString(x, hauteur - ligne - 7 * i, lettre)
+        for police, corps, x, ligne, morceau in morceaux:
+            c.setFont(police, corps)
+            c.drawString(x, hauteur - ligne, morceau)
+
+
 def _ecrit_faux_bulletin(chemin, lignes=LIGNES_FAUX_BULLETIN, totaux="3350,00", entete=None):
     """Un bulletin PAY18E fictif, écrit comme les vrais : Courier-Bold 9 pt, code et libellé
     à gauche, « € » puis le montant à droite, version à la verticale, pied en bas.
 
     ``entete`` : le mois (« AOUT 2026 »), puis les colonnes de la ligne d'identification
     (grade, enfants, échelon, indice, temps partiel) et le taux du prélèvement à la source,
-    aux abscisses des vrais bulletins. Une ordonnée de reportlab (depuis le bas) vaut
-    842 − haut du caractère − 6,6 en Courier-Bold 9 pt."""
-    from reportlab_layout import PDFMaker
-
-    hauteur = 842
-    with PDFMaker(str(chemin)) as doc:
-        c = doc.canvas
-        c.setFont("Helvetica", 6)
-        for i, lettre in enumerate("PAY18E-V4.2-29"):
-            c.drawString(570, hauteur - 300 - 7 * i, lettre)
-        c.setFont("Courier-Bold", 9)
-        if entete:
-            c.drawString(317.8, hauteur - 21.6 - 6.6, entete["mois"])
-            identification = [
-                (15.2, "206"),
-                (191.2, "00"),
-                (214.1, entete.get("grade", "")),
-                (347.6, entete.get("enfants", "")),
-                (380.3, entete.get("echelon", "")),
-                (415.4, entete.get("indice", "")),
-                (525.0, entete.get("temps_partiel", "")),
-            ]
-            for x, texte in identification:
-                c.drawString(x, hauteur - 105.7 - 6.6, texte)
-            if "taux_pas" in entete:
-                c.drawString(53.0, hauteur - 520, f"(TAUX PERSONNALISE {entete['taux_pas']}%)")
-        # Une ligne peut donner l'abscisse de son montant : 385,4 à payer (par défaut),
-        # 457,4 à déduire, 517 pour information.
-        sommes = {457.4: 0.0, 517.0: 0.0}
-        for rang, (code, libelle, montant, *x) in enumerate(lignes):
-            x_montant = x[0] if x else 385.4
-            if x_montant in sommes:
-                sommes[x_montant] += float(montant.replace(",", "."))
-            y = hauteur - 142 - 9 * rang
-            c.setFont("Courier-Bold", 9)
-            c.drawString(16.4, y, code)
-            c.drawString(53.0, y, libelle)
-            c.setFont("Helvetica", 8)
-            c.drawString(361.4, y, "€")
-            c.setFont("Courier-Bold", 9)
-            c.drawString(x_montant, y, montant)
-        c.setFont("Courier-Bold", 9)
-        for x, y, texte in [
-            (380, 212, totaux),
-            (450, 212, f"{sommes[457.4]:.2f}".replace(".", ",")),
-            (520, 212, f"{sommes[517.0]:.2f}".replace(".", ",")),
-            (420, 194, "2350,00"),  # net à payer : 3 350 − 1 000 de retenues
-            (120, 126, "2600,00"),
+    aux abscisses des vrais bulletins. En Courier-Bold 9 pt, la ligne de base est 6,6 pt
+    sous le haut que donne pdfplumber à ce PDF (``top``)."""
+    morceaux = []
+    if entete:
+        morceaux.append(("Courier-Bold", 9, 317.8, 28.2, entete["mois"]))
+        for x, cle in [
+            (214.1, "grade"),
+            (347.6, "enfants"),
+            (380.3, "echelon"),
+            (415.4, "indice"),
+            (525.0, "temps_partiel"),
         ]:
-            c.drawString(x, y, texte)
+            morceaux.append(("Courier-Bold", 9, x, 112.3, entete.get(cle, "")))
+        morceaux += [("Courier-Bold", 9, 15.2, 112.3, "206"), ("Courier-Bold", 9, 191.2, 112.3, "00")]
+        if "taux_pas" in entete:
+            morceaux.append(("Courier-Bold", 9, 53.0, 520.0, f"(TAUX PERSONNALISE {entete['taux_pas']}%)"))
+    # Une ligne peut donner l'abscisse de son montant : 385,4 à payer (par défaut),
+    # 457,4 à déduire, 517 pour information.
+    sommes = {457.4: 0.0, 517.0: 0.0}
+    for rang, (code, libelle, montant, *x) in enumerate(lignes):
+        x_montant = x[0] if x else 385.4
+        if x_montant in sommes:
+            sommes[x_montant] += float(montant.replace(",", "."))
+        ligne = 142.0 + 9 * rang
+        morceaux += [
+            ("Courier-Bold", 9, 16.4, ligne, code),
+            ("Courier-Bold", 9, 53.0, ligne, libelle),
+            ("Helvetica", 8, 361.4, ligne, "€"),
+            ("Courier-Bold", 9, x_montant, ligne, montant),
+        ]
+    for x, ligne, texte in [
+        (380.0, 630.0, totaux),
+        (450.0, 630.0, f"{sommes[457.4]:.2f}".replace(".", ",")),
+        (520.0, 630.0, f"{sommes[517.0]:.2f}".replace(".", ",")),
+        (420.0, 648.0, "2350,00"),  # net à payer : 3 350 − 1 000 de retenues
+        (120.0, 716.0, "2600,00"),  # montant imposable du mois
+    ]:
+        morceaux.append(("Courier-Bold", 9, x, ligne, texte))
+    ecrit_pdf(chemin, morceaux)
+
+
+@pytest.fixture(name="ecrit_pdf")
+def ecrit_pdf_fixture():
+    """Écrit un PDF de morceaux de texte placés (``ecrit_pdf``) : pour un faux bulletin sur
+    mesure."""
+    return ecrit_pdf
 
 
 @pytest.fixture

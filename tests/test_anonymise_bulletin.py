@@ -18,38 +18,33 @@ def script():
 
 
 @pytest.fixture
-def bulletin(tmp_path):
+def bulletin(tmp_path, ecrit_pdf):
     """Un bulletin fictif qui porte ce qu'un vrai a d'identifiant, aux places des vrais : NIR
     dans la ligne d'identification et au pied, nom et adresse dans la fenêtre d'enveloppe,
-    SIRET, IBAN ; et une ligne de paye que personne ne connaît."""
-    from reportlab_layout import PDFMaker
-
-    chemin, h = tmp_path / "2026_01_BP_janvier.pdf", 864
-    with PDFMaker(str(chemin), pagesize=(595, h)) as doc:
-        c = doc.canvas
-        c.setFont("Helvetica", 6)
-        c.drawString(528.0, h - 50 - 4.4, "SIRET")
-        for i, lettre in enumerate("PAY18E-V4.2"):
-            c.drawString(578.6, h - 700 - 7 * i, lettre)
-        c.setFont("Courier-Bold", 10)
-        for x, top, texte in [
-            (494.6, 60.0, "19750000000000"),
-            (15.2, 105.7, "206"),
-            (44.0, 105.7, NIR),
-            (214.1, 105.7, "PROF. AGREGE CN"),
-            (16.4, 135.4, "101000 TRAITEMENT BRUT"),
-            (385.4, 135.4, "3000,00"),
-            (16.4, 144.4, "999999 LIGNE QUE PERSONNE NE CONNAIT"),
-            (385.4, 144.4, "12,34"),
-            (15.2, 641.0, NIR),
-            (22.0, 713.0, "53 277,98"),  # montant imposable de l'année
-            (118.7, 713.0, "3 648,69"),  # du mois
-            (10.7, 819.0, IBAN),
-        ]:
-            c.drawString(x, h - top - 7.3, texte)
-        c.setFont("Helvetica", 9)
-        c.drawString(226.0, h - 685 - 6.6, "CAMILLE EXEMPLE")
-        c.drawString(226.0, h - 705 - 6.6, "1 RUE IMAGINAIRE")
+    SIRET, IBAN ; et une ligne de paye que personne ne connaît. Lignes de base, depuis le
+    haut d'une page de 864 points comme celles de l'ENSAP."""
+    chemin = tmp_path / "2026_01_BP_janvier.pdf"
+    donnees = [
+        (494.6, 67.3, "19750000000000"),
+        (15.2, 113.0, "206"),
+        (44.0, 113.0, NIR),
+        (214.1, 113.0, "PROF. AGREGE CN"),
+        (16.4, 142.7, "101000 TRAITEMENT BRUT"),
+        (385.4, 142.7, "3000,00"),
+        (16.4, 151.7, "999999 LIGNE QUE PERSONNE NE CONNAIT"),
+        (385.4, 151.7, "12,34"),
+        (15.2, 648.3, NIR),
+        (22.0, 720.3, "53 277,98"),  # montant imposable de l'année
+        (118.7, 720.3, "3 648,69"),  # du mois
+        (10.7, 826.3, IBAN),
+    ]
+    morceaux = [("Helvetica", 6, 528.0, 54.4, "SIRET")]
+    morceaux += [("Courier-Bold", 10, x, ligne, texte) for x, ligne, texte in donnees]
+    morceaux += [
+        ("Helvetica", 9, 226.0, 691.6, "CAMILLE EXEMPLE"),
+        ("Helvetica", 9, 226.0, 711.6, "1 RUE IMAGINAIRE"),
+    ]
+    ecrit_pdf(chemin, morceaux, hauteur=864.0, version=("PAY18E-V4.2", 578.6, 700.0))
     return chemin
 
 
