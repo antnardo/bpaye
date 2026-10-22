@@ -1,10 +1,12 @@
-"""Les bulletins lus et leur calcul, en CSV : un fichier par mois, deux pour tous les mois.
+"""Les bulletins lus et leur calcul, en CSV : un fichier par bulletin, deux pour tous.
 
-Le fichier d'un mois se lit comme le bulletin : ses lignes dans l'ordre imprimé, chaque
+Le fichier d'un bulletin se lit comme lui : ses lignes dans l'ordre imprimé, chaque
 montant dans sa colonne (à payer, à déduire, pour information), et en dernière colonne le
 montant que bpaye calcule pour ce code. Les deux fichiers de tous les mois sont le même
-tableau transposé, une ligne par mois et une colonne par code : l'un porte les montants
+tableau transposé, une ligne par bulletin et une colonne par code : l'un porte les montants
 lus, l'autre les montants calculés, aux mêmes places, pour les comparer cellule à cellule.
+Les bulletins de deux employeurs d'un même mois restent deux lignes, jamais additionnées ;
+seul celui de l'employeur du mois a un calcul (bulletins.py).
 
 Un montant calculé s'écrit dans le sens où le bulletin l'imprime : positif dans sa
 colonne. bpaye compte les retenues en négatif ; elles changent donc de signe ici, et une
@@ -169,15 +171,17 @@ def ecrit_mois(chemin: str | Path, lu: BulletinLu | None, calcul: Bulletin | Non
 def ecrit_tous_les_mois(
     chemin_lus: str | Path,
     chemin_calculs: str | Path,
-    mois: Iterable[tuple[dt.date, BulletinLu | None, Bulletin | None]],
+    bulletins: Iterable[tuple[dt.date, str, BulletinLu | None, Bulletin | None]],
 ) -> None:
-    """Écrit les deux tableaux de tous les mois, une ligne par mois (``AAAA-MM``) et une
-    colonne par code, aux mêmes places : les montants lus dans ``chemin_lus``, les
-    montants calculés dans ``chemin_calculs``. Les colonnes sont les codes lus ou calculés
-    au moins un mois, dans l'ordre des codes, puis le net à payer et le montant imposable."""
-    rangs: list[tuple[str, dict[str, float | None], dict[str, float | None]]] = []
+    """Écrit les deux tableaux de tous les mois, une ligne par bulletin (le mois ``AAAA-MM``
+    et son employeur) et une colonne par code, aux mêmes places : les montants lus dans
+    ``chemin_lus``, les montants calculés dans ``chemin_calculs``. Deux bulletins d'un même
+    mois, de deux employeurs, font deux lignes ; seul celui que le calcul compare porte un
+    calcul. Les colonnes sont les codes lus ou calculés au moins une fois, dans l'ordre des
+    codes, puis le net à payer et le montant imposable."""
+    rangs: list[tuple[str, str, dict[str, float | None], dict[str, float | None]]] = []
     libelles_lus: dict[str, str] = {}
-    for date, lu, calcul in sorted(mois, key=lambda m: m[0]):
+    for date, employeur, lu, calcul in sorted(bulletins, key=lambda b: b[0]):
         lus: dict[str, float | None] = {}
         calcules: dict[str, float | None] = {}
         if lu is not None:
@@ -190,14 +194,14 @@ def ecrit_tous_les_mois(
             calcules.update(montants_calcules(calcul))
             calcules[NET_A_PAYER] = round(calcul.net, 2)
             calcules[MONTANT_IMPOSABLE] = round(calcul.net_imposable, 2)
-        rangs.append((f"{date:%Y-%m}", lus, calcules))
+        rangs.append((f"{date:%Y-%m}", employeur, lus, calcules))
     pieds = (NET_A_PAYER, MONTANT_IMPOSABLE)
-    codes = sorted({c for _, lus, calcules in rangs for c in (*lus, *calcules)} - set(pieds))
-    entete = ["mois", *(f"{c} {_libelle(c, libelles_lus)}".strip() for c in codes), *pieds]
+    codes = sorted({c for *_, lus, calcules in rangs for c in (*lus, *calcules)} - set(pieds))
+    entete = ["mois", "employeur", *(f"{c} {_libelle(c, libelles_lus)}".strip() for c in codes), *pieds]
     for chemin, calcule in ((chemin_lus, False), (chemin_calculs, True)):
         with Path(chemin).open("w", encoding="utf-8-sig", newline="") as f:
             ecrivain = csv.writer(f, delimiter=";")
             ecrivain.writerow(entete)
-            for nom, lus, calcules in rangs:
+            for mois, employeur, lus, calcules in rangs:
                 montants = calcules if calcule else lus
-                ecrivain.writerow([nom, *(_nombre(montants.get(c)) for c in (*codes, *pieds))])
+                ecrivain.writerow([mois, employeur, *(_nombre(montants.get(c)) for c in (*codes, *pieds))])

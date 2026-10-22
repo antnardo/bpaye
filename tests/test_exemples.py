@@ -41,16 +41,22 @@ def test_verifier_lit_controle_et_compare(tmp_path, capsys, monkeypatch, faux_bu
     assert "101000 TB" in sortie  # le traitement du faux bulletin n'est pas celui de l'agente
 
 
-def test_exporter_ecrit_un_fichier_par_mois_et_les_deux_tableaux(
+def test_exporter_ecrit_un_fichier_par_bulletin_et_les_deux_tableaux(
     tmp_path, capsys, monkeypatch, faux_bulletin_pdf
 ):
-    faux_bulletin_pdf(tmp_path / "2026_01_BP_janvier.pdf")
+    faux_bulletin_pdf(tmp_path / "2026_01_BP_janvier-1.pdf")
+    faux_bulletin_pdf(
+        tmp_path / "2026_01_BP_janvier.pdf", lignes=[("201357", "IND.JURY.CONC.EXAM.", "100,00")]
+    )
     sortie = tmp_path / "csv"
     monkeypatch.setattr(sys, "argv", ["exporter.py", str(tmp_path), str(EXEMPLES / "college"), str(sortie)])
     runpy.run_path(str(EXEMPLES / "exporter.py"), run_name="__main__")
-    assert "1 mois, de 01/2026 à 01/2026" in capsys.readouterr().out
+    assert "2 bulletins, de 01/2026 à 01/2026" in capsys.readouterr().out
     assert sorted(p.name for p in sortie.iterdir()) == [
-        "2026-01.csv",
+        "2026_01_BP_janvier-1.csv",
+        "2026_01_BP_janvier.csv",
         "bulletins_calcules.csv",
         "bulletins_lus.csv",
     ]
+    rangs = (sortie / "bulletins_calcules.csv").read_text(encoding="utf-8-sig").splitlines()[1:]
+    assert [rang.split(";")[1] for rang in rangs] == ["employeur", "autre employeur"]

@@ -4,7 +4,9 @@ python examples/verifier.py DOSSIER_DES_PDF ANNEE [DOSSIER_DE_L_AGENT]
 
 DOSSIER_DES_PDF contient les bulletins de l'ENSAP, nommés AAAA_MM_BP_mois.pdf
 (2025_03_BP_mars.pdf) ; DOSSIER_DE_L_AGENT, son carriere.toml et son agent.toml
-(examples/college, par exemple). Il faut l'extra pdf :
+(examples/college, par exemple). Chaque bulletin est lu à part, de tous les employeurs ; le
+calcul ne se compare qu'à celui de l'employeur du mois (bpaye.bulletins). Il faut l'extra
+pdf :
 pip install "bpaye[pdf] @ git+https://github.com/antnardo/bpaye".
 """
 
@@ -12,36 +14,51 @@ import datetime as dt
 import sys
 from pathlib import Path
 
-from bpaye import Paye, load_agent
+from bpaye import Fonctionnaire, Paye, load_agent
+from bpaye.bulletins import trouve_bulletins
 from bpaye.codes import ALL_CODES, equivalents
 from bpaye.colles import decrit_colles
 from bpaye.format import MOIS
-from bpaye.pdf import ecart_totaux, extract_bulletin, find_pdfs
+from bpaye.pdf import BulletinLu, ecart_totaux, extract_bulletin, find_pdfs
 
 
-def lire(dossier: Path, annee: int, siret: str | None = None) -> dict[int, dict]:
-    """Les bulletins principaux de l'année, mois par mois, lus et contrôlés ; avec un SIRET,
-    ceux de ce seul gestionnaire."""
-    lus = {}
+def lire(dossier: Path, annee: int, agent: Fonctionnaire | None = None) -> dict[int, BulletinLu]:
+    """Tous les bulletins de l'année, de tous les employeurs, lus et contrôlés chacun ; avec
+    l'agent, chacun rattaché à son employeur. Rend, par mois, le bulletin de l'employeur, le
+    seul que le calcul compare."""
+    a_comparer: dict[int, BulletinLu] = {}
     print(f"== Bulletins {annee} lus dans {dossier}")
-    for mois, chemins in sorted(find_pdfs(dossier, annee, siret).items()):
-        lu = extract_bulletin(chemins[0])
-        lus[mois] = lu
+    if agent is not None:
+        trouves = [
+            (b.date.month, b.chemin, b.lu, f"{b.rattachement} : {b.nom}", b.compare)
+            for b in trouve_bulletins(dossier, agent, [annee])
+        ]
+    else:
+        trouves = [
+            (mois, Path(c), extract_bulletin(c), "", i == 0)
+            for mois, chemins in sorted(find_pdfs(dossier, annee).items())
+            for i, c in enumerate(chemins)
+        ]
+    for mois, chemin, lu, rattachement, compare in trouves:
         ecart = ecart_totaux(lu)
         controle = "lecture complète" if ecart == 0 else f"écart de {ecart} € avec TOTAUX DU MOIS"
         rappels = sorted(cle[:6] for cle in lu if cle.endswith("_R"))
-        print(f"  {MOIS[mois - 1]:9}  net à payer {lu.get('_net_payer', 0.0):9.2f} €  {controle}")
+        net = lu.net_payer or 0.0
+        print(f"  {MOIS[mois - 1]:9}  net à payer {net:9.2f} €  {controle}  ({chemin.name})")
+        if rattachement:
+            print(f"             {rattachement}")
         if rappels:
             print(f"             rappels : {', '.join(rappels)}")
-        for code, libelle, montant in lu["_unknown"]:
+        for code, libelle, montant in lu.inconnus:
             print(f"             code inconnu de bpaye : {code} {libelle} ({montant} €)")
-    return lus
+        if compare and mois not in a_comparer:
+            a_comparer[mois] = lu
+    return a_comparer
 
 
-def comparer(agent_dossier: Path, annee: int, lus: dict[int, dict]) -> None:
-    """Pour chaque mois lu, les rubriques où le calcul de bpaye et le bulletin diffèrent."""
-    agent = load_agent(agent_dossier / "agent.toml")
-    agent.load_carriere(agent_dossier / "carriere.toml")
+def comparer(agent: Fonctionnaire, annee: int, lus: dict[int, BulletinLu]) -> None:
+    """Pour chaque mois, les rubriques où le calcul de bpaye et le bulletin de l'employeur
+    diffèrent ; les bulletins d'autres employeurs ne se comparent pas."""
     paye = Paye(agent)
     paye.generate(startyear=annee, startmonth=1, n=12)  # depuis janvier : RAFP, exonérations
 
@@ -69,11 +86,14 @@ def comparer(agent_dossier: Path, annee: int, lus: dict[int, dict]) -> None:
             print(f"             {ligne}")
 
 
-def main(dossier: str, annee: str, agent: str | None = None) -> None:
-    siret = load_agent(Path(agent) / "agent.toml").siret if agent is not None else None
-    lus = lire(Path(dossier), int(annee), siret)
+def main(dossier: str, annee: str, agent_dossier: str | None = None) -> None:
+    agent = None
+    if agent_dossier is not None:
+        agent = load_agent(Path(agent_dossier) / "agent.toml")
+        agent.load_carriere(Path(agent_dossier) / "carriere.toml")
+    lus = lire(Path(dossier), int(annee), agent)
     if agent is not None:
-        comparer(Path(agent), int(annee), lus)
+        comparer(agent, int(annee), lus)
 
 
 if __name__ == "__main__":

@@ -98,14 +98,23 @@ def test_ecrit_mois_colonnes_du_bulletin_virgule_decimale(tmp_path, lu, paye):
 
 def test_ecrit_tous_les_mois_memes_colonnes_un_mois_par_ligne(tmp_path, lu, paye):
     lus, calculs = tmp_path / "lus.csv", tmp_path / "calculs.csv"
-    mois = [(dt.date(2026, 2, 1), None, paye(2026, 2)), (dt.date(2026, 1, 1), lu, paye(2026, 1))]
-    ecrit_tous_les_mois(lus, calculs, mois)
+    bulletins = [
+        (dt.date(2026, 2, 1), "employeur : Lycée", None, paye(2026, 2)),
+        (dt.date(2026, 1, 1), "employeur : Lycée", lu, paye(2026, 1)),
+        (dt.date(2026, 1, 1), "autre employeur : Jury", lu, None),
+    ]
+    ecrit_tous_les_mois(lus, calculs, bulletins)
     table_lue, table_calculee = _lignes_csv(lus), _lignes_csv(calculs)
     assert table_lue[0] == table_calculee[0]
     entete = table_lue[0]
-    assert entete[0] == "mois" and entete[-2:] == [NET_A_PAYER, MONTANT_IMPOSABLE]
-    assert [rang[0] for rang in table_lue[1:]] == ["2026-01", "2026-02"]
+    assert entete[:2] == ["mois", "employeur"] and entete[-2:] == [NET_A_PAYER, MONTANT_IMPOSABLE]
+    assert [rang[:2] for rang in table_lue[1:]] == [
+        ["2026-01", "employeur : Lycée"],
+        ["2026-01", "autre employeur : Jury"],  # deux bulletins, deux lignes
+        ["2026-02", "employeur : Lycée"],
+    ]
     hsa = next(i for i, nom in enumerate(entete) if nom.startswith("200205 "))
     assert table_lue[1][hsa] == "350,00"  # le mois et son rappel
-    assert table_lue[2][hsa] == ""  # pas de bulletin lu en février
-    assert table_calculee[2][hsa] != ""
+    assert table_lue[3][hsa] == ""  # pas de bulletin lu en février
+    assert table_calculee[2][hsa] == ""  # un autre employeur n'a pas de calcul
+    assert table_calculee[3][hsa] != ""
