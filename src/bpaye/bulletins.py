@@ -20,7 +20,6 @@ from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
-from bpaye.employeurs import Employeur
 from bpaye.fonctionnaire import Fonctionnaire
 from bpaye.pdf import BulletinLu, EmployeurLu, extract_bulletin, extract_employeur, find_pdfs
 
@@ -56,14 +55,6 @@ class BulletinTrouve:
         return self.rattachement == EMPLOYEUR
 
 
-def _declares(fonc: Fonctionnaire) -> list[Employeur]:
-    connus: list[Employeur] = []
-    for _, employeur in fonc.employeurs.values:
-        if employeur not in connus:
-            connus.append(employeur)
-    return connus
-
-
 def _nom(entete: EmployeurLu) -> str:
     return entete.libelle or entete.gestionnaire
 
@@ -75,7 +66,7 @@ def bulletins_du_mois(
     ensuite, dans l'ordre des fichiers. Deux bulletins de l'employeur du mois restent deux :
     seul le premier est comparé au calcul."""
     lus = [(Path(c), extract_bulletin(c), extract_employeur(c)) for c in chemins]
-    declares = _declares(fonc)
+    declares = fonc.employeurs_declares()
     du_mois = fonc.employeur(date)
     trouves: list[BulletinTrouve] = []
     for chemin, lu, entete in lus:

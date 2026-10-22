@@ -93,14 +93,6 @@ def indemnite_detachement(fonc: Fonctionnaire, date: dt.date) -> Ligne | None:
     return Ligne(montant, "Indemnité de fonction (Défense)", code=201150, classe="INDEM")
 
 
-def _en_cpge(fonc: Fonctionnaire, date: dt.date) -> bool:
-    return bool(fonc.cpge.au(date, False))
-
-
-def _corps(fonc: Fonctionnaire, date: dt.date) -> str:
-    return fonc.corps.au(date, fonc.grille.value(date).corps)
-
-
 def indemnite_fonctions_part_cpge(
     fonc: Fonctionnaire, date: dt.date, bareme: Bareme = BAREME
 ) -> Ligne | None:
@@ -109,7 +101,7 @@ def indemnite_fonctions_part_cpge(
     Écart au texte, choisi : le montant suit celui de la paie (taux.toml, ifp_cpge), 0,07 %
     au-dessus des 6 270 F de l'arrêté du 19/10/1999 convertis et indexés sur le point, faute
     d'un texte qui fixe la base et l'arrondi de l'indexation (docs/indexation.md)."""
-    if not _en_cpge(fonc, date):
+    if not fonc.en_cpge(date):
         return None
     montant = reduit(bareme.load("ifp_cpge")(date), fonc.fraction(date))
     return Ligne(montant, "Indemnité Fonctions particulières CPGE", code=200597, classe="INDEM")
@@ -117,7 +109,7 @@ def indemnite_fonctions_part_cpge(
 
 def indemnite_isoe(fonc: Fonctionnaire, date: dt.date, bareme: Bareme = BAREME) -> Ligne | None:
     """ISOE part fixe, aux corps enseignants du second degré (CORPS_ISOE)."""
-    if _corps(fonc, date) not in CORPS_ISOE:
+    if fonc.corps_au(date) not in CORPS_ISOE:
         return None
     if len(fonc.documentaliste) and fonc.documentaliste(date):
         return None  # leur indemnité de sujétions particulières (indemnites_corps.py)
@@ -127,7 +119,7 @@ def indemnite_isoe(fonc: Fonctionnaire, date: dt.date, bareme: Bareme = BAREME) 
 
 def indemnite_isae(fonc: Fonctionnaire, date: dt.date, bareme: Bareme = BAREME) -> Ligne | None:
     """ISAE part fixe (201914), aux professeurs des écoles."""
-    if _corps(fonc, date) not in CORPS_ISAE:
+    if fonc.corps_au(date) not in CORPS_ISAE:
         return None
     montant = reduit(bareme.load("isae")(date), fonc.fraction(date))
     return Ligne(montant, "ISAE", code=201914, classe="INDEM")
@@ -180,7 +172,7 @@ def prime_attractivite(fonc: Fonctionnaire, date: dt.date, bareme: Bareme = BARE
     classe ni en classe exceptionnelle, ni pour les corps qui en sont exclus
     (CORPS_SANS_PRIME_ATTRACTIVITE). Versée chaque mois, au douzième arrondi au centime."""
     grille = fonc.grille.value(date)
-    if grille.classe != "CN" or _corps(fonc, date) in CORPS_SANS_PRIME_ATTRACTIVITE:
+    if grille.classe != "CN" or fonc.corps_au(date) in CORPS_SANS_PRIME_ATTRACTIVITE:
         return None
     annuel = montant_par_echelon(bareme.get("prime_attractivite"), fonc.echelon(date), date)
     if annuel == 0.0:
@@ -200,7 +192,7 @@ def part_fonctionnelle(fonc: Fonctionnaire, date: dt.date, bareme: Bareme = BARE
     if not parts or date.month not in MOIS_PACTE:
         return None
     montant = round(parts * bareme.load("pacte_part").value_annuel(date) / 9, 2)
-    code = 202476 if _corps(fonc, date) in CORPS_ISAE else 202475
+    code = 202476 if fonc.corps_au(date) in CORPS_ISAE else 202475
     return Ligne(montant, "Part fonctionnelle (Pacte)", code=code, classe="INDEM")
 
 

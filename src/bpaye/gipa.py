@@ -44,7 +44,7 @@ def montant_gipa(fonc: Fonctionnaire, annee: int, bareme: Bareme = BAREME) -> fl
     garantie = tib_debut * (1 + p["inflation"]) - tib_fin
     if garantie <= 0:
         return 0.0
-    quotite = fonc.quotite.au(p["fin"], 1.0)
+    quotite = fonc.quotite_au(p["fin"])
     return round(garantie * min(quotite, 1.0), 2)
 
 

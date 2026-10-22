@@ -146,8 +146,8 @@ def reference_hsa(fonctionnaire: Agent, date: dt.date) -> tuple[Temporal[Grille]
     majoration qui s'y ajoute (décret 50-1253, art. 2 et 3) : la classe normale de son
     corps, majorée pour la hors classe et la classe exceptionnelle ; en CPGE, hors
     chaire supérieure, la classe normale des agrégés, sans majoration."""
-    corps = fonctionnaire.corps.au(date, fonctionnaire.grille.value(date).corps)
-    en_cpge = bool(fonctionnaire.cpge.au(date, False))
+    corps = fonctionnaire.corps_au(date)
+    en_cpge = fonctionnaire.en_cpge(date)
     if en_cpge and corps != "Chaire Supérieure":
         return GRILLE_DU_CORPS["Agrégé"], 0.0
     classe = fonctionnaire.grille.value(date).classe

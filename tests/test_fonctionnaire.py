@@ -222,3 +222,33 @@ def test_indice_detenu_le_jour_sans_prorata(configuration):
     _, ancien, nouveau = fonc.changement_d_indice(changement)
     assert (fonc.indice_detenu(veille), fonc.indice_detenu(changement)) == (ancien, nouveau)
     assert ancien < fonc.indice(changement) < nouveau  # le mois, au prorata
+
+
+class TestCeQueSaitLAgent:
+    @pytest.fixture
+    def fonc(self, configuration):
+        carriere, agent = configuration
+        fonc = load_agent(agent)
+        fonc.load_carriere(carriere)
+        return fonc
+
+    def test_corps_au_celui_de_la_grille_a_defaut(self, fonc):
+        jour = dt.date(2025, 1, 31)
+        assert fonc.corps_au(jour) == fonc.corps.au(jour, fonc.grille.value(jour).corps)
+
+    def test_valeurs_par_defaut_sans_declaration(self, fonc):
+        jour = dt.date(2025, 1, 31)
+        fonc.nbi.values.clear()
+        fonc.quotite.values.clear()
+        fonc.cpge.values.clear()
+        assert (fonc.points_nbi(jour), fonc.quotite_au(jour), fonc.en_cpge(jour)) == (0, 1.0, False)
+
+    def test_employeurs_declares_chacun_une_fois(self, fonc):
+        from bpaye.employeurs import Employeur
+
+        lycee = Employeur("Lycée", ("1",))
+        fonc.employeurs.values.clear()  # sans l'employeur du siret du conftest
+        fonc.employeurs.append(dt.date(2019, 9, 1), lycee)
+        fonc.employeurs.append(dt.date(2021, 9, 1), Employeur("Autre", ("2",)))
+        fonc.employeurs.append(dt.date(2023, 9, 1), lycee)
+        assert [e.nom for e in fonc.employeurs_declares()] == ["Lycée", "Autre"]

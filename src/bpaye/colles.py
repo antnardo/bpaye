@@ -299,7 +299,7 @@ def inject_colles_prevues(
     ]
     if prevues.heures_classe:
         rentree = dt.date(year, 9, 1)
-        code = code_colle(paye.fonctionnaire.ors(rentree), paye.fonctionnaire.grille.value(rentree).corps)
+        code = code_colle(paye.fonctionnaire.ors(rentree), paye.fonctionnaire.corps_au(rentree))
         reliquat = SEMAINES_BUDGET - SEMAINES_COLLES
         declarations.append(
             (

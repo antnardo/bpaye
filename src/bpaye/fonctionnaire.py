@@ -289,9 +289,33 @@ class Fonctionnaire:
             if len(temporal) and temporal.values[0][0] > jour:
                 temporal.append(jour, neutre)
 
+    def corps_au(self, date: dt.date) -> str:
+        """Le corps à ``date`` : celui déclaré, à défaut celui de sa grille."""
+        return self.corps.au(date, self.grille.value(date).corps)
+
+    def en_cpge(self, date: dt.date) -> bool:
+        """Vrai pour un service en CPGE à ``date`` (rentrées de carriere.toml)."""
+        return bool(self.cpge.au(date, False))
+
+    def points_nbi(self, date: dt.date) -> int:
+        """Les points de NBI à ``date`` ; 0 sans NBI déclarée."""
+        return self.nbi.au(date, 0)
+
+    def quotite_au(self, date: dt.date) -> float:
+        """La quotité de service à ``date`` ; 1 sans temps partiel déclaré."""
+        return self.quotite.au(date, 1.0)
+
+    def employeurs_declares(self) -> list[Employeur]:
+        """Les employeurs déclarés ([[employeur]]), chacun une fois, dans l'ordre des dates."""
+        connus: list[Employeur] = []
+        for _, employeur in self.employeurs.values:
+            if employeur not in connus:
+                connus.append(employeur)
+        return connus
+
     def fraction(self, date: dt.date) -> float:
         """La fraction de rémunération du mois : 1 à temps plein (temps_partiel.py)."""
-        return fraction_remuneration(self.quotite.au(date, 1.0))
+        return fraction_remuneration(self.quotite_au(date))
 
     def reclasse(self, date: dt.date, echelon: int, anciennete: float) -> None:
         """À partir de ``date``, l'échelon ``echelon`` avec ``anciennete`` années déjà

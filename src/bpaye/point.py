@@ -75,7 +75,7 @@ def traitement_nbi(fonctionnaire: Agent, date: dt.date, bareme: Bareme = BAREME)
     comme le traitement à temps partiel (décret 93-522, art. 3). Les points comptés comme
     des points d'indice majoré, et l'arrondi : supposés (aucun texte de l'Éducation
     nationale lu ne le précise)."""
-    points = fonctionnaire.nbi.au(date, 0)
+    points = fonctionnaire.points_nbi(date)
     if not points:
         return None
     montant = calc_traitement_brut(points, date, bareme)
@@ -85,7 +85,7 @@ def traitement_nbi(fonctionnaire: Agent, date: dt.date, bareme: Bareme = BAREME)
 def traitement_plein(fonctionnaire: Agent, date: dt.date, bareme: Bareme = BAREME) -> float:
     """Traitement et NBI d'un temps plein : l'assiette de l'indemnité de résidence et du
     SFT (décret 93-522, art. 3), avant la fraction d'un temps partiel."""
-    points = fonctionnaire.nbi.au(date, 0)
+    points = fonctionnaire.points_nbi(date)
     brut = traitement_indiciaire(fonctionnaire, date, bareme)
     return brut + (calc_traitement_brut(points, date, bareme) if points else 0.0)
 
