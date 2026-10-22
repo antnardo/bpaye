@@ -368,7 +368,15 @@ class Bulletin(ListeLignes):
             autreligne = self.get_fromcode_sommable(code)
             if autreligne is not None:
                 assert code == autreligne.code and classe == autreligne.type
-                autreligne.valeur = autreligne.valeur + ligne.valeur
+                if autreligne.exacte is not None and ligne.exacte is not None:
+                    # Rappelées ensemble, des lignes s'arrondissent depuis la somme de leurs
+                    # montants exacts : deux neuvièmes d'HSA (2 × 2 742,4055 €) font
+                    # 5 484,81 € sur le bulletin de décembre 2017, non 2 × 2 742,41 €.
+                    autreligne.exacte += ligne.exacte
+                    autreligne.valeur = round(autreligne.exacte, 2)
+                else:
+                    autreligne.exacte = None
+                    autreligne.valeur = autreligne.valeur + ligne.valeur
                 autreligne.lib = autreligne.lib[:9] + ligne.lib
             else:
                 self.lignes.append(ligne)

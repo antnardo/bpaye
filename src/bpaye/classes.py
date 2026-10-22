@@ -251,6 +251,9 @@ class Ligne:
     ) -> None:
         self.valeur = valeur
         self.valeur_reel: float | None = None  # montant réel issu du bulletin PDF
+        # Le montant avant arrondi, quand la paie arrondit une somme de lignes depuis leurs
+        # montants exacts (des HSA de deux mois rappelées ensemble : hsa.py).
+        self.exacte: float | None = None
         self.lib = lib
         self.code = code
         self.patronal = patronal
@@ -264,6 +267,7 @@ class Ligne:
             self.valeur, self.lib, self.imposable, self.code, self.patronal, self.type, self.sommable
         )
         ligne.valeur_reel = self.valeur_reel
+        ligne.exacte = self.exacte
         return ligne
 
     def __str__(self) -> str:

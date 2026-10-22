@@ -567,3 +567,15 @@ def test_rappel_d_un_echelon_pris_en_cours_de_mois_au_centime_de_la_paie(configu
     t_nouveau = calc_traitement_brut(nouveau, changement)
     attendu = round(truncate(t_nouveau * 23 / 30, 2) - truncate(t_ancien * 23 / 30, 2), 2)
     assert round(rappel.valeur, 2) == attendu
+
+
+def test_rappels_d_une_rubrique_arrondis_depuis_leurs_montants_exacts(configuration):
+    # Décembre 2017 : deux neuvièmes d'HSA rappelés ensemble, 2 × 2 742,4055 € = 5 484,81 €
+    # sur le bulletin, quand deux lignes arrondies feraient 5 484,82 €.
+    bulletin = _paye(configuration, 1, 1)(2025, 1)
+    for _ in range(2):
+        rappel = Ligne(2742.41, "RAPPEL HSA", code=200205, classe="INDEM", sommable=True)
+        rappel.exacte = 2742.4055
+        bulletin.append(rappel)
+    rappels = [ligne for ligne in bulletin if ligne.code == 200205 and ligne.sommable]
+    assert [ligne.valeur for ligne in rappels] == [5484.81]

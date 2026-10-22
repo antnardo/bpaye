@@ -175,12 +175,14 @@ def hsa(fonctionnaire: Agent, date: dt.date, bareme: Bareme = BAREME) -> Ligne:
     heures = fonctionnaire.vs(date)
     taux_hsa = taux_hsa_annuel(fonctionnaire, date, rounded=False, bareme=bareme) / 9
     if date.month in HSA_MONTHS:
-        return Ligne(
+        ligne = Ligne(
             round(taux_hsa * heures, 2),
             f"Heures Année Enseignement (HSA - {heures}h)",
             code=200205,
             classe="INDEM",
         )
+        ligne.exacte = taux_hsa * heures
+        return ligne
     return Ligne(0, f"Heures Année Enseignement (HSA - {heures}h)", code=200205, classe="INDEM")
 
 
@@ -190,7 +192,9 @@ def hsa_majo(fonctionnaire: Agent, date: dt.date, bareme: Bareme = BAREME) -> Li
         taux_hsa_annuel(fonctionnaire, date, rounded=False, bareme=bareme) / 9 * MAJORATION_PREMIERE_HSA
     )
     if heures >= 1 and (date.month >= 10 or date.month <= 6):
-        return Ligne(round(majoration, 2), "Majo 1ère HSA", code=200576, classe="INDEM")
+        ligne = Ligne(round(majoration, 2), "Majo 1ère HSA", code=200576, classe="INDEM")
+        ligne.exacte = majoration
+        return ligne
     return Ligne(0, "Majo 1ère HSA", code=200576, classe="INDEM")
 
 
