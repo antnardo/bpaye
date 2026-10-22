@@ -37,6 +37,7 @@ __all__ = [
     "POINT",
     "calc_traitement_brut",
     "traitement_brut",
+    "traitement_indiciaire",
     "traitement_nbi",
     "traitement_plein",
     "valeur_point",
@@ -45,9 +46,26 @@ __all__ = [
 POINT = config.BAREME.load("point")  # celui du barème du paquet
 
 
+def traitement_indiciaire(fonctionnaire: Agent, date: dt.date, bareme: Bareme = BAREME) -> float:
+    """Le traitement d'un temps plein pour le mois de ``date``, sans NBI. Un échelon pris en
+    cours de mois est payé par trentièmes : les jours d'avant au traitement de l'ancien
+    indice, les autres à celui du nouveau, chaque part tronquée au centime. Aucun texte lu
+    ne fixe ce prorata ni l'ordre des calculs (MANQUANT) ; cette règle retrouve le décompte
+    de rappel d'un 8e échelon d'agrégé pris le 8 mars 2018 (7 jours à l'IM 646, 23 à l'IM
+    695 : 706,33 + 2 496,86 = 3 203,19 €, retenue PC 338,26 €), quand le prorata de l'indice
+    (683,56 × point) donnait 3 203,17 €, et le calcul sans troncature 3 203,20 €."""
+    changement = fonctionnaire.changement_d_indice(date)
+    if changement is None:
+        return calc_traitement_brut(fonctionnaire.indice(date), date, bareme)
+    jours, i_prec, i = changement
+    ancien = truncate(calc_traitement_brut(i_prec, date, bareme) * jours / 30, 2)
+    nouveau = truncate(calc_traitement_brut(i, date, bareme) * (30 - jours) / 30, 2)
+    return round(ancien + nouveau, 2)
+
+
 def traitement_brut(fonctionnaire: Agent, date: dt.date, bareme: Bareme = BAREME) -> Ligne:
     """Le traitement du mois, à la fraction de rémunération d'un temps partiel."""
-    brut = calc_traitement_brut(fonctionnaire.indice(date), date, bareme)
+    brut = traitement_indiciaire(fonctionnaire, date, bareme)
     return Ligne(reduit(brut, fonctionnaire.fraction(date)), "Traitement Brut", code=101000)
 
 
@@ -68,7 +86,7 @@ def traitement_plein(fonctionnaire: Agent, date: dt.date, bareme: Bareme = BAREM
     """Traitement et NBI d'un temps plein : l'assiette de l'indemnité de résidence et du
     SFT (décret 93-522, art. 3), avant la fraction d'un temps partiel."""
     points = fonctionnaire.nbi(date) if len(fonctionnaire.nbi) else 0
-    brut = calc_traitement_brut(fonctionnaire.indice(date), date, bareme)
+    brut = traitement_indiciaire(fonctionnaire, date, bareme)
     return brut + (calc_traitement_brut(points, date, bareme) if points else 0.0)
 
 

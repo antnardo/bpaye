@@ -618,7 +618,7 @@ Ce qui ne se déduit pas devient une remarque, jamais une valeur devinée. Les b
 
 | Code | Rubrique | Règle | Texte |
 | --- | --- | --- | --- |
-| 101000 | traitement brut | indice majoré × point / 12, tronqué ; prorata au trentième d'un échelon pris en cours de mois ; fraction d'un temps partiel | décret 85-1148, art. 3 ; CGFP, L612-5 |
+| 101000 | traitement brut | indice majoré × point / 12, tronqué ; trentièmes des deux traitements, chacun tronqué, pour un échelon pris en cours de mois (relevé sur un décompte de rappel de 2018 ; texte MANQUANT) ; fraction d'un temps partiel | décret 85-1148, art. 3 ; CGFP, L612-5 |
 | 101070 | NBI | points × point / 12, à la fraction d'un temps partiel | décret 91-1229 ; décret 93-522, art. 3 |
 | 102000 | indemnité de résidence | 3 %, 1 % ou rien du traitement, avec un indice plancher daté | décret 85-1148, art. 9 |
 | 104000 | supplément familial | fixe + part du traitement selon les enfants | décret 85-1148, art. 10 bis |

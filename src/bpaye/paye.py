@@ -57,7 +57,13 @@ from bpaye.indemnites_corps import (
 )
 from bpaye.mgen import mgen_charges, mgen_part_employeur
 from bpaye.pc import pension_civile
-from bpaye.point import calc_traitement_brut, traitement_brut, traitement_nbi, traitement_plein
+from bpaye.point import (
+    calc_traitement_brut,
+    traitement_brut,
+    traitement_indiciaire,
+    traitement_nbi,
+    traitement_plein,
+)
 from bpaye.sft import sft, sft_du_mois
 from bpaye.temps_partiel import reduit, taux_surcotisation
 from bpaye.utils import decalage_mois, last_day_month, previous_month, range_mois, truncate
@@ -798,8 +804,8 @@ class Paye:
             plein_retard = calc_traitement_brut(indice_retard, jour, self.bareme)
             brut_retard = reduit(plein_retard, fraction)
             bulletin.append(Ligne(brut_retard, f"Traitement Brut (indice {indice_retard})", code=code_brut))
-            nbi = traitement_plein(self.fonctionnaire, jour, self.bareme) - calc_traitement_brut(
-                self.fonctionnaire.indice(jour), jour, self.bareme
+            nbi = traitement_plein(self.fonctionnaire, jour, self.bareme) - traitement_indiciaire(
+                self.fonctionnaire, jour, self.bareme
             )
             sft_retard = sft_du_mois(n_enfants_retard, plein_retard + nbi, fraction, jour, self.bareme)
             bulletin.append(

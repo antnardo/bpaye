@@ -4,8 +4,8 @@ Chaque donnée de carrière est datée (Temporal) : échelon et ancienneté, gri
 ORS, heures supplémentaires, enfants, résidence, détachement. Les avancements se
 calculent d'après les durées de la grille en vigueur au moment du passage
 (ancienneté, choix, grand choix avant PPCR), au jour anniversaire de l'entrée dans le
-corps ; un indice qui change en cours de mois est proratisé au trentième, comme sur
-les bulletins.
+corps ; un échelon pris en cours de mois est payé par trentièmes des deux traitements
+(point.traitement_indiciaire).
 """
 
 import datetime as dt
@@ -462,18 +462,26 @@ class Fonctionnaire:
         externes = CollesExternes(zone, debut, fin, dict(heures), etablissement)
         self.colles_externes.setdefault(year, []).append(externes)
 
-    def indice(self, date: dt.date) -> float:
-        """L'indice payé pour le mois de ``date``, quel qu'en soit le jour : un échelon pris
-        en cours de mois est payé au prorata des jours de l'ancien et du nouveau ; le
-        premier de la carrière, sans échelon d'avant, est payé en entier."""
+    def changement_d_indice(self, date: dt.date) -> tuple[int, int, int] | None:
+        """Pour un mois où un échelon est pris en cours de mois : (jours à l'ancien indice,
+        ancien indice, nouvel indice) ; None sinon, et pour le premier échelon de la
+        carrière, sans échelon d'avant."""
         d = self.echelon.date_trigger(date)
-        if d is not None and d.day > 1 and d > self.echelon.values[0][0]:
-            veille = d - dt.timedelta(days=1)
-            i = self.grille.value(d).indice(self.echelon(d))
-            # L'échelon d'avant se lit dans la grille d'avant : un changement de grade ou de
-            # corps change aussi de grille.
-            i_prec = self.grille.value(veille).indice(self.echelon(veille))
-            jours = d.day - 1
+        if d is None or d.day == 1 or d <= self.echelon.values[0][0]:
+            return None
+        veille = d - dt.timedelta(days=1)
+        # L'échelon d'avant se lit dans la grille d'avant : un changement de grade ou de corps
+        # change aussi de grille.
+        i_prec = self.grille.value(veille).indice(self.echelon(veille))
+        return min(d.day - 1, 30), i_prec, self.grille.value(d).indice(self.echelon(d))
+
+    def indice(self, date: dt.date) -> float:
+        """L'indice du mois de ``date``, quel qu'en soit le jour : au prorata des jours de
+        l'ancien et du nouveau pour un échelon pris en cours de mois. Il s'affiche ; le
+        traitement de ce mois, lui, proratise les deux traitements (point.traitement_indiciaire)."""
+        changement = self.changement_d_indice(date)
+        if changement is not None:
+            jours, i_prec, i = changement
             return truncate(jours / 30 * i_prec + (30 - jours) / 30 * i, 2)
         return self.grille.value(date).indice(self.echelon(date))
 
