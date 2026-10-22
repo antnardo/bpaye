@@ -937,6 +937,10 @@ class Paye:
         n_enfants: int | None = None,
         **kwargs: Any,
     ) -> None:
+        """Un enfant de plus payé en retard : de ``original_date`` jusqu'à la veille de
+        ``paiement_date``, les bulletins portent le SFT de ``n_enfants`` (par défaut, le
+        nombre d'enfants déclaré le mois d'avant), et ``paiement_date`` rappelle l'écart.
+        Le pendant de ``retard_indice`` pour le supplément familial."""
         self.retard_statut(original_date, paiement_date, n_enfants_retard=n_enfants, **kwargs)
 
     def erreur(

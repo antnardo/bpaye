@@ -448,6 +448,7 @@ mois quelconque). `paye(2025, 3)` est le bulletin de mars ; ses lignes (`code`,
 
 ```python
 paye.retard_indice((2025, 9), (2025, 11), indice=562)   # promotion payée en novembre
+paye.retard_sft((2025, 9), (2025, 11), n_enfants=1)     # 2e enfant payé en novembre
 paye.retard_paiement((2025, 3), 200205)                  # les HSA de mars payées en mai
 paye.colle((2025, 10), {161: 6.0})                       # colles déclarées en octobre
 paye.hse((2025, 11), 3)                                  # heures supplémentaires effectives
@@ -467,7 +468,8 @@ toutes exonérées comme les heures supplémentaires.
 
 `retard_indice` reçoit l'indice payé en attendant (562 ici, celui d'avant la
 promotion) : les bulletins de septembre et d'octobre le portent, et novembre rappelle
-l'écart.
+l'écart. `retard_sft` fait de même pour le supplément familial : les bulletins
+d'attente portent le SFT de `n_enfants` (un enfant ici, celui d'avant la naissance).
 
 Un échelon pris en cours de mois est dû par trentièmes des deux traitements. Payé en
 retard, il se rappelle comme le fait la paie : ce mois-là, seuls les jours à compter du
