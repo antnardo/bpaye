@@ -94,15 +94,28 @@ def ecrit_pdf(chemin, morceaux, hauteur=842.0, version=("PAY18E-V4.2-29", 570.0,
             c.drawString(x, hauteur - ligne, morceau)
 
 
-def _ecrit_faux_bulletin(chemin, lignes=LIGNES_FAUX_BULLETIN, totaux="3350,00", entete=None):
+def _ecrit_faux_bulletin(chemin, lignes=LIGNES_FAUX_BULLETIN, totaux="3350,00", entete=None, employeur=None):
     """Un bulletin PAY18E fictif, écrit comme les vrais : Courier-Bold 9 pt, code et libellé
     à gauche, « € » puis le montant à droite, version à la verticale, pied en bas.
+
+    ``employeur`` : (gestionnaire, poste, libellé[, SIRET]), le poste en deux lignes
+    séparées par « / » (« 08 A445/072 0314 »).
 
     ``entete`` : le mois (« AOUT 2026 »), puis les colonnes de la ligne d'identification
     (grade, enfants, échelon, indice, temps partiel) et le taux du prélèvement à la source,
     aux abscisses des vrais bulletins. En Courier-Bold 9 pt, la ligne de base est 6,6 pt
     sous le haut que donne pdfplumber à ce PDF (``top``)."""
     morceaux = []
+    if employeur:
+        # L'employeur, aux places des vrais bulletins : gestionnaire, code de gestion du
+        # poste (deux lignes), libellé, SIRET (facultatif).
+        gestionnaire, poste, libelle, *siret = employeur
+        morceaux.append(("Courier-Bold", 9, 81.0, 12.6, gestionnaire))
+        for rang, morceau in enumerate(poste.split("/")):
+            morceaux.append(("Courier-Bold", 9, 78.0, 66.6 + 11 * rang, morceau))
+        morceaux.append(("Courier-Bold", 9, 213.0, 66.6, libelle))
+        if siret:
+            morceaux.append(("Courier-Bold", 9, 495.0, 66.6, siret[0]))
     if entete:
         morceaux.append(("Courier-Bold", 9, 317.8, 28.2, entete["mois"]))
         for x, cle in [

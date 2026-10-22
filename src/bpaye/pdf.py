@@ -31,6 +31,7 @@ __all__ = [
     "DR_ROW_CODES",
     "SUPPORTED_VERSIONS",
     "BulletinLu",
+    "EmployeurLu",
     "LigneLue",
     "Span",
     "a_du_texte",
@@ -39,6 +40,7 @@ __all__ = [
     "ecarts_colonnes",
     "extract_bulletin",
     "extract_dr",
+    "extract_employeur",
     "extract_sirets",
     "find_dr_pdfs",
     "find_pdfs",
@@ -201,6 +203,44 @@ def parse_amount(s: str) -> float | None:
 def extract_sirets(pdf_path: str | Path) -> set[str]:
     """Retourne les SIRETs (14 chiffres) présents dans l'en-tête du bulletin (y < 120)."""
     return {t for _, y, t in _pages(pdf_path)[0] if y < 120 and _SIRET_RE.match(t)}
+
+
+@dataclass(frozen=True, slots=True)
+class EmployeurLu:
+    """L'employeur imprimé en en-tête d'un bulletin : le service gestionnaire (« DRFIP DE LA
+    GIRONDE »), le code de gestion du poste (« 08 A445 072 0314 »), le libellé de
+    l'affectation et les SIRET. Le code de gestion reste le même sur tous les bulletins
+    d'un employeur, même un rappel versé après le départ, que la paie imprime parfois sans
+    SIRET."""
+
+    gestionnaire: str = ""
+    poste: str = ""
+    libelle: str = ""
+    sirets: frozenset[str] = frozenset()
+
+
+# Les blocs de l'en-tête, par l'abscisse du bord gauche de leurs morceaux et leur ordonnée :
+# le gestionnaire (x ≈ 81, y ≈ 6 à 29), le code de gestion du poste (x ≈ 78, y ≈ 60 et 71),
+# le libellé (x ≈ 213, y ≈ 60 et 73). Relevés identiques de V1.4 (2017) à V4.2 (2026).
+_GESTIONNAIRE = (75.0, 90.0, 0.0, 36.0)
+_POSTE = (72.0, 90.0, 52.0, 80.0)
+_LIBELLE = (205.0, 300.0, 52.0, 82.0)
+
+
+def _bloc(spans: Sequence[Span], cadre: tuple[float, float, float, float]) -> str:
+    x0, x1, y0, y1 = cadre
+    return " ".join(" ".join(t.split()) for x, y, t in spans if x0 <= x < x1 and y0 <= y < y1)
+
+
+def extract_employeur(pdf_path: str | Path) -> EmployeurLu:
+    """L'employeur imprimé en en-tête du bulletin (première page)."""
+    spans = _pages(pdf_path)[0]
+    return EmployeurLu(
+        gestionnaire=_bloc(spans, _GESTIONNAIRE),
+        poste=_bloc(spans, _POSTE),
+        libelle=_bloc(spans, _LIBELLE),
+        sirets=frozenset(t for _, y, t in spans if y < 120 and _SIRET_RE.match(t)),
+    )
 
 
 def a_du_texte(pdf_path: str | Path) -> bool:

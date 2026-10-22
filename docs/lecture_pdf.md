@@ -290,9 +290,13 @@ la lecture n'est plus modifiable. Pour sérialiser : `dict(lu)`.
 - Un PDF sans texte, un scan de bulletin papier, est écarté (`a_du_texte`) : ce n'est
   qu'une image, dont ni les lignes ni le SIRET ne se lisent. Les scans peuvent ainsi
   rester dans un sous-dossier, à côté des bulletins de l'ENSAP.
-- Avec un SIRET (`siret` d'`agent.toml`), un fichier n'est gardé que si ce SIRET figure
-  dans son en-tête (morceaux de 14 chiffres à y < 120) : cela écarte les bulletins d'un
-  autre employeur (des vacations payées par un autre établissement, par exemple).
+- Avec un SIRET, un fichier n'est gardé que si ce SIRET figure dans son en-tête (morceaux
+  de 14 chiffres à y < 120). La vérification et l'export ne s'en servent plus : ils lisent
+  tous les bulletins et les rattachent chacun à son employeur (`bpaye.bulletins`).
+- `extract_employeur` lit l'employeur en en-tête : le service gestionnaire (x ≈ 81,
+  y ≈ 6 à 29), le code de gestion du poste (x ≈ 78, y ≈ 60 et 71), le libellé de
+  l'affectation (x ≈ 213, y ≈ 60 et 73) et les SIRET. Positions relevées identiques de
+  V1.4 (2017) à V4.2 (2026).
 - Rend `{mois: [chemins]}`, triés par nom.
 
 ---
