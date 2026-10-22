@@ -197,3 +197,18 @@ def test_find_pdfs_ecarte_un_scan_sans_texte(tmp_path, faux_bulletin_pdf):
     assert {mois: [p.name for p in chemins] for mois, chemins in find_pdfs(tmp_path, 2026).items()} == {
         1: ["2026_01_BP_janvier.pdf"]
     }
+
+
+def test_montant_simule_du_pas_hors_du_total_pour_information():
+    # Décembre 2018 : le montant simulé du prélèvement, imprimé pour information, n'entre
+    # pas dans le total pour information, que les seules cotisations patronales retrouvent.
+    lu = pdf.BulletinLu(
+        lignes=(
+            pdf.LigneLue("403301", "COTIS PATRON. ALLOC FAMIL", "information", 170.98, False),
+            pdf.LigneLue(
+                "558001", "MONTANT SIMULE DU PRELEVEMENT A LA SOURCE", "information", 1136.22, False
+            ),
+        ),
+        total_pat=170.98,
+    )
+    assert ecarts_colonnes(lu)["information"] == 0.0

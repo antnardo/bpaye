@@ -29,6 +29,7 @@ __all__ = [
     "COLONNES",
     "DR_MONTH_FR",
     "DR_ROW_CODES",
+    "HORS_TOTAUX",
     "SUPPORTED_VERSIONS",
     "BulletinLu",
     "EmployeurLu",
@@ -434,12 +435,20 @@ def extract_bulletin(pdf_path: str | Path) -> BulletinLu:
 _TOTAL_DE = {"payer": "TOTAUX DU MOIS à payer", "deduire": "à déduire", "information": "pour information"}
 
 
+# Les lignes imprimées qui ne comptent dans aucun total du pied : les nets (011…) et le
+# montant simulé du prélèvement à la source de fin 2018 (558001), imprimé pour information
+# mais hors du total pour information (bulletins de décembre 2018 : les cotisations
+# patronales seules retrouvent ce total).
+HORS_TOTAUX = ("011", "558001")
+
+
 def _somme(lu: BulletinLu, nom: str) -> float:
-    """Les montants imprimés dans la colonne ``nom``, hors lignes de net (011…), qui ne
-    comptent dans aucun total ; les codes inconnus n'y sont pas, pour que leur absence se
-    voie."""
+    """Les montants imprimés dans la colonne ``nom``, hors lignes qui ne comptent dans aucun
+    total (HORS_TOTAUX) ; les codes inconnus n'y sont pas, pour que leur absence se voie."""
     return sum(
-        ligne.montant for ligne in lu.lignes if ligne.colonne == nom and not ligne.code.startswith("011")
+        ligne.montant
+        for ligne in lu.lignes
+        if ligne.colonne == nom and not ligne.code.startswith(HORS_TOTAUX)
     )
 
 

@@ -644,6 +644,13 @@ note      = "L'annexe 15 (IR 0900 « Retenue à la source », ligne 23) donne le
 source    = "DGFiP, fichier BJ janvier 2026 (copie AMUE), ligne 3022"
 
 [[code]]
+code      = "558001"
+libelle   = "MONTANT SIMULE DU PRELEVEMENT A LA SOURCE"
+categorie = "special"
+note      = "Le prélèvement que la paie aurait fait, imprimé pour information sur les bulletins de fin 2018, avant le prélèvement à la source : hors de tout total, le total pour information compris (relevé sur des bulletins de décembre 2018)."
+source    = "DGFiP, fichier BJ janvier 2026 (copie AMUE), ligne 3023"
+
+[[code]]
 code      = "604000"
 libelle   = "REGUL COTIS AC AA"
 categorie = "retenue"

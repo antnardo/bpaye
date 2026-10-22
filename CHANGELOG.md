@@ -67,6 +67,8 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et la
 
 ### Corrigé
 
+- Code 558001 (montant simulé du prélèvement à la source, bulletins de fin 2018 ; BJ
+  janvier 2026), hors de tout total du pied : `pdf.HORS_TOTAUX`.
 - `find_pdfs` et `find_dr_pdfs` écartent un PDF sans texte (un scan) : il était pris pour
   un bulletin vectoriel, et lu vide.
 - **Contribution de solidarité** (jusqu'en 2017) selon le code du travail, L5423-27 et
