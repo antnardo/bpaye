@@ -164,14 +164,16 @@ def taux_hsa_annuel(
     return round(taux, 2) if rounded else taux
 
 
-# Les HSA et leur majoration s'arrondissent au centime le plus proche : relevé sur des
-# bulletins de 2019 à 2026 (aucun texte lu ne le dit), où la troncature manque une ligne
-# sur trois.
+# Les HSA et leur majoration s'arrondissent au centime le plus proche, depuis le taux annuel
+# exact : relevé sur des bulletins de 2017 à 2026 (aucun texte lu ne le dit), où la
+# troncature manque une ligne sur trois, et le taux annuel arrondi d'abord, sept HSA de 2018
+# (2 132,99 € au lieu de 2 132,98 €) ; les rappels de la paie en suivent la même règle
+# (une HSA sur trois mois : 914,14 €).
 
 
 def hsa(fonctionnaire: Agent, date: dt.date, bareme: Bareme = BAREME) -> Ligne:
     heures = fonctionnaire.vs(date)
-    taux_hsa = taux_hsa_annuel(fonctionnaire, date, bareme=bareme) / 9
+    taux_hsa = taux_hsa_annuel(fonctionnaire, date, rounded=False, bareme=bareme) / 9
     if date.month in HSA_MONTHS:
         return Ligne(
             round(taux_hsa * heures, 2),
@@ -184,7 +186,9 @@ def hsa(fonctionnaire: Agent, date: dt.date, bareme: Bareme = BAREME) -> Ligne:
 
 def hsa_majo(fonctionnaire: Agent, date: dt.date, bareme: Bareme = BAREME) -> Ligne:
     heures = fonctionnaire.vs(date)
-    majoration = taux_hsa_annuel(fonctionnaire, date, bareme=bareme) / 9 * MAJORATION_PREMIERE_HSA
+    majoration = (
+        taux_hsa_annuel(fonctionnaire, date, rounded=False, bareme=bareme) / 9 * MAJORATION_PREMIERE_HSA
+    )
     if heures >= 1 and (date.month >= 10 or date.month <= 6):
         return Ligne(round(majoration, 2), "Majo 1ère HSA", code=200576, classe="INDEM")
     return Ligne(0, "Majo 1ère HSA", code=200576, classe="INDEM")

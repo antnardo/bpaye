@@ -60,3 +60,21 @@ def test_hsa_et_majoration_au_centime(configuration, mois):
     jour = dt.date(2025 if mois >= 9 else 2026, mois, 28)
     for ligne in (hsa(fonc, jour), hsa_majo(fonc, jour)):
         assert ligne.valeur == round(ligne.valeur, 2) != 0
+
+
+def test_hsa_arrondies_depuis_le_taux_annuel_exact(monkeypatch):
+    # Sept HSA en 2018 : 7/9 du taux exact (2 742,4055 €) = 2 132,98 € sur le bulletin ;
+    # le taux arrondi d'abord (2 742,41 €) aurait donné 2 132,99 €.
+    import bpaye.hsa
+
+    monkeypatch.setattr(
+        bpaye.hsa,
+        "taux_hsa_annuel",
+        lambda f, d, rounded=True, bareme=None: 2742.4055 if not rounded else 2742.41,
+    )
+
+    class Agent:
+        def vs(self, date):
+            return 7
+
+    assert bpaye.hsa.hsa(Agent(), dt.date(2018, 12, 31)).valeur == 2132.98
