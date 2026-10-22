@@ -15,8 +15,8 @@ https://www.legifrance.gouv.fr/loda/id/JORFTEXT000036342240/2026-10-17/
 bpaye ne refait pas ce calcul, qui demande la rémunération de 2017 ou du premier mois, tout
 ce qui est soumis à la CSG compris (heures, colles, jurys, autre employeur), que la carrière
 ne déclare pas toujours et dont les bulletins de 2017 n'existent souvent que sur papier :
-agent.toml donne le montant ([ic_csg], relevé sur les bulletins ; docs/DOC.md, section 4). Sans lui, aucune valeur
-ne vaut pour tous les agents : bpaye refuse les mois depuis 2018.
+agent.toml donne le montant ([ic_csg], relevé sur les bulletins ; docs/DOC.md, section 4).
+Sans lui, aucune valeur ne vaut pour tous les agents : bpaye refuse les mois depuis 2018.
 """
 
 import datetime as dt
