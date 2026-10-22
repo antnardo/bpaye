@@ -404,8 +404,12 @@ values = [
 # PSC (Participation employeur à la mutuelle)
 # ──────────────────────────────────────────────
 # Décret 2021-1164, art. 4 : 15 € par mois depuis le 1/1/2022. https://www.legifrance.gouv.fr/loda/id/JORFTEXT000044030655/2026-10-17/
-# Fin pour l'Éducation nationale : avril 2026 sur les bulletins (contrat MGEN obligatoire en
-# mai) ; texte de cette date non relu.
+# Fin pour l'Éducation nationale au 1/5/2026, avec la PSC santé obligatoire : « la fin du
+# versement de l'indemnité mensuelle transitoire de 15 € mise en place en 2022, désormais
+# remplacée par la prise en charge employeur liée à la PSC » (ministère de l'Éducation
+# nationale, page de la PSC, lue le 21/10/2026 :
+# https://www.education.gouv.fr/la-protection-sociale-complementaire-pour-les-personnels-de-l-education-nationale-de-l-enseignement-325214).
+# Les bulletins le confirment : dernière ligne 202354 en avril 2026.
 [psc]
 type  = "Fixe"
 unite = "mensuel"
