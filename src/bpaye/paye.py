@@ -269,8 +269,8 @@ class Bulletin(ListeLignes):
         au taux de l'art. D5 (temps_partiel.py). Les rappels de traitement (999999, en
         classe INDEM) ont leur propre régulation de pension."""
         date, fonc, b = self.date, self.fonctionnaire, self.bareme
-        option = fonc.surcotisation(date) if len(fonc.surcotisation) else False
-        quotite = fonc.quotite(date) if len(fonc.quotite) else 1.0
+        option = fonc.surcotisation.au(date, False)
+        quotite = fonc.quotite.au(date, 1.0)
         if not option or quotite >= 1.0:
             return pension_civile(self.brut, date, b)
         taux = taux_surcotisation(quotite, date, option, b)
@@ -461,7 +461,7 @@ class Bulletin(ListeLignes):
         if self.comm != "":
             s += f" ({self.comm})"
         fonc = self.fonctionnaire
-        corps = fonc.corps(self.date) if len(fonc.corps) else fonc.grille(self.date).corps
+        corps = fonc.corps.au(self.date, fonc.grille(self.date).corps)
         s += f" -- {corps} {fonc.grille(self.date).classe} ({fonc.indice(self.date)}) "
         s += f"    ORS: {self.fonctionnaire.ors(self.date)}, HSA:{self.fonctionnaire.vs(self.date)}\n"
         s += self.check_changes()

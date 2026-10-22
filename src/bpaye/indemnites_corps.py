@@ -21,7 +21,6 @@ points majorés), dont aucune rubrique de la DGFiP n'a été trouvée.
 """
 
 import datetime as dt
-from typing import Any
 
 from bpaye.classes import Ligne
 from bpaye.config import BAREME, Bareme
@@ -42,11 +41,6 @@ DATE_CODE_DIRECTEUR = dt.date(2018, 9, 1)
 DATE_RECODAGE_DIRECTEUR = dt.date(2024, 9, 1)
 
 
-def _valeur(fonc: Fonctionnaire, attribut: str, date: dt.date) -> Any:
-    temporal = getattr(fonc, attribut)
-    return temporal(date) if len(temporal) else None
-
-
 def _mensuel(section: str, date: dt.date, bareme: Bareme) -> float:
     for periode in bareme.get(section).get("manquant", []):
         if periode["debut"] <= date <= periode["fin"]:
@@ -59,16 +53,16 @@ def _mensuel(section: str, date: dt.date, bareme: Bareme) -> float:
 
 
 def indemnite_cpe(fonc: Fonctionnaire, date: dt.date, bareme: Bareme = BAREME) -> Ligne | None:
-    if _valeur(fonc, "corps", date) != "CPE":
+    if fonc.corps.au(date, None) != "CPE":
         return None
     montant = reduit(_mensuel("ind_cpe", date, bareme), fonc.fraction(date))
     return Ligne(montant, "Indemnité forfaitaire CPE", code=200414, classe="INDEM")
 
 
 def indemnite_psyen(fonc: Fonctionnaire, date: dt.date, bareme: Bareme = BAREME) -> Ligne | None:
-    if _valeur(fonc, "corps", date) != "PsyEN":
+    if fonc.corps.au(date, None) != "PsyEN":
         return None
-    specialite = _valeur(fonc, "specialite", date)
+    specialite = fonc.specialite.au(date, None)
     if specialite not in ("EDA", "EDO"):
         raise ValueError(f"PsyEN : spécialité « EDA » ou « EDO » attendue, pas {specialite!r}")
     montant = reduit(_mensuel(f"ind_psyen.{specialite.lower()}", date, bareme), fonc.fraction(date))
@@ -76,7 +70,7 @@ def indemnite_psyen(fonc: Fonctionnaire, date: dt.date, bareme: Bareme = BAREME)
 
 
 def indemnite_documentaliste(fonc: Fonctionnaire, date: dt.date, bareme: Bareme = BAREME) -> Ligne | None:
-    if not _valeur(fonc, "documentaliste", date):
+    if not fonc.documentaliste.au(date, None):
         return None
     montant = reduit(_mensuel("ind_documentaliste", date, bareme), fonc.fraction(date))
     return Ligne(montant, "Indemnité de sujétions particulières", code=200413, classe="INDEM")
@@ -100,14 +94,14 @@ def montant_directeur(classes: int, reseau: str | None, date: dt.date, bareme: B
 
 
 def indemnite_directeur(fonc: Fonctionnaire, date: dt.date, bareme: Bareme = BAREME) -> Ligne | None:
-    classes = _valeur(fonc, "direction_ecole", date)
+    classes = fonc.direction_ecole.au(date, None)
     if not classes:
         return None
     if date < DATE_CODE_DIRECTEUR:
         raise ValueError(
             f"ISS de directeur : rubrique du bulletin avant le {DATE_CODE_DIRECTEUR} non identifiée"
         )
-    reseau = _valeur(fonc, "education_prioritaire", date)
+    reseau = fonc.education_prioritaire.au(date, None)
     annuel = montant_directeur(int(classes), reseau, date, bareme)
     montant = reduit(round(annuel / 12, 2), fonc.fraction(date))
     code = 202568 if date >= DATE_RECODAGE_DIRECTEUR else 202217

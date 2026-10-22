@@ -249,23 +249,16 @@ class Fonctionnaire:
     def retards(self, date: dt.date) -> dict[CleRetard, Retard]:
         """Les retards habituels de son académie à ``date`` (le défaut avant la première
         déclarée), et les siens, qui remplacent tous ceux de leurs rubriques."""
-        if not len(self.academie) or date < self.academie.values[0][0]:
-            nom = ACADEMIE_PAR_DEFAUT
-        else:
-            nom = self.academie(date)
+        nom = self.academie.declare_au(date, ACADEMIE_PAR_DEFAUT)
         return remplace(retards_academie(nom), self.retards_declares)
 
     def employeur(self, date: dt.date) -> Employeur | None:
         """L'employeur déclaré à ``date`` ; aucun avant le premier, ni sans déclaration."""
-        if not len(self.employeurs) or date < self.employeurs.values[0][0]:
-            return None
-        return self.employeurs(date)
+        return self.employeurs.declare_au(date, None)
 
     def psc_declaree(self, date: dt.date) -> dict[str, float]:
         """Les montants de [[psc]] en vigueur à ``date`` ; aucun avant la première entrée."""
-        if not len(self.psc) or date < self.psc.values[0][0]:
-            return {}
-        return self.psc(date)
+        return self.psc.declare_au(date, {})
 
     def neutre_avant_rentrees(self) -> None:
         """Avant la première rentrée déclarée, le service ordinaire du corps : pas de CPGE, ni
@@ -298,7 +291,7 @@ class Fonctionnaire:
 
     def fraction(self, date: dt.date) -> float:
         """La fraction de rémunération du mois : 1 à temps plein (temps_partiel.py)."""
-        return fraction_remuneration(self.quotite(date)) if len(self.quotite) else 1.0
+        return fraction_remuneration(self.quotite.au(date, 1.0))
 
     def reclasse(self, date: dt.date, echelon: int, anciennete: float) -> None:
         """À partir de ``date``, l'échelon ``echelon`` avec ``anciennete`` années déjà

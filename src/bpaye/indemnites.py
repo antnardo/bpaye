@@ -83,7 +83,7 @@ def indemnite_detachement(fonc: Fonctionnaire, date: dt.date) -> Ligne | None:
     militaires). bpaye prend donc le montant annuel déclaré (``indemnite_fonction``)."""
     if not fonc.is_detache(date):
         return None
-    annuel = fonc.indemnite_detachement(date) if len(fonc.indemnite_detachement) else None
+    annuel = fonc.indemnite_detachement.au(date, None)
     if annuel is None:
         raise ValueError(
             f"détachement à la Défense le {date} : déclarer indemnite_fonction, le montant annuel "
@@ -94,11 +94,11 @@ def indemnite_detachement(fonc: Fonctionnaire, date: dt.date) -> Ligne | None:
 
 
 def _en_cpge(fonc: Fonctionnaire, date: dt.date) -> bool:
-    return bool(fonc.cpge(date)) if len(fonc.cpge) else False
+    return bool(fonc.cpge.au(date, False))
 
 
 def _corps(fonc: Fonctionnaire, date: dt.date) -> str:
-    return fonc.corps(date) if len(fonc.corps) else fonc.grille.value(date).corps
+    return fonc.corps.au(date, fonc.grille.value(date).corps)
 
 
 def indemnite_fonctions_part_cpge(
@@ -138,7 +138,7 @@ def indemnite_education_prioritaire(
 ) -> Ligne | None:
     """Indemnité de sujétion REP (201883) ou part fixe REP+ (201882), au douzième
     (décret 2015-1087, art. 1-2 : part fixe versée mensuellement)."""
-    reseau = fonc.education_prioritaire(date) if len(fonc.education_prioritaire) else None
+    reseau = fonc.education_prioritaire.au(date, None)
     if reseau is None:
         return None
     fraction = fonc.fraction(date)
@@ -155,7 +155,7 @@ def isoe_part_modulable(fonc: Fonctionnaire, date: dt.date, bareme: Bareme = BAR
     """ISOE part modulable du professeur principal, au douzième, selon le niveau de sa
     classe (taux.toml [isoe_modulable], indexée sur le point) ; depuis 2009, depuis 2021 pour
     le professeur référent."""
-    niveau = fonc.professeur_principal(date) if len(fonc.professeur_principal) else None
+    niveau = fonc.professeur_principal.au(date, None)
     if niveau is None:
         return None
     if niveau not in bareme.get("isoe_modulable"):
@@ -196,7 +196,7 @@ def part_fonctionnelle(fonc: Fonctionnaire, date: dt.date, bareme: Bareme = BARE
     art. 3-1). Non soumise à retenue pour pension (décret 93-55, art. 1) ; réduction de
     cotisations et exonération d'impôt comme les heures supplémentaires (décret 2019-133,
     art. 1, 29°)."""
-    parts = fonc.pacte(date) if len(fonc.pacte) else 0.0
+    parts = fonc.pacte.au(date, 0.0)
     if not parts or date.month not in MOIS_PACTE:
         return None
     montant = round(parts * bareme.load("pacte_part").value_annuel(date) / 9, 2)

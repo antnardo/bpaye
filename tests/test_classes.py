@@ -39,3 +39,19 @@ def test_valeur_repetee_se_retrouve_a_sa_derniere_date():
     assert echelon.value_toindice(2) == 2
     echelon.update_date_fromvalue(2, dt.date(2016, 9, 1))
     assert echelon.values[-1] == (dt.date(2016, 9, 1), 2)
+
+
+class TestTemporalAuDeclareAu:
+    def test_au_le_defaut_si_rien_n_est_declare(self):
+        assert Temporal().au(dt.date(2025, 1, 1), 1.0) == 1.0
+
+    def test_au_la_premiere_valeur_avant_sa_date(self):
+        quotite = Temporal()
+        quotite.append(dt.date(2025, 9, 1), 0.8)
+        assert quotite.au(dt.date(2025, 1, 1), 1.0) == 0.8
+
+    def test_declare_au_le_defaut_avant_la_premiere_date(self):
+        academie = Temporal()
+        academie.append(dt.date(2019, 9, 1), "paris")
+        assert academie.declare_au(dt.date(2019, 8, 31), "defaut") == "defaut"
+        assert academie.declare_au(dt.date(2019, 9, 1), "defaut") == "paris"

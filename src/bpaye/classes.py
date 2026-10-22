@@ -30,6 +30,7 @@ __all__ = [
 
 # La valeur gardée par un Temporal : un taux, un échelon, une grille, un nom de corps…
 T = TypeVar("T")
+D = TypeVar("D")  # le défaut d'une valeur non déclarée (Temporal.au)
 
 
 class Temporal(Generic[T]):
@@ -63,6 +64,15 @@ class Temporal(Generic[T]):
 
     def __call__(self, date: dt.date | None = None) -> T:
         return self.value(date)
+
+    def au(self, date: dt.date, defaut: D) -> T | D:
+        """La valeur à ``date`` ; ``defaut`` si rien n'est déclaré."""
+        return self.value(date) if self.values else defaut
+
+    def declare_au(self, date: dt.date, defaut: D) -> T | D:
+        """La valeur à ``date`` ; ``defaut`` si rien n'est déclaré, ou avant la première date
+        déclarée (une donnée de l'agent qui n'a pas d'effet avant d'être déclarée)."""
+        return self.value(date) if self.values and date >= self.values[0][0] else defaut
 
     def date_toindice(self, date: dt.date | None) -> int:
         if date is None:
