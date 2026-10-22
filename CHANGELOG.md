@@ -7,6 +7,10 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et la
 
 ### Ajouté
 
+- **Bulletins PAY18E V1.4, V1.6 et V2.1** (2017 à 2019) lus, totaux et pied vérifiés ;
+  codes 200125 (vacations) et 604972 (transfert primes/points de catégorie C) ; lignes
+  équivalentes à la comparaison : 202206/202209 (indemnité compensatrice de CSG) et
+  604970/604972.
 - **Anonymiser un bulletin** (`scripts/anonymise_bulletin.py`, autonome, sans bpaye ;
   `docs/anonymisation.md`) : une copie filtrée par la rédaction de reportlab_layout, qui
   garde tout, lignes inconnues comprises, sauf le NIR, le nom et l'adresse, l'affectation,
@@ -49,6 +53,16 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et la
 
 ### Corrigé
 
+- **Contribution de solidarité** (jusqu'en 2017) selon le code du travail, L5423-27 et
+  L5423-32 : assiette hors remboursements de frais, plafonnée à 4 PMSS, exonération sous le
+  traitement de l'IM 285 ; le taux de 1 % est sourcé.
+- **Indemnité de fonction d'un détachement à la Défense** (201150) : montant individuel de
+  la décision du ministre (décret 2003-745), déclaré dans `[[detachements]]`
+  (`indemnite_fonction`), au lieu d'un montant relevé appliqué à tous.
+- **Ancienneté en chaire supérieure** : conservée quand le décret 68-503, art. 5, le prévoit
+  (gain d'indice inférieur à une promotion d'échelon, agrégé au 11e échelon).
+- **IFP** : l'écart de 0,07 % entre la paie, que bpaye suit, et les 6 270 F de l'arrêté de
+  1999 est désormais noté dans le code et le guide.
 - **Heures de surveillance** : `paye.surveillance` (code 200216) paie un trente-sixième du
   taux annuel réduit de 50 %, comme le dit le décret 50-1253, art. 5 ; `paye.ds`, qui
   payait 0,375 du trente-sixième sous le code des HSE sans source, disparaît.
