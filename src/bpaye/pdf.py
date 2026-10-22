@@ -1,4 +1,4 @@
-"""Extraction des données depuis les bulletins de paye PDF (format PAY18E, V2.3, V4.0 et
+"""Extraction des données depuis les bulletins de paye PDF (format PAY18E, de V1.4 à
 V4.2).
 
 Format : chaque ligne de paye occupe 3 lignes de texte extrait :
@@ -180,8 +180,8 @@ def _pages(pdf_path: str | Path) -> list[list[Span]]:
     return pages
 
 
-# Versions de PAY18E dont la structure est connue et prise en charge.
-SUPPORTED_VERSIONS: set[str] = {"V2.3", "V4.0", "V4.2"}
+# Versions de PAY18E dont la lecture est vérifiée sur des bulletins réels (V2.0 : jamais vue).
+SUPPORTED_VERSIONS: set[str] = {"V1.4", "V1.6", "V2.1", "V2.3", "V4.0", "V4.2"}
 
 _SIRET_RE = re.compile(r"^\d{14}$")
 _CODE_RE = re.compile(r"^\d{6}\s+.+")

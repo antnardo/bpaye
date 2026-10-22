@@ -99,6 +99,15 @@ imposable = false
 source    = "DGFiP, annexe 14 A 2026 (copie AMUE), ligne 39, BD06 = X ; annexe 14 a janvier 2023, p. 3, https://www.amue.fr/fileadmin/amue/ressources-humaines/veille-reglementaire/2023/JANV/9.pdf ; INGRES ligne 46 (IMPOSA 0) ; BJ janvier 2026 ligne 153"
 
 [[code]]
+code      = "200125"
+ir        = "0125"
+libelle   = "Vacations (non indexées sur le point)"
+categorie = "revenu"
+imposable = true
+note      = "Vacations à l'acte (concours, examens) sur un bulletin de vacataire ; lues, non calculées."
+source    = "DGFiP, annexe 14 B 2026 (copie AMUE), ligne 16 ; INGRES ligne 133 (IMPOSA 1, « vacations diverses non indexées sur la valeur du point ») ; BJ janvier 2026 ligne 224"
+
+[[code]]
 code      = "200141"
 ir        = "0141"
 libelle   = "Majoration traitement MGG 40 %"
@@ -596,6 +605,14 @@ libelle   = "Abattement indemnitaire catégorie A"
 categorie = "retenue"
 note      = "Transfert primes/points (TPP). Annexe 15 : élément « 60 4970 », fiscalité D. BJ : « TRANSFERT PRIMES / POINTS » ; INGRES ligne 880 : « Transfert prime point catégorie A »."
 source    = "DGFiP, annexe 15 2026 (copie AMUE), ligne 80 ; annexe 15 janvier 2023, p. 3 ; BJ janvier 2026 ligne 3069"
+
+[[code]]
+code      = "604972"
+ir        = "4972"
+libelle   = "Abattement indemnitaire catégorie C (transfert primes/points)"
+categorie = "retenue"
+note      = "Montant de la catégorie C ; porté par des bulletins d'agrégé de 2019 (catégorie A, dû sous 604970) : bpaye les compare comme une même ligne (codes.CODES_EQUIVALENTS), l'écart de montant restant visible."
+source    = "DGFiP, BJ janvier 2026 ligne 3071 (« TRANSFERT PRIMES / POINTS », loi 2015-1785, art. 148, catégorie C)"
 
 [[code]]
 code      = "604958"

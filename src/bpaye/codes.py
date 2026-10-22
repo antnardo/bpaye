@@ -43,9 +43,19 @@ with CODES_TOML.open("rb") as _f:
 
 
 # Codes d'une même ligne, que la paie emploie l'un pour l'autre : la comparaison au calcul
-# les additionne. L'ISOE modulable, recodée 202566 au 1/9/2024 d'après INGRES, est encore
-# portée sous 201228 par un bulletin d'agrégé d'août 2026.
-CODES_EQUIVALENTS: tuple[frozenset[str], ...] = (frozenset({"201228", "202566"}),)
+# les additionne, l'écart de montant restant visible.
+# - ISOE modulable, recodée 202566 au 1/9/2024 d'après INGRES, encore portée sous 201228 par
+#   un bulletin d'agrégé d'août 2026 ;
+# - indemnité compensatrice de CSG : 202206 pour un agent en activité au 31/12/2017, 202209
+#   pour un agent recruté ou réintégré depuis (annexe 14 B ; décret 2017-1889) ; bpaye émet
+#   202209, le montant venant d'agent.toml ;
+# - transfert primes/points : 604970 en catégorie A, 604972 en catégorie C, que la paie a
+#   appliqué à un agrégé en 2019 (BJ janvier 2026).
+CODES_EQUIVALENTS: tuple[frozenset[str], ...] = (
+    frozenset({"201228", "202566"}),
+    frozenset({"202206", "202209"}),
+    frozenset({"604970", "604972"}),
+)
 
 
 def equivalents(code: str) -> frozenset[str]:
