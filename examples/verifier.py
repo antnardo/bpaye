@@ -14,7 +14,7 @@ import datetime as dt
 import sys
 from pathlib import Path
 
-from bpaye import Fonctionnaire, Paye, load_agent
+from bpaye import Fonctionnaire, Paye, charge_dossier
 from bpaye.bulletins import trouve_bulletins
 from bpaye.codes import ALL_CODES, equivalents
 from bpaye.colles import decrit_colles
@@ -89,8 +89,7 @@ def comparer(agent: Fonctionnaire, annee: int, lus: dict[int, BulletinLu]) -> No
 def main(dossier: str, annee: str, agent_dossier: str | None = None) -> None:
     agent = None
     if agent_dossier is not None:
-        agent = load_agent(Path(agent_dossier) / "agent.toml")
-        agent.load_carriere(Path(agent_dossier) / "carriere.toml")
+        agent = charge_dossier(agent_dossier)
     lus = lire(Path(dossier), int(annee), agent)
     if agent is not None:
         comparer(agent, int(annee), lus)

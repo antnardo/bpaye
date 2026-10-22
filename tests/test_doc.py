@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from bpaye import Paye, load_agent
+from bpaye import Paye, charge_dossier
 from bpaye.prevision import nets_prevus
 
 EXEMPLE = Path(__file__).resolve().parents[1] / "examples" / "college"
@@ -13,8 +13,7 @@ EXEMPLE = Path(__file__).resolve().parents[1] / "examples" / "college"
 
 @pytest.fixture
 def paye():
-    agente = load_agent(EXEMPLE / "agent.toml")
-    agente.load_carriere(EXEMPLE / "carriere.toml")
+    agente = charge_dossier(EXEMPLE)
     paye = Paye(agente)
     paye.generate(startyear=2025, startmonth=1, n=12)
     return paye
@@ -47,16 +46,14 @@ def _blocs(nom, langue):
 
 
 def test_readme_montre_la_vraie_sortie_du_bulletin():
-    agente = load_agent(EXEMPLE / "agent.toml")
-    agente.load_carriere(EXEMPLE / "carriere.toml")
+    agente = charge_dossier(EXEMPLE)
     paye = Paye(agente)
     paye.generate(startyear=2026, startmonth=1, n=12)
     assert str(paye(2026, 1)).strip() == _blocs("README.md", "text")[0].strip()
 
 
 def test_readme_montre_la_vraie_somme_et_les_nets_prevus():
-    agente = load_agent(EXEMPLE / "agent.toml")
-    agente.load_carriere(EXEMPLE / "carriere.toml")
+    agente = charge_dossier(EXEMPLE)
     paye = Paye(agente)
     paye.generate(startyear=2026, startmonth=1, n=12)
     sortie = _blocs("README.md", "text")[1].splitlines()

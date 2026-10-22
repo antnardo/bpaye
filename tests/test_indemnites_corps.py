@@ -2,7 +2,7 @@ import datetime as dt
 
 import pytest
 
-from bpaye import load_agent
+from bpaye import charge_agent
 from bpaye.config import BAREME
 from bpaye.indemnites_corps import _mensuel, montant_directeur
 from bpaye.paye import Paye
@@ -29,8 +29,7 @@ year = 2025
 def _bulletin(configuration, corps, rentree, mois=(2026, 1)):
     carriere, agent = configuration
     carriere.write_text(CARRIERE.format(corps=corps, rentree=rentree), encoding="utf-8")
-    fonc = load_agent(agent)
-    fonc.load_carriere(carriere)
+    fonc = charge_agent(agent, carriere)
     paye = Paye(fonc)
     paye.generate(startyear=2025, startmonth=9, n=6)
     return paye(*mois)

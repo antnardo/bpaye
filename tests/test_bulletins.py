@@ -2,7 +2,7 @@ import datetime as dt
 
 import pytest
 
-from bpaye import load_agent
+from bpaye import charge_agent
 from bpaye.bulletins import ANCIEN_EMPLOYEUR, AUTRE_EMPLOYEUR, EMPLOYEUR, trouve_bulletins
 from bpaye.pdf import extract_employeur
 
@@ -34,9 +34,7 @@ def agent(configuration):
             chemin.write_text(texte + employeurs, encoding="utf-8")
         else:
             chemin.write_text(texte.replace('siret = "19750000000000"\n', ""), encoding="utf-8")
-        fonc = load_agent(chemin)
-        fonc.load_carriere(carriere)
-        return fonc
+        return charge_agent(chemin, carriere)
 
     return agent
 

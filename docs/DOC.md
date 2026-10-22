@@ -426,17 +426,17 @@ déductible (CGI, art. 83, 1° quater).
 ## 5. Calculer
 
 ```python
-from bpaye import Paye, load_agent
+from bpaye import Paye, charge_dossier
 
-agente = load_agent("agent.toml")
-agente.load_carriere("carriere.toml")
+agente = charge_dossier(".")  # agent.toml et carriere.toml de ce dossier
 paye = Paye(agente)
 paye.generate(startyear=2025, startmonth=1, n=12)
 ```
 
-`load_agent` crée l'agent à partir d'`agent.toml`, et `load_carriere` y ajoute sa
-carrière ; chacune rend l'agent, et l'ordre est libre (`Fonctionnaire().load_carriere(…)`
-pour une carrière seule). Ce qu'aucun des deux fichiers ne donne prend sa valeur par
+`charge_dossier` lit les deux fichiers d'un dossier ; `charge_agent(agent, carriere)`,
+deux chemins quelconques. Elles enchaînent `load_agent`, qui crée l'agent à partir
+d'`agent.toml`, et `load_carriere`, qui y ajoute sa carrière ; chacune rend l'agent, et
+l'ordre est libre (`Fonctionnaire().load_carriere(…)` pour une carrière seule). Ce qu'aucun des deux fichiers ne donne prend sa valeur par
 défaut (section 4).
 
 Générer depuis janvier : la RAFP se plafonne sur l'année civile, comme l'exonération des

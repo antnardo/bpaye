@@ -16,14 +16,13 @@ import datetime as dt
 import sys
 from pathlib import Path
 
-from bpaye import Paye, load_agent
+from bpaye import Paye, charge_dossier
 from bpaye.bulletins import trouve_bulletins
 from bpaye.export import ecrit_mois, ecrit_tous_les_mois
 
 
 def main(dossier: str, agent_dossier: str, sortie: str) -> None:
-    agent = load_agent(Path(agent_dossier) / "agent.toml")
-    agent.load_carriere(Path(agent_dossier) / "carriere.toml")
+    agent = charge_dossier(agent_dossier)
     trouves = trouve_bulletins(dossier, agent, range(agent.date_depart.year, dt.date.today().year + 1))
     if not trouves:
         sys.exit(f"Aucun bulletin dans {dossier}")

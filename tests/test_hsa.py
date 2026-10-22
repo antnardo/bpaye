@@ -2,7 +2,7 @@ import datetime as dt
 
 import pytest
 
-from bpaye import load_agent
+from bpaye import charge_agent
 from bpaye.fonctionnaire import Fonctionnaire
 from bpaye.grille import GRILLE_CHSUP
 from bpaye.hsa import code_colle, hsa, hsa_majo, valeur_colle, valeur_hsi
@@ -55,8 +55,7 @@ def test_code_colle_sans_equivalent_refuse():
 @pytest.mark.parametrize("mois", [10, 1, 6])
 def test_hsa_et_majoration_au_centime(configuration, mois):
     carriere, agent = configuration
-    fonc = load_agent(agent)
-    fonc.load_carriere(carriere)
+    fonc = charge_agent(agent, carriere)
     jour = dt.date(2025 if mois >= 9 else 2026, mois, 28)
     for ligne in (hsa(fonc, jour), hsa_majo(fonc, jour)):
         assert ligne.valeur == round(ligne.valeur, 2) != 0

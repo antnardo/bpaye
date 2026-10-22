@@ -22,7 +22,7 @@ from bpaye.charges import net_colles_seules
 from bpaye.codes import COLLES
 from bpaye.colles import brut_colles_externes, inject_colles_prevues
 from bpaye.config import BAREME, Bareme
-from bpaye.fonctionnaire import load_agent
+from bpaye.fonctionnaire import charge_agent
 from bpaye.paye import Paye
 from bpaye.utils import decalage_mois
 
@@ -43,8 +43,7 @@ def nets_prevus(
 ) -> list[NetPrevu]:
     """Le net à payer prévu de ``nombre`` mois à partir de ``debut`` (année, mois), avec
     ``bareme`` (celui du paquet par défaut)."""
-    fonc = load_agent(agent)
-    fonc.load_carriere(carriere)
+    fonc = charge_agent(agent, carriere)
     annee, mois = debut
     avance = mois - 1  # bulletins depuis janvier, pour la RAFP
     paye = Paye(fonc, libelle="prévision", bareme=bareme)

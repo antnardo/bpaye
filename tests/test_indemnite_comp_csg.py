@@ -2,15 +2,13 @@ import datetime as dt
 
 import pytest
 
-from bpaye import load_agent
+from bpaye import charge_agent
 from bpaye.indemnite_comp_csg import indemnite_comp_csg
 
 
 def _agent(configuration):
     carriere, agent = configuration
-    fonc = load_agent(agent)
-    fonc.load_carriere(carriere)
-    return fonc
+    return charge_agent(agent, carriere)
 
 
 def test_montant_declare_par_l_agent(configuration):

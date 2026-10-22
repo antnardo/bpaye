@@ -2,7 +2,7 @@ import datetime as dt
 
 import pytest
 
-from bpaye import load_agent
+from bpaye import charge_agent
 from bpaye.charges import csg, csg_basculee, csg_nonded
 from bpaye.charges_impots import facteur_hs_net, reduc_cotis_hs
 from bpaye.colles import inject_colles_prevues
@@ -14,8 +14,7 @@ PLAFOND_BRUT = 8037.0
 @pytest.fixture
 def paye(configuration):
     carriere, agent = configuration
-    fonc = load_agent(agent)
-    fonc.load_carriere(carriere)
+    fonc = charge_agent(agent, carriere)
     paye = Paye(fonc)
     paye.generate(startyear=2025, startmonth=1, n=24)
     inject_colles_prevues(paye, 2025)

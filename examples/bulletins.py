@@ -9,7 +9,7 @@ import datetime as dt
 import sys
 from pathlib import Path
 
-from bpaye import Paye, load_agent
+from bpaye import Paye, charge_dossier
 from bpaye.prevision import nets_prevus
 
 EXEMPLES = Path(__file__).parent
@@ -20,8 +20,7 @@ DERNIERE_ANNEE = 2026
 
 def main(nom: str = "college") -> None:
     dossier = EXEMPLES / nom
-    agent = load_agent(dossier / "agent.toml")
-    agent.load_carriere(dossier / "carriere.toml")
+    agent = charge_dossier(dossier)
 
     # La carrière rejouée : échelons, reclassement de 2017, promotions de grade.
     print(f"== {agent.nom} : carrière")

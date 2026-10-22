@@ -32,10 +32,9 @@ bpaye refait ce calcul à partir de deux fichiers qui décrivent l'agent : sa ca
 en collège REP, livré dans `examples/college/` :
 
 ```python
-from bpaye import Paye, load_agent
+from bpaye import Paye, charge_dossier
 
-agente = load_agent("examples/college/agent.toml")
-agente.load_carriere("examples/college/carriere.toml")
+agente = charge_dossier("examples/college")  # agent.toml et carriere.toml
 
 paye = Paye(agente)
 paye.generate(startyear=2026, startmonth=1, n=12)

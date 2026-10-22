@@ -2,7 +2,7 @@ import datetime as dt
 
 import pytest
 
-from bpaye import load_agent
+from bpaye import charge_agent
 from bpaye.config import BAREME
 from bpaye.hsa import reference_hsa, taux_hsa_annuel
 from bpaye.indemnite_comp_csg import indemnite_comp_csg
@@ -63,9 +63,7 @@ def _agent(tmp_path, corps="Certifié", echelon=4, extra="", grille="GRILLE_CERT
     texte = CERTIFIE.format(corps=corps, echelon=echelon, extra=extra).replace("GRILLE_CERTCN", grille)
     carriere.write_text(texte, encoding="utf-8")
     agent.write_text(AGENT, encoding="utf-8")
-    fonc = load_agent(agent)
-    fonc.load_carriere(carriere)
-    return fonc
+    return charge_agent(agent, carriere)
 
 
 def test_ors_du_corps_hors_cpge(tmp_path):

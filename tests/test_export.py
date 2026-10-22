@@ -3,7 +3,7 @@ from types import MappingProxyType
 
 import pytest
 
-from bpaye import Paye, load_agent
+from bpaye import Paye, charge_agent
 from bpaye.export import (
     MONTANT_IMPOSABLE,
     NET_A_PAYER,
@@ -19,8 +19,7 @@ from bpaye.pdf import BulletinLu, extract_bulletin
 @pytest.fixture
 def paye(configuration):
     carriere, agent = configuration
-    fonctionnaire = load_agent(agent)
-    fonctionnaire.load_carriere(carriere)
+    fonctionnaire = charge_agent(agent, carriere)
     paye = Paye(fonctionnaire)
     paye.generate(startyear=2026, startmonth=1, n=2)
     return paye

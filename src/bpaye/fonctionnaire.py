@@ -30,6 +30,8 @@ __all__ = [
     "PSC_DECLAREE",
     "Fonctionnaire",
     "anciennete_conservee",
+    "charge_agent",
+    "charge_dossier",
     "echelon_d_accueil",
     "load_agent",
 ]
@@ -694,6 +696,17 @@ def load_agent(path: str | Path) -> Fonctionnaire:
     """Un agent nouveau, sa situation lue dans agent.toml ; sa carrière se lit ensuite
     par agent.load_carriere(chemin)."""
     return Fonctionnaire().load_agent(path)
+
+
+def charge_agent(agent: str | Path, carriere: str | Path) -> Fonctionnaire:
+    """Un agent, sa situation lue dans ``agent`` (agent.toml) et sa carrière dans
+    ``carriere`` (carriere.toml)."""
+    return load_agent(agent).load_carriere(carriere)
+
+
+def charge_dossier(dossier: str | Path) -> Fonctionnaire:
+    """Un agent dont agent.toml et carriere.toml sont dans ``dossier``."""
+    return charge_agent(Path(dossier) / "agent.toml", Path(dossier) / "carriere.toml")
 
 
 def anciennete_conservee(fonc: Fonctionnaire, jour: dt.date, accueil: Grille, echelon: int) -> float:

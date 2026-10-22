@@ -2,7 +2,7 @@ import datetime as dt
 
 import pytest
 
-from bpaye import load_agent
+from bpaye import charge_agent, load_agent
 from bpaye.fonctionnaire import Fonctionnaire
 from bpaye.utils import add_date_round
 
@@ -152,8 +152,7 @@ def test_enfant_declare_apres_le_depart_absent_avant_sa_date(configuration, tmp_
         "[[enfants]]\ndate   = 2019-01-01\nnombre = 0", "[[enfants]]\ndate   = 2022-03-01\nnombre = 1"
     )
     agent.write_text(texte, encoding="utf-8")
-    fonc = load_agent(agent)
-    fonc.load_carriere(carriere)
+    fonc = charge_agent(agent, carriere)
     assert fonc.enfants(dt.date(2020, 1, 31)) == 0
     assert fonc.enfants(dt.date(2022, 3, 31)) == 1
 
@@ -164,8 +163,7 @@ def test_indice_du_mois_d_un_avancement_identique_quel_que_soit_le_jour(configur
         carriere.read_text(encoding="utf-8").replace("date       = 2019-09-01", "date       = 2019-09-15"),
         encoding="utf-8",
     )
-    fonc = load_agent(agent)
-    fonc.load_carriere(carriere)
+    fonc = charge_agent(agent, carriere)
     jour, echelon = fonc.echelon.values[1]  # premier avancement, un 15
     assert jour.day == 15
     grille = fonc.grille.value(jour)
@@ -215,8 +213,7 @@ def test_chaire_superieure_garde_l_anciennete_de_l_agrege_au_onzieme(tmp_path):
 def test_indice_detenu_le_jour_sans_prorata(configuration):
     carriere, agent = configuration
     carriere.write_text(carriere.read_text().replace("date       = 2019-09-01", "date       = 2019-09-08"))
-    fonc = load_agent(agent)
-    fonc.load_carriere(carriere)
+    fonc = charge_agent(agent, carriere)
     changement = next(d for d, _ in fonc.echelon.values[1:] if d.day == 8)
     veille = changement - dt.timedelta(days=1)
     _, ancien, nouveau = fonc.changement_d_indice(changement)
@@ -228,9 +225,7 @@ class TestCeQueSaitLAgent:
     @pytest.fixture
     def fonc(self, configuration):
         carriere, agent = configuration
-        fonc = load_agent(agent)
-        fonc.load_carriere(carriere)
-        return fonc
+        return charge_agent(agent, carriere)
 
     def test_corps_au_celui_de_la_grille_a_defaut(self, fonc):
         jour = dt.date(2025, 1, 31)

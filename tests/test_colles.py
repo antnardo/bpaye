@@ -11,7 +11,7 @@ from bpaye.colles import (
     inject_colles_prevues,
     semaines_de_colles,
 )
-from bpaye.fonctionnaire import Fonctionnaire, load_agent
+from bpaye.fonctionnaire import Fonctionnaire, charge_agent
 from bpaye.hsa import valeur_colle
 from bpaye.paye import Paye
 
@@ -32,8 +32,7 @@ def paye_avec_reliquat(configuration):
         carriere.read_text(encoding="utf-8").replace("161 = 4.0 }", "161 = 4.0 }\ncolles_classe = 7.0"),
         encoding="utf-8",
     )
-    fonc = load_agent(agent)
-    fonc.load_carriere(carriere)
+    fonc = charge_agent(agent, carriere)
     paye = Paye(fonc)
     paye.generate(startyear=2025, startmonth=1, n=24)
     return paye
@@ -62,8 +61,7 @@ def test_reliquat_de_la_classe_declare_en_mai_au_code_de_la_classe(paye_avec_rel
 
 def test_sans_budget_de_classe_pas_de_reliquat(configuration):
     carriere, agent = configuration
-    fonc = load_agent(agent)
-    fonc.load_carriere(carriere)
+    fonc = charge_agent(agent, carriere)
     paye = Paye(fonc)
     paye.generate(startyear=2025, startmonth=1, n=24)
     colles = inject_colles_prevues(paye, 2025)
@@ -107,8 +105,7 @@ def test_net_colles_seules_csg_en_deux_parts_arrondies(brut, net):
 
 def test_paiement_all_paie_chaque_colle_sur_le_bulletin(configuration):
     carriere, agent = configuration
-    fonc = load_agent(agent)
-    fonc.load_carriere(carriere)
+    fonc = charge_agent(agent, carriere)
     paye = Paye(fonc)
     paye.generate(startyear=2025, startmonth=1, n=12)
     colles = Colles()
@@ -130,8 +127,7 @@ def test_colles_prevues_suivent_la_zone_du_lycee(configuration):
             .replace("date       = 2019-09-01\n", f'date       = 2019-09-01\nzone_vacances = "{zone}"\n', 1),
             encoding="utf-8",
         )
-        fonc = load_agent(agent)
-        fonc.load_carriere(carriere)
+        fonc = charge_agent(agent, carriere)
         paye = Paye(fonc)
         paye.generate(startyear=2025, startmonth=1, n=24)
         mois_par_zone[zone] = {c.date.month: c.heures for c in inject_colles_prevues(paye, 2025)}

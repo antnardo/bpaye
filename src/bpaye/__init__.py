@@ -6,7 +6,7 @@ des bulletins réels : il se compare ainsi au centime aux bulletins PDF (pdf.py)
 """
 
 from bpaye.colles import Colles
-from bpaye.fonctionnaire import Fonctionnaire, load_agent
+from bpaye.fonctionnaire import Fonctionnaire, charge_agent, charge_dossier, load_agent
 from bpaye.grille import GRILLE_AGCN, GRILLE_CHSUP
 from bpaye.hsa import compile_hs
 from bpaye.paye import Paye
@@ -23,6 +23,8 @@ __all__ = [
     "Fonctionnaire",
     "Paye",
     "__version__",
+    "charge_agent",
+    "charge_dossier",
     "compile_hs",
     "load_agent",
     "reclasse",

@@ -6,7 +6,7 @@ from types import MappingProxyType
 
 import pytest
 
-from bpaye import load_agent
+from bpaye import charge_agent, load_agent
 from bpaye.classes import Ligne, ListeLignes
 from bpaye.indemnite_residence import calc_indemnite_residence
 from bpaye.mgen import mgen_part_employeur
@@ -20,8 +20,7 @@ from bpaye.utils import truncate
 
 def _paye(configuration, startmonth, n):
     carriere, agent = configuration
-    fonc = load_agent(agent)
-    fonc.load_carriere(carriere)
+    fonc = charge_agent(agent, carriere)
     paye = Paye(fonc)
     paye.generate(startyear=2025, startmonth=startmonth, n=n)
     return paye
@@ -133,8 +132,7 @@ def test_paye_avec_un_autre_bareme(configuration, tmp_path):
     isoe = '[isoe]\ntype = "Fixe"\nunite = "annuel"\nvalues = [{ date = 2000-01-01, valeur = 1200.0 }]\n'
     fichier.write_text(isoe, encoding="utf-8")
     carriere, agent = configuration
-    fonc = load_agent(agent)
-    fonc.load_carriere(carriere)
+    fonc = charge_agent(agent, carriere)
     paye = Paye(fonc, bareme=Bareme.depuis_fichiers(fichier))
     paye.generate(startyear=2025, startmonth=1, n=1)
     assert paye(2025, 1).get_fromcode(200364).valeur == 100.0
@@ -158,8 +156,7 @@ def _paye_temps_plein_et_partiel(configuration):
     partielle = carriere.with_name("partiel.toml")
     texte = carriere.read_text(encoding="utf-8")
     partielle.write_text(texte[: texte.rindex("[[rentrees]]")] + TEMPS_PARTIEL, encoding="utf-8")
-    fonc = load_agent(agent)
-    fonc.load_carriere(partielle)
+    fonc = charge_agent(agent, partielle)
     partiel = Paye(fonc)
     partiel.generate(startyear=2025, startmonth=1, n=24)
     return plein, partiel
@@ -240,8 +237,7 @@ def _total(bulletin, code):
 
 def _paye_2025(configuration):
     carriere, agent = configuration
-    fonc = load_agent(agent)
-    fonc.load_carriere(carriere)
+    fonc = charge_agent(agent, carriere)
     paye = Paye(fonc)
     paye.generate(startyear=2025, startmonth=1, n=6)
     return paye
@@ -269,8 +265,7 @@ def test_promotion_payee_en_retard_a_temps_partiel_rappelle_la_fraction(configur
         carriere.read_text(encoding="utf-8") + "\n[[rentrees]]\nyear = 2026\ntemps_partiel = 0.5\n",
         encoding="utf-8",
     )
-    fonc = load_agent(agent)
-    fonc.load_carriere(carriere)
+    fonc = charge_agent(agent, carriere)
     paye = Paye(fonc)
     paye.generate(startyear=2026, startmonth=9, n=4)
     jour = dt.date(2026, 9, 30)
@@ -302,8 +297,7 @@ def test_retenue_absente_du_calcul_prend_le_signe_d_une_retenue():
 
 def test_bulletin_avant_l_entree_dans_la_carriere_refuse(configuration):
     carriere, agent = configuration
-    fonc = load_agent(agent)
-    fonc.load_carriere(carriere)
+    fonc = charge_agent(agent, carriere)
     with pytest.raises(ValueError, match="avant l'entrée"):
         Paye(fonc).generate(startyear=2019, startmonth=8, n=2)
 
@@ -311,8 +305,7 @@ def test_bulletin_avant_l_entree_dans_la_carriere_refuse(configuration):
 def test_ic_csg_de_l_agent_avant_son_premier_montant_refuse(configuration):
     carriere, agent = configuration
     agent.write_text(_ic_csg(agent, "2020-01-01", 30.0), encoding="utf-8")
-    fonc = load_agent(agent)
-    fonc.load_carriere(carriere)
+    fonc = charge_agent(agent, carriere)
     with pytest.raises(ValueError, match="MANQUANT"):
         Paye(fonc).generate(startyear=2019, startmonth=9, n=4)
 
@@ -321,8 +314,7 @@ def test_agent_sans_ic_csg_refuse_les_mois_depuis_2018(configuration):
     carriere, agent = configuration
     texte = agent.read_text(encoding="utf-8")
     agent.write_text(texte[: texte.index("[ic_csg]")], encoding="utf-8")
-    fonc = load_agent(agent)
-    fonc.load_carriere(carriere)
+    fonc = charge_agent(agent, carriere)
     with pytest.raises(ValueError, match=r"agent\.toml"):
         Paye(fonc).generate(startyear=2025, startmonth=1, n=1)
 
@@ -488,8 +480,7 @@ def test_remplacement_de_courte_duree_a_sa_majoration_propre(configuration, tmp_
     )
     bareme = Bareme.depuis_fichiers(fichier)
     carriere, agent = configuration
-    fonc = load_agent(agent)
-    fonc.load_carriere(carriere)
+    fonc = charge_agent(agent, carriere)
     jour = dt.date(2025, 11, 30)
     rcd = hse(fonc, jour, 10, bareme=bareme, code=201241).valeur
     assert rcd == pytest.approx(2 * hse(fonc, jour, 10, bareme=bareme).valeur, abs=0.01)
@@ -544,8 +535,7 @@ def _paye_echelon_le_8(configuration):
     """L'agent du conftest, entré le 8 septembre 2019 : ses échelons se prennent un 8."""
     carriere, agent = configuration
     carriere.write_text(carriere.read_text().replace("date       = 2019-09-01", "date       = 2019-09-08"))
-    fonc = load_agent(agent)
-    fonc.load_carriere(carriere)
+    fonc = charge_agent(agent, carriere)
     changement = next(d for d, _ in fonc.echelon.values[1:] if d.day == 8 and d.year >= 2023)
     paye = Paye(fonc)
     paye.generate(startyear=changement.year, startmonth=changement.month, n=6)
