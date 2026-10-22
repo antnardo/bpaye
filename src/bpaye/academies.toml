@@ -23,8 +23,8 @@ retards = [
 ]
 
 # Les académies (code de l'éducation, R222-2 ; docs/verification/academies.toml) et les
-# lycées de la Défense. Aucune n'a de retards propres relevés : chacune hérite du défaut,
-# relevé à Paris.
+# lycées de la Défense. Seuls ces derniers ont des retards propres relevés ; chaque
+# académie hérite du défaut, relevé à Paris.
 
 [aix-marseille]
 herite = "defaut"
@@ -50,8 +50,19 @@ herite = "defaut"
 [creteil]
 herite = "defaut"
 
+# Les lycées de la Défense ont leur propre paie (DRFIP de la Gironde) et leur propre
+# calendrier, sans héritage du défaut. Les HSA d'octobre et de novembre, et leur
+# majoration, arrivent en rappel en décembre (deux neuvièmes rappelés en décembre 2017
+# comme en décembre 2018). L'IFP de septembre est payée à son mois en 2017, en novembre en
+# 2018 : un retard ponctuel, non retenu. Relevé sur des bulletins papier de 2017 et 2018
+# d'un lycée de la Défense.
 [defense]
-herite = "defaut"
+retards = [
+  { code = 200205, du = 10, paye = 12 },
+  { code = 200205, du = 11, paye = 12 },
+  { code = 200576, du = 10, paye = 12 },
+  { code = 200576, du = 11, paye = 12 },
+]
 
 [dijon]
 herite = "defaut"

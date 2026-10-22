@@ -65,3 +65,13 @@ def test_remplace_tous_les_retards_d_une_rubrique():
     retards = remplace(herites, [propre])
     assert [r for r in retards.values() if r.code == 200205] == [propre]
     assert (200597, 9) in retards  # les autres rubriques restent
+
+
+def test_defense_hsa_d_octobre_et_novembre_en_decembre_sans_retard_d_ifp():
+    retards = retards_academie("defense")
+    assert {(r.code, r.du, r.paye) for r in retards.values()} == {
+        (200205, 10, 12),
+        (200205, 11, 12),
+        (200576, 10, 12),
+        (200576, 11, 12),
+    }
