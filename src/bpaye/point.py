@@ -91,8 +91,13 @@ def traitement_plein(fonctionnaire: Agent, date: dt.date, bareme: Bareme = BAREM
 
 
 def calc_traitement_brut(indice: float, date: dt.date | None, bareme: Bareme = BAREME) -> float:
-    pt = bareme.load("point")(date)
-    return truncate(indice * pt, 2)
+    """Le traitement mensuel d'un indice : le traitement annuel (indice × valeur annuelle du
+    point, décret 85-1148, art. 3), arrondi au centime, divisé par douze et tronqué. L'ordre
+    des arrondis n'est écrit dans aucun texte lu ; il retrouve les 115 traitements relevés de
+    2017 à 2026, dont l'indice 639 en janvier 2017 (35 718,12 / 12 = 2 976,51 €), que
+    l'indice multiplié par le point mensuel, tronqué, manquait d'un centime."""
+    annuel = round(round(bareme.load("point")(date) * 12, 6) * indice, 2)
+    return truncate(annuel / 12, 2)
 
 
 def valeur_point(date: dt.date | None, bareme: Bareme = BAREME) -> float:

@@ -37,3 +37,9 @@ class TestTraitementIndiciaire:
 
     def test_mois_sans_changement_au_seul_indice(self):
         assert traitement_indiciaire(_AgentQuiChange(), dt.date(2018, 4, 30)) == 3256.78
+
+
+def test_traitement_annuel_arrondi_au_centime_puis_douzieme_tronque():
+    # IM 639 en janvier 2017 (point annuel 55,8969 €) : 35 718,1191 → 35 718,12 €, / 12 =
+    # 2 976,51 € sur le bulletin ; l'indice × le point mensuel, tronqué, donnait 2 976,50 €.
+    assert calc_traitement_brut(639, dt.date(2017, 1, 31)) == 2976.51
