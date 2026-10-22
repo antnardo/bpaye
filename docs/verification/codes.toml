@@ -552,6 +552,7 @@ imposable = true
 source    = "DGFiP, annexe 14 B 2026 (copie AMUE), ligne 456 ; annexe 14 b janvier 2023, p. 20 ; INGRES ligne 1084 (IMPOSA 1) ; BJ janvier 2026 ligne 919"
 
 # ───────────────────────── Retenues salariales ─────────────────────────
+note      = "Indemnité de fonction des enseignants détachés à la Défense, décret 2003-745 : montant individuel (décision du ministre, au plus 4 fois le montant moyen de la catégorie) ; déclaré dans [[detachements]] (indemnite_fonction)."
 
 [[code]]
 code      = "401201"

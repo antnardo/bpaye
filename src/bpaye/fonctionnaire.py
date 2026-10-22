@@ -58,6 +58,9 @@ class Fonctionnaire:
         self._par_defaut: set[int] = set()
         self.residence: Temporal[int] = Temporal()
         self.detachement: Temporal[bool] = Temporal()
+        # Indemnité de fonction d'un détachement à la Défense : montant annuel individuel,
+        # fixé par décision du ministre (décret 2003-745, art. 2), déclaré dans carriere.toml.
+        self.indemnite_detachement: Temporal[float | None] = Temporal()
         self.frais_transport = Fixe()
         self.fmd_niveau: Temporal[int] = Temporal()
         self.effectif: Temporal[int] = Temporal()
@@ -105,9 +108,14 @@ class Fonctionnaire:
     def __repr__(self) -> str:
         return self.__str__()
 
-    def update_detachement(self, date: dt.date, detachement: bool) -> None:
+    def update_detachement(
+        self, date: dt.date, detachement: bool, indemnite_fonction: float | None = None
+    ) -> None:
+        """``indemnite_fonction`` : le montant annuel de l'indemnité de fonction d'un
+        détachement à la Défense, celui de la décision individuelle du ministre."""
         assert isinstance(detachement, bool)
         self.detachement.append(date, detachement)
+        self.indemnite_detachement.append(date, indemnite_fonction)
 
     def update_transport(self, date: dt.date, abonnement_annuel: float) -> None:
         self.frais_transport.append(date, annuel=abonnement_annuel)
@@ -557,7 +565,7 @@ class Fonctionnaire:
             raise ValueError(f"zone de vacances inconnue {fonc.zone_vacances!r}, attendu {sorted(VACANCES)}")
 
         for d in cfg.get("detachements", []):
-            fonc.update_detachement(parse_toml_date(d["date"]), d["detache"])
+            fonc.update_detachement(parse_toml_date(d["date"]), d["detache"], d.get("indemnite_fonction"))
 
         # Les avancements s'appliquent dans l'ordre chronologique, quel que soit leur ordre dans le
         # fichier : un choix de 2015 avant le reclassement de 2017, une accélération de 2020

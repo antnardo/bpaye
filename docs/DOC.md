@@ -283,9 +283,20 @@ Le taux d'une colle est celui du code déclaré par le lycée (161, 6, 7, 8 pour
 
 ```toml
 [[detachements]]
-date    = 2008-09-01
+date               = 2007-09-01
+detache            = true
+indemnite_fonction = 1633.92   # montant annuel de la décision individuelle
+
+[[detachements]]
+date    = 2019-09-01
 detache = false
 ```
+
+Un enseignant détaché à la Défense touche une indemnité de fonction (201150) dont le
+montant est individuel : une décision du ministre de la Défense le fixe, dans la limite de
+quatre fois le montant moyen de la catégorie de l'établissement (décret 2003-745, art. 2 ;
+770 € en moyenne pour les lycées militaires, arrêté du 31/07/2003, indexé sur le point).
+bpaye prend le montant annuel déclaré et refuse de calculer un détachement sans lui.
 
 ## 4. `agent.toml`
 

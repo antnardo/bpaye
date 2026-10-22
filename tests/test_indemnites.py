@@ -178,3 +178,20 @@ def test_indemnite_de_corps_manquante_refusee(section, jour):
 
 def test_transport_sans_abonnement_ne_lit_pas_le_plafond():
     assert calc_transport(0.0, dt.date(2010, 1, 31)) == 0.0
+
+
+DETACHE = "\n[[detachements]]\ndate    = 2024-12-01\ndetache = true\n"
+
+
+def test_indemnite_de_la_defense_au_montant_de_la_decision_individuelle(tmp_path):
+    from bpaye.indemnites import indemnite_detachement
+
+    fonc = _agent(tmp_path, extra=DETACHE + "indemnite_fonction = 1633.92\n")
+    assert indemnite_detachement(fonc, JOUR).valeur == 136.16
+
+
+def test_indemnite_de_la_defense_sans_montant_declare_refusee(tmp_path):
+    from bpaye.indemnites import indemnite_detachement
+
+    with pytest.raises(ValueError, match="indemnite_fonction"):
+        indemnite_detachement(_agent(tmp_path, extra=DETACHE), JOUR)

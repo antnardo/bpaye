@@ -208,7 +208,7 @@ class Bulletin(ListeLignes):
         self.append(indemnite_documentaliste(fonc, date, b))
         self.append(indemnite_directeur(fonc, date, b))
         self.append(indemnite_fonctions_part_cpge(fonc, date, b))
-        self.append(indemnite_detachement(fonc, date, b))
+        self.append(indemnite_detachement(fonc, date))
         self.append(indemnite_comp_csg(date, fonc, b))
         self.append(participation_psc(date, b))
         for ligne in psc_declaree(fonc, date, "INDEM", b):

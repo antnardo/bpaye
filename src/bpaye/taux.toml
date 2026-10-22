@@ -265,15 +265,6 @@ pmss = 4
 # ──────────────────────────────────────────────
 # INDEMNITÉS FIXES
 # ──────────────────────────────────────────────
-# 201150, « indemnité de fonction aux enseignants du ministère de la défense » (libellé DGFiP,
-# codes.toml). Montant relevé sur des bulletins de paye ; texte non relu.
-[indemnite_detachement]
-type  = "Fixe"
-unite = "mensuel"
-values = [
-  { date = 2000-01-01, valeur = 136.16 },
-]
-
 # Indemnité de fonctions particulières des CPGE (200597). Décret 99-886, art. 1 (au moins
 # 8 h en CPGE, ou 4 h devant une même division), art. 3 (« ce taux est indexé sur la valeur
 # du point »), art. 4 (versée mensuellement) ; arrêté du 19/10/1999, art. 1 : 6 270 F au

@@ -74,11 +74,23 @@ def calc_transport(mensuel: float, date: dt.date, bareme: Bareme = BAREME) -> fl
     return min(val, bareme.load("transport.plafond")(date))
 
 
-def indemnite_detachement(fonc: Fonctionnaire, date: dt.date, bareme: Bareme = BAREME) -> Ligne | None:
+def indemnite_detachement(fonc: Fonctionnaire, date: dt.date) -> Ligne | None:
+    """Indemnité de fonction d'un enseignant détaché à la Défense (201150), versée
+    mensuellement (décret 2003-745, art. 3). Son montant est individuel : une décision du
+    ministre de la Défense le fixe, dans la limite de quatre fois le montant moyen de la
+    catégorie de l'établissement (sept fois dans les écoles d'enseignement supérieur), indexé
+    sur le point (art. 2 ; arrêté du 31/07/2003 : 770 € en moyenne pour les lycées
+    militaires). bpaye prend donc le montant annuel déclaré (``indemnite_fonction``)."""
     if not fonc.is_detache(date):
         return None
-    montant = reduit(bareme.load("indemnite_detachement")(date), fonc.fraction(date))
-    return Ligne(montant, "Indemnité détachement MD", code=201150, classe="INDEM")
+    annuel = fonc.indemnite_detachement(date) if len(fonc.indemnite_detachement) else None
+    if annuel is None:
+        raise ValueError(
+            f"détachement à la Défense le {date} : déclarer indemnite_fonction, le montant annuel "
+            "de la décision individuelle, dans [[detachements]] (décret 2003-745, art. 2)"
+        )
+    montant = reduit(round(annuel / 12, 2), fonc.fraction(date))
+    return Ligne(montant, "Indemnité de fonction (Défense)", code=201150, classe="INDEM")
 
 
 def _en_cpge(fonc: Fonctionnaire, date: dt.date) -> bool:
