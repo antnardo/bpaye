@@ -922,17 +922,14 @@ class Paye:
         if self.bull_dir is not None:
             # Importé ici seulement : lire les PDF demande pdfplumber, dont le calcul de
             # la paye n'a pas besoin.
-            from bpaye.pdf import extract_bulletin, find_pdfs
+            from bpaye.bulletins import trouve_bulletins
 
+            # Le bulletin de l'employeur du mois (bulletins.py), seul comparable au calcul.
             years_covered = {b.date.year for b in bulletins_in_range}
-            for y in years_covered:
-                pdfs = find_pdfs(str(self.bull_dir), y, self.fonctionnaire.siret)
-                for month_num, paths in pdfs.items():
-                    for path in paths:
-                        pdf_data = extract_bulletin(path)
-                        if "101000" in pdf_data:
-                            pdf_by_month[(y, month_num)] = pdf_data
-                            break
+            for trouve in trouve_bulletins(self.bull_dir, self.fonctionnaire, years_covered):
+                cle = (trouve.date.year, trouve.date.month)
+                if trouve.compare and cle not in pdf_by_month:
+                    pdf_by_month[cle] = trouve.lu
 
         # ── Construction de la Selection ───────────────────────────────────
         sel = Selection()

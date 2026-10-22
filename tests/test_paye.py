@@ -1,7 +1,8 @@
 import copy
 import datetime as dt
-import sys
 import types
+from pathlib import Path
+from types import MappingProxyType
 
 import pytest
 
@@ -10,6 +11,7 @@ from bpaye.classes import Ligne, ListeLignes
 from bpaye.indemnite_residence import calc_indemnite_residence
 from bpaye.mgen import mgen_part_employeur
 from bpaye.paye import Bulletin, Paye, signe_bpaye
+from bpaye.pdf import BulletinLu, EmployeurLu
 from bpaye.point import calc_traitement_brut, traitement_plein, valeur_point
 from bpaye.prevision import nets_prevus
 from bpaye.temps_partiel import reduit, taux_surcotisation
@@ -76,14 +78,25 @@ def test_net_imposable_sans_frais_exoneres_avec_part_employeur_mgen(
     assert round(bulletin.net_imposable, 2) == round(attendu, 2)
 
 
+def _bulletin_trouve(monkeypatch, annee, mois, montants):
+    """Le dossier ne contient que ce bulletin, celui de l'employeur du mois."""
+    import bpaye.bulletins
+
+    trouve = bpaye.bulletins.BulletinTrouve(
+        Path("bulletin.pdf"),
+        dt.date(annee, mois, 1),
+        BulletinLu(montants=MappingProxyType(montants)),
+        EmployeurLu(),
+        "",
+        bpaye.bulletins.EMPLOYEUR,
+    )
+    monkeypatch.setattr(bpaye.bulletins, "trouve_bulletins", lambda dossier, fonc, annees: [trouve])
+
+
 def test_select_reel_compte_le_rappel_meme_sans_ligne_bpaye(configuration, monkeypatch):
     # Décembre : l'IFP du mois et un rappel de trois mois que bpaye ne connaît pas.
     bulletin_pdf = {"101000": 1.0, "200597": 93.16, "200597_R": 279.48}
-    faux_pdf = types.SimpleNamespace(
-        find_pdfs=lambda dossier, annee, siret=None: {12: ["decembre.pdf"]},
-        extract_bulletin=lambda chemin: bulletin_pdf,
-    )
-    monkeypatch.setitem(sys.modules, "bpaye.pdf", faux_pdf)
+    _bulletin_trouve(monkeypatch, 2025, 12, bulletin_pdf)
     paye = _paye(configuration, 1, 12)
     paye.bull_dir = "bulletins"
     assert paye.select(200597, (2025, 12), (2025, 12)).somme().reel == 372.64
@@ -92,11 +105,7 @@ def test_select_reel_compte_le_rappel_meme_sans_ligne_bpaye(configuration, monke
 def test_select_reel_ne_double_pas_le_mois_a_deux_lignes(configuration, monkeypatch):
     # Novembre : bpaye porte deux lignes d'HSA (le mois et octobre en rappel).
     bulletin_pdf = {"101000": 1.0, "200205": 100.0, "200205_R": 100.0}
-    faux_pdf = types.SimpleNamespace(
-        find_pdfs=lambda dossier, annee, siret=None: {11: ["novembre.pdf"]},
-        extract_bulletin=lambda chemin: bulletin_pdf,
-    )
-    monkeypatch.setitem(sys.modules, "bpaye.pdf", faux_pdf)
+    _bulletin_trouve(monkeypatch, 2025, 11, bulletin_pdf)
     paye = _paye(configuration, 1, 12)
     paye.bull_dir = "bulletins"
     assert paye.select(200205, (2025, 11), (2025, 11)).somme().reel == 200.0
