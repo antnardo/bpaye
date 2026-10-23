@@ -108,7 +108,7 @@ NOUVEAU_LOGICIEL_PAIE = dt.date(2026, 2, 1)
 def _au_centime(montant: float, date: dt.date) -> float:
     if date >= NOUVEAU_LOGICIEL_PAIE:
         return round(montant, 2)
-    return math.floor(montant * 100 + 1e-9) / 100
+    return truncate(montant, 2)
 
 
 def seuil_abattement(date: dt.date, bareme: Bareme = BAREME) -> float:
