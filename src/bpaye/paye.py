@@ -201,6 +201,8 @@ class Bulletin(ListeLignes):
         self.autres_charges: list[Ligne] = []
         self.exo_hs = exo_hs  # charges_impots.ExonerationHS, partagée par les bulletins
         self._hs_exonerees = 0.0
+        # Vrai pendant generate_charges : une charge ajoutée alors est une charge calculée.
+        self._en_calcul = False
         if exo_hs is not None:
             exo_hs.inscrit(self)
         self.generate()
@@ -403,10 +405,10 @@ class Bulletin(ListeLignes):
         code = ligne.code
         classe = ligne.type
         if newcharge is None:
-            newcharge = not getattr(self, "_en_calcul", False)
+            newcharge = not self._en_calcul
         if ligne.valeur != 0 and classe in CLASSES_CHARGES and newcharge:
             self.autres_charges.append(ligne.copy())
-            if recalc or not getattr(self, "_en_calcul", False):
+            if recalc or not self._en_calcul:
                 self.generate_charges()
             return
         if ligne.valeur != 0:
