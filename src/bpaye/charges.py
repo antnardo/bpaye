@@ -79,7 +79,7 @@ import datetime as dt
 import math
 
 from bpaye.classes import Ligne, Taux
-from bpaye.codes import CONTRIBUTION_SOLIDARITE, TPP
+from bpaye.codes import CONTRIBUTION_SOLIDARITE, PRELEVEMENT_SOURCE, TPP
 from bpaye.config import BAREME, Bareme
 from bpaye.point import calc_traitement_brut
 from bpaye.utils import truncate
@@ -256,7 +256,7 @@ def ir(assiette: float, date: dt.date, taux_pas: Taux) -> Ligne:
     return Ligne(
         -round(taux_pas.taux(assiette, date), 2),
         f"Impot Revenu {100 * taux_pas.value(date):.1f}%",
-        code=558000,
+        code=PRELEVEMENT_SOURCE,
         classe="IMPOT",
         imposable=True,
     )

@@ -17,6 +17,7 @@ import logging
 from dataclasses import dataclass, field
 
 from bpaye.classes import Ligne
+from bpaye.codes import RAFP as CODE_RAFP
 from bpaye.config import BAREME, Bareme
 from bpaye.utils import truncate
 
@@ -76,7 +77,7 @@ class RAFP:
             val = round(truncate(exacte, 2) - cotise, 2)
             cotise = round(cotise + val, 2)
             if e.ligne is None:
-                e.ligne = Ligne(-val, "RAFP", code=501080, classe="RAFP")
+                e.ligne = Ligne(-val, "RAFP", code=CODE_RAFP, classe="RAFP")
             else:
                 e.ligne.valeur = -val
             _log.debug("rafp %s  assiette=%.2f  val=%.2f", e.date, e.assiette, val)
