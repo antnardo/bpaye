@@ -438,10 +438,7 @@ class ListeLignes:
 
     def get_fromcode(self, code: int) -> Ligne:
         """Retourne la première Ligne avec ce code (lève ValueError si absent)."""
-        for ligne in self:
-            if ligne.code == code:
-                return ligne
-        raise ValueError(f"Code {code} non trouvé")
+        return self.lignes[self.getindex_fromcode(code)]
 
     def get_all_fromcode(self, code: int) -> list[Ligne]:
         """Retourne toutes les Lignes avec ce code (liste vide si absent)."""
@@ -461,7 +458,7 @@ class ListeLignes:
         raise ValueError(f"Code {code} non trouvé")
 
     def __call__(self, code: int) -> Ligne:
-        return self.lignes[self.getindex_fromcode(code)]
+        return self.get_fromcode(code)
 
     def sort(self) -> None:
         self.lignes.sort(key=lambda ligne: ligne.code)
