@@ -654,6 +654,20 @@ class Paye:
             raise ValueError(f"pas de bulletin généré pour {mois:02d}/{year}")
         return bulletin
 
+    def _reporte(
+        self,
+        ligne: Ligne,
+        nature: str,
+        mois_du: tuple[int, int],
+        libelle: str,
+        decalage: int = 2,
+        paiement_date: tuple[int, int] | None = None,
+    ) -> None:
+        """Porte ``ligne`` au mois où se paie le rappel de ``mois_du`` (_mois_de_paiement),
+        sous le libellé de rappel de ``nature`` (RAPPEL, RATTRAPAGE)."""
+        ligne.lib = _libelle_rappel(nature, mois_du, libelle)
+        self.addligne(*_mois_de_paiement(mois_du, decalage, paiement_date), ligne)
+
     def retard_paiement(
         self,
         original_date: tuple[int, int],
@@ -665,9 +679,7 @@ class Paye:
         bulletin = self.bulletin(year, mois)
         ligne = bulletin.pop(code, recalc=True)
         ligne.sommable = True
-        ligne.lib = _libelle_rappel("RAPPEL", (year, mois), ligne.lib)
-        pyear, pmois = _mois_de_paiement((year, mois), decalage, paiement_date)
-        self.addligne(pyear, pmois, ligne)
+        self._reporte(ligne, "RAPPEL", (year, mois), ligne.lib, decalage, paiement_date)
 
     def erreur_montant(
         self,
@@ -689,9 +701,7 @@ class Paye:
             self.addligne(year, mois, ecart)
             rattrapage = ecart.copy()
             rattrapage.valeur = -ecart.valeur
-            rattrapage.lib = _libelle_rappel("RATTRAPAGE", (year, mois), calculee.lib)
-            pyear, pmois = _mois_de_paiement((year, mois), decalage, paiement_date)
-            self.addligne(pyear, pmois, rattrapage)
+            self._reporte(rattrapage, "RATTRAPAGE", (year, mois), calculee.lib, decalage, paiement_date)
             return
         ligne = bulletin.pop_montant(code, montant_init)
         montant_init = ligne.valeur  # au centime près, le montant exact de la ligne
@@ -702,9 +712,7 @@ class Paye:
         ligne = ligne.copy()
         ligne.sommable = True
         ligne.valeur = montant_init - montant_final
-        ligne.lib = _libelle_rappel("RATTRAPAGE", (year, mois), ligne.lib)
-        pyear, pmois = _mois_de_paiement((year, mois), decalage, paiement_date)
-        self.addligne(pyear, pmois, ligne)
+        self._reporte(ligne, "RATTRAPAGE", (year, mois), ligne.lib, decalage, paiement_date)
 
     def heure_sup(
         self,
@@ -951,14 +959,9 @@ class Paye:
         prélevé), puis repris le mois ``paiement_date``. La ligne prend la classe de la
         catégorie du code (codes.toml) : une retenue reste une retenue."""
         classe, signe = _classe_du_code(code)
-        year, mois = date
-        pyear, pmois = paiement_date
-        ligne_plus = Ligne(signe * montant, "Erreur", code=code, classe=classe)
-        ligne_neg = Ligne(
-            -signe * montant, _libelle_rappel("RATTRAPAGE", (year, mois), "Erreur"), code=code, classe=classe
-        )
-        self.addligne(year, mois, ligne_plus)
-        self.addligne(pyear, pmois, ligne_neg)
+        self.addligne(*date, Ligne(signe * montant, "Erreur", code=code, classe=classe))
+        ligne_neg = Ligne(-signe * montant, code=code, classe=classe)
+        self._reporte(ligne_neg, "RATTRAPAGE", date, "Erreur", paiement_date=paiement_date)
 
     def somme_annee(self, code_or_fn: str | int | Callable[[Bulletin], float], year: int) -> Somme:
         """Obsolète : utiliser P.select(code_or_fn, year).somme() à la place."""
