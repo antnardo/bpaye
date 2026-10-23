@@ -2,7 +2,7 @@ import datetime as dt
 
 import pytest
 
-from bpaye.classes import Ligne, Temporal
+from bpaye.classes import Ligne, Selection, Temporal
 from bpaye.config import BAREME
 
 
@@ -68,3 +68,16 @@ def test_ligne_avec_change_la_copie_seulement():
 def test_ligne_avec_un_attribut_inconnu_echoue():
     with pytest.raises(AttributeError, match="montant"):
         Ligne(1.0).avec(montant=2.0)
+
+
+def test_somme_d_une_selection_avertit_d_un_pdf_manquant():
+    selection = Selection()
+    for reel in (99.0, None):
+        ligne = Ligne(100.0, code=200205, classe="INDEM")
+        ligne.valeur_reel = reel
+        selection.lignes.append(ligne)
+    selection._months_total, selection._months_with_pdf, selection._label = 2, 1, "HSA"
+    somme = selection.somme(200205)
+    assert somme.calcul == 200.0
+    with pytest.warns(UserWarning, match="1/2"):
+        assert somme.reel == 99.0

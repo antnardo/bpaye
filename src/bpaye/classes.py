@@ -546,7 +546,11 @@ class ListeLignes:
         calcul = round(sum(ligne.valeur for ligne in lignes), 2)
         reel_vals = [ligne.valeur_reel for ligne in lignes if ligne.valeur_reel is not None]
         reel = round(sum(reel_vals), 2) if reel_vals else None
-        return Somme(calcul=calcul, reel=reel)
+        return Somme(calcul=calcul, reel=reel, **self._couverture())
+
+    def _couverture(self) -> dict[str, Any]:
+        """Ce que la somme dit de la couverture PDF : rien ici (Selection le dit)."""
+        return {}
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -568,16 +572,11 @@ class Selection(ListeLignes):
         self._months_with_pdf = 0
         self._label = ""
 
-    def somme(self, code: int | str | None = None) -> Somme:  # type: ignore[override]
-        """Agrège avec information sur la couverture PDF."""
-        lignes = self.lignes if code is None else [ligne for ligne in self.lignes if ligne.code == int(code)]
-        calcul = round(sum(ligne.valeur for ligne in lignes), 2)
-        reel_vals = [ligne.valeur_reel for ligne in lignes if ligne.valeur_reel is not None]
-        reel = round(sum(reel_vals), 2) if reel_vals else None
-        return Somme(
-            calcul=calcul,
-            reel=reel,
-            months_with_pdf=self._months_with_pdf,
-            months_total=self._months_total,
-            label=self._label,
-        )
+    def _couverture(self) -> dict[str, Any]:
+        """Les mois de la période et ceux dont le PDF a été lu, pour l'avertissement de
+        Somme.reel."""
+        return {
+            "months_with_pdf": self._months_with_pdf,
+            "months_total": self._months_total,
+            "label": self._label,
+        }
