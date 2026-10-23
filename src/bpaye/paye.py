@@ -380,19 +380,17 @@ class Bulletin(ListeLignes):
                 return i
         raise ValueError(f"Code non trouvé {code} {montant}€")
 
-    def pop(self, code: int, recalc: bool = False) -> Ligne:
-        index = self.getindex_fromcode(code)
+    def _retire(self, index: int, recalc: bool) -> Ligne:
         ligne = self.lignes.pop(index)
         if recalc:
             self.generate_charges()
         return ligne
 
+    def pop(self, code: int, recalc: bool = False) -> Ligne:
+        return self._retire(self.getindex_fromcode(code), recalc)
+
     def pop_montant(self, code: int, montant: float, recalc: bool = False) -> Ligne:
-        index = self.getindex_fromcode_and_montant(code, montant)
-        ligne = self.lignes.pop(index)
-        if recalc:
-            self.generate_charges()
-        return ligne
+        return self._retire(self.getindex_fromcode_and_montant(code, montant), recalc)
 
     def append(self, ligne: Ligne | None, recalc: bool = False, newcharge: bool | None = None) -> None:
         """Ajoute une ligne, sommée à celle de même code si elles sont sommables.
