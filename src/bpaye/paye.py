@@ -9,6 +9,7 @@ bulletins PDF aux lignes calculées, pour comparer calcul et réel.
 import datetime as dt
 import warnings
 from collections.abc import Callable, Iterable, Iterator, Mapping
+from functools import partial
 from pathlib import Path
 from typing import Any, ClassVar, Protocol, Self
 
@@ -717,10 +718,7 @@ class Paye:
         comm: str = "",
         paiement_date: tuple[int, int] | None = None,
     ) -> None:
-        if paiement_date is None:
-            pyear, pmois = original_date
-        else:
-            pyear, pmois = paiement_date
+        pyear, pmois = paiement_date or original_date
         odate = dernier_jour(pyear, pmois)
         ligne = fonction(self.fonctionnaire, odate, heures, comm, bareme=self.bareme)
         self.addligne(pyear, pmois, ligne)
@@ -735,17 +733,7 @@ class Paye:
     ) -> None:
         """Heures supplémentaires effectives, sous ``code`` (hsa.CODES_HSE) : 201241 pour
         un remplacement de courte durée, 201717 puis 201300 pour la réussite au lycée."""
-
-        def fonction(
-            fonctionnaire: Fonctionnaire,
-            date: dt.date,
-            heures: float,
-            comm: str = "",
-            bareme: Bareme = BAREME,
-        ) -> Ligne:
-            return hse(fonctionnaire, date, heures, comm, bareme, code=code)
-
-        self.heure_sup(fonction, original_date, heures, comm, paiement_date)
+        self.heure_sup(partial(hse, code=code), original_date, heures, comm, paiement_date)
 
     # Rémunérations à l'heure, au taux de chaque formation ou action : vacations de
     # formation (décret 2010-235), actions à pilotage national (décret 2014-1394).
