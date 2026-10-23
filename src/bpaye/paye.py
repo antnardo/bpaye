@@ -695,24 +695,19 @@ class Paye:
         if bulletin(code).type in CLASSES_CHARGES:
             # Une charge se recalcule : l'erreur s'y ajoute comme un écart, gardé au recalcul.
             calculee = bulletin.lignes[bulletin.getindex_fromcode_and_montant(code, montant_init)]
-            ecart = calculee.copy()
-            ecart.valeur = montant_final - calculee.valeur
-            ecart.lib = f"{calculee.lib} (erreur montant)"
+            ecart = calculee.avec(
+                valeur=montant_final - calculee.valeur, lib=f"{calculee.lib} (erreur montant)"
+            )
             self.addligne(year, mois, ecart)
-            rattrapage = ecart.copy()
-            rattrapage.valeur = -ecart.valeur
+            rattrapage = ecart.avec(valeur=-ecart.valeur)
             self._reporte(rattrapage, "RATTRAPAGE", (year, mois), calculee.lib, decalage, paiement_date)
             return
         ligne = bulletin.pop_montant(code, montant_init)
-        montant_init = ligne.valeur  # au centime près, le montant exact de la ligne
-        ligne.valeur = montant_final
-        ligne.sommable = False
-        ligne.lib = f"{ligne.lib} (erreur montant)"
-        self.addligne(year, mois, ligne)
-        ligne = ligne.copy()
-        ligne.sommable = True
-        ligne.valeur = montant_init - montant_final
-        self._reporte(ligne, "RATTRAPAGE", (year, mois), ligne.lib, decalage, paiement_date)
+        montant_exact = ligne.valeur  # montant_init au centime près
+        erronee = ligne.avec(valeur=montant_final, sommable=False, lib=f"{ligne.lib} (erreur montant)")
+        self.addligne(year, mois, erronee)
+        rattrapage = erronee.avec(valeur=montant_exact - montant_final, sommable=True)
+        self._reporte(rattrapage, "RATTRAPAGE", (year, mois), erronee.lib, decalage, paiement_date)
 
     def heure_sup(
         self,

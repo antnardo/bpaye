@@ -13,7 +13,7 @@ et les arrondis se calculent dans chaque fonction de calcul, pas dans la ligne.
 import datetime as dt
 import warnings
 from collections.abc import Iterator
-from typing import Generic, Self, TypeVar
+from typing import Any, Generic, Self, TypeVar
 
 import bpaye.format as fmt
 from bpaye.codes import (
@@ -286,13 +286,21 @@ class Ligne:
         assert self.type in ["BRUT", "PC", "CHARGE", "INDEM", "RAFP", "IMPOT"]
         self.sommable = sommable
 
-    def copy(self) -> Self:
+    def avec(self, **changements: Any) -> Self:
+        """Une copie de la ligne, ``changements`` appliqués : ``ligne.avec(valeur=-ligne.valeur)``."""
         ligne = type(self)(
             self.valeur, self.lib, self.imposable, self.code, self.patronal, self.type, self.sommable
         )
         ligne.valeur_reel = self.valeur_reel
         ligne.exacte = self.exacte
+        for nom, valeur in changements.items():
+            if not hasattr(ligne, nom):
+                raise AttributeError(f"Ligne n'a pas d'attribut {nom!r}")
+            setattr(ligne, nom, valeur)
         return ligne
+
+    def copy(self) -> Self:
+        return self.avec()
 
     def __str__(self) -> str:
         wl = fmt.LIB_WIDTH

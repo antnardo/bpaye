@@ -2,7 +2,7 @@ import datetime as dt
 
 import pytest
 
-from bpaye.classes import Temporal
+from bpaye.classes import Ligne, Temporal
 from bpaye.config import BAREME
 
 
@@ -55,3 +55,16 @@ class TestTemporalAuDeclareAu:
         academie.append(dt.date(2019, 9, 1), "paris")
         assert academie.declare_au(dt.date(2019, 8, 31), "defaut") == "defaut"
         assert academie.declare_au(dt.date(2019, 9, 1), "defaut") == "paris"
+
+
+def test_ligne_avec_change_la_copie_seulement():
+    ligne = Ligne(100.0, "HSA", code=200205, classe="INDEM")
+    ligne.valeur_reel = 99.0
+    copie = ligne.avec(valeur=-100.0, sommable=True)
+    assert (copie.valeur, copie.sommable, copie.valeur_reel, copie.lib) == (-100.0, True, 99.0, "HSA")
+    assert (ligne.valeur, ligne.sommable) == (100.0, False)
+
+
+def test_ligne_avec_un_attribut_inconnu_echoue():
+    with pytest.raises(AttributeError, match="montant"):
+        Ligne(1.0).avec(montant=2.0)
