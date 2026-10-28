@@ -735,6 +735,26 @@ values = [
 ]
 
 # ──────────────────────────────────────────────
+# INDEMNITÉ DE PROFESSEUR PRINCIPAL DES AGRÉGÉS (201227, 202569 depuis le 1/9/2024)
+# Décret 93-55, art. 5, al. 2 : l'agrégé professeur principal garde l'indemnité de
+# professeur principal du décret de 1971 « au taux fixé au 1er septembre 1992 et non
+# revalorisé, tant que ce taux demeurera supérieur au taux de la part modulable » et qu'il
+# exerce dans une division qui y ouvrait droit (texte lu dans la copie consolidée au
+# 1/9/2005, https://snes.edu/IMG/pdf/decret_no_93-55_du_15_janvier_1993_isoe.pdf ; article
+# cité par l'annexe 14 B 2026 de la DGFiP, ligne 516).
+# Montant : 1 609,40 € par an au 1/9/2023 pour un agrégé professeur principal en 6e, 5e, 4e
+# et 3e de collège et en 2nde GT (circulaire ISOE-ISAE 2025 de l'académie de Nantes, code
+# 1227, https://textes-officiels-academiques.ac-nantes.fr/medias/fichier/circulaire-isoe-isae-mod-fonct-2025_1761820042407).
+# Avant le 1/9/2023 : MANQUANT (aucun montant lu), bpaye refuse.
+# ──────────────────────────────────────────────
+[professeur_principal_agrege]
+type  = "Fixe"
+unite = "annuel"
+values = [
+  { date = 2023-09-01, valeur = 1609.40 },
+]
+
+# ──────────────────────────────────────────────
 # HEURES SUPPLÉMENTAIRES : majorations (décret 50-1253)
 # Art. 2 : +20 % sur une heure au plus, +10 % en hors classe et en classe exceptionnelle
 # (pas en CPGE depuis le 1/9/2016, art. 3). Art. 5 : HSE = 1/36 de l'HSA majoré de 15 %,

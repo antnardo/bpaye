@@ -643,6 +643,7 @@ Ce qui ne se déduit pas devient une remarque, jamais une valeur devinée. Les b
 | 201339, 201856 | vacations de formation, actions à pilotage national | `paye.vacation`, au taux déclaré | décret 2010-235 ; décret 2014-1394 |
 | 200364 | ISOE part fixe | second degré | décret 93-55 ; arrêté du 15/01/1993 |
 | 201228, 202566 | ISOE part modulable | professeur principal, par niveau, indexée sur le point depuis 2009 ; les deux codes comparés comme une même ligne (la paie porte encore 201228 en 2026) | arrêté du 15/01/1993, art. 2 ; décret 93-55, art. 4 |
+| 201227, 202569 | indemnité de professeur principal des agrégés | agrégé professeur principal en 6e, 5e, 4e, 3e ou 2nde : 1 609,40 € par an au lieu de la part modulable, tant qu'elle la dépasse ; refusée avant septembre 2023 (montant non lu) ; les deux codes comparés comme une même ligne | décret 93-55, art. 5, al. 2 ; circulaire ISOE-ISAE 2025 de l'académie de Nantes |
 | 200597 | IFP | CPGE seulement ; suit le montant de la paie, 0,07 % au-dessus du texte (voir « Limites ») | décret 99-886 ; arrêté du 19/10/1999 |
 | 201914 | ISAE | professeurs des écoles | décret 2013-790 |
 | 201883, 201882 | REP, REP+ (part fixe) | rentrée en éducation prioritaire | décret 2015-1087 |

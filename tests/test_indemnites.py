@@ -120,6 +120,32 @@ def test_rep_plus_et_professeur_principal(tmp_path):
     assert (pp.code, pp.valeur) == (202566, round(1497.84 / 12, 2))
 
 
+def _agrege_professeur_principal(tmp_path, niveau):
+    extra = f'professeur_principal = "{niveau}"'
+    return _agent(tmp_path, corps="Agrégé", grille="GRILLE_AGCN", extra=extra)
+
+
+@pytest.mark.parametrize("niveau", ["6e-5e-4e", "3e", "2nde"])
+def test_agrege_professeur_principal_de_college_ou_de_seconde_a_son_indemnite(tmp_path, niveau):
+    pp = isoe_part_modulable(_agrege_professeur_principal(tmp_path, niveau), JOUR)
+    assert (pp.code, pp.valeur) == (202569, 134.12)
+
+
+def test_indemnite_de_professeur_principal_sous_201227_avant_la_recodification(tmp_path):
+    pp = isoe_part_modulable(_agrege_professeur_principal(tmp_path, "2nde"), dt.date(2024, 3, 31))
+    assert (pp.code, pp.valeur) == (201227, 134.12)
+
+
+def test_agrege_professeur_principal_de_premiere_a_la_part_modulable(tmp_path):
+    pp = isoe_part_modulable(_agrege_professeur_principal(tmp_path, "1re-terminale"), JOUR)
+    assert (pp.code, pp.valeur) == (202566, round(1497.84 / 12, 2))
+
+
+def test_indemnite_de_professeur_principal_refusee_avant_2023(tmp_path):
+    with pytest.raises(ValueError):
+        isoe_part_modulable(_agrege_professeur_principal(tmp_path, "3e"), dt.date(2023, 6, 30))
+
+
 def test_education_prioritaire_inconnue_refusee(tmp_path):
     fonc = _agent(tmp_path, extra='education_prioritaire = "ZEP"')
     with pytest.raises(ValueError, match="REP"):

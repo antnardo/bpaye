@@ -63,6 +63,9 @@ CORPS_ISAE = frozenset({"PE"})
 CORPS_SANS_PRIME_ATTRACTIVITE = frozenset({"Chaire Supérieure"})
 # ISOE part modulable : code 201228 jusqu'au 31/8/2024, 202566 ensuite (codes.toml).
 DATE_RECODAGE_ISOE_MODULABLE = dt.date(2024, 9, 1)
+# L'indemnité de professeur principal d'un agrégé (décret 93-55, art. 5, al. 2) : 201227,
+# 202569 au 1/9/2024 (codes.toml), dans les divisions qui y ouvraient droit (taux.toml).
+NIVEAUX_PROFESSEUR_PRINCIPAL_AGREGE = frozenset({"6e-5e-4e", "3e", "2nde"})
 # Pacte : les mois des neuf neuvièmes, supposés (aucun texte lu ne les donne).
 MOIS_PACTE = frozenset({10, 11, 12, 1, 2, 3, 4, 5, 6})
 
@@ -145,14 +148,25 @@ def indemnite_education_prioritaire(
 def isoe_part_modulable(fonc: Fonctionnaire, date: dt.date, bareme: Bareme = BAREME) -> Ligne | None:
     """ISOE part modulable du professeur principal, au douzième, selon le niveau de sa
     classe (taux.toml [isoe_modulable], indexée sur le point) ; depuis 2009, depuis 2021 pour
-    le professeur référent."""
+    le professeur référent. Un agrégé professeur principal de collège ou de 2nde touche à la
+    place l'indemnité de professeur principal (décret 93-55, art. 5, al. 2), tant qu'elle
+    dépasse la part modulable : bpaye la refuse avant le 1/9/2023 (MANQUANT)."""
     niveau = fonc.professeur_principal.au(date, None)
     if niveau is None:
         return None
     if niveau not in bareme.get("isoe_modulable"):
         raise ValueError(f"niveau de professeur principal inconnu {niveau!r}")
+    modulable = bareme.au(f"isoe_modulable.{niveau}", date)
+    if fonc.corps_au(date) == "Agrégé" and niveau in NIVEAUX_PROFESSEUR_PRINCIPAL_AGREGE:
+        # Le taux de 1992, non revalorisé, tant qu'il dépasse la part modulable.
+        agrege = round(bareme.au("professeur_principal_agrege", date), 2)
+        if agrege > modulable:
+            code = 202569 if date >= DATE_RECODAGE_ISOE_MODULABLE else 201227
+            return Ligne(
+                fonc.au_prorata(agrege, date), "Indemnité de professeur principal", code=code, classe="INDEM"
+            )
     code = 202566 if date >= DATE_RECODAGE_ISOE_MODULABLE else 201228
-    montant = fonc.au_prorata(bareme.au(f"isoe_modulable.{niveau}", date), date)
+    montant = fonc.au_prorata(modulable, date)
     return Ligne(montant, "ISOE Part modulable", code=code, classe="INDEM")
 
 

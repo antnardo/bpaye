@@ -53,6 +53,11 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et la
 - **ISOE part modulable** : indexée sur le point depuis les arrêtés de 2009, 2021 et 2023
   (auparavant refusée avant septembre 2023) ; 201228 et 202566 comparés comme une même
   ligne, la paie portant encore l'ancien code en 2026 (`codes.CODES_EQUIVALENTS`).
+- **Indemnité de professeur principal des agrégés** (201227, puis 202569 au 1/9/2024), signalée
+  par Bruno Pagani : un agrégé professeur principal en 6e, 5e, 4e, 3e ou 2nde touche
+  1 609,40 € par an au lieu de la part modulable, au taux de 1992 non revalorisé tant qu'il
+  la dépasse (décret 93-55, art. 5, al. 2) ; refusée avant septembre 2023, faute de montant
+  lu. Les deux codes sont comparés comme une même ligne.
 - **Option santé et prévoyance de la PSC, ancienne mutuelle** (`[[psc]]` d'`agent.toml`) :
   participations de l'employeur depuis mai 2026, la moitié du coût déclaré de l'option
   dans la limite de 5 € et 7 € pour l'adhésion à la prévoyance, d'après la page du
