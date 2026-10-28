@@ -164,6 +164,15 @@ imposable = false
 source    = "DGFiP, annexe 14 C 2026 (copie AMUE), ligne 12 ; annexe 14 C janvier 2023, p. 1, https://www.amue.fr/fileadmin/amue/ressources-humaines/veille-reglementaire/2023/JANV/11.pdf ; INGRES ligne 214 (IMPOSA 0) ; BJ janvier 2026 ligne 301"
 
 [[code]]
+code      = "201227"
+ir        = "1227"
+libelle   = "Indemnité de professeur principal"
+categorie = "revenu"
+imposable = true
+note      = "Indemnité de professeur principal des agrégés (décret 93-55, art. 5, al. 2), recodifiée 202569 au 1er septembre 2024 d'après INGRES ; encore portée par un bulletin d'octobre 2024 : la lecture doit connaître les deux."
+source    = "DGFiP, annexe 14 B 2026 (copie AMUE), ligne 516, « Décret n° 93-55 du 15 janvier 1993 [article 5, alinéa 2] » ; INGRES lignes 1189-1190 (fin au 2024-08-31, IMPOSA 1) ; BJ janvier 2026 ligne 995 « D71 884 DU 22/11/1971 D93 55 DU 15/01/1993 A/C 09/2005 »"
+
+[[code]]
 code      = "201228"
 ir        = "1228"
 libelle   = "Indemnité de suivi et d'orientation des élèves (part modulable)"

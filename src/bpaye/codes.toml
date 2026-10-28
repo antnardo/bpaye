@@ -313,6 +313,17 @@ source = "DGFiP, annexe 14 B 2026 (copie AMUE), ligne 456 ; annexe 14 b janvier 
 note = "Indemnité de fonction des enseignants détachés à la Défense, décret 2003-745 : montant individuel (décision du ministre, au plus 4 fois le montant moyen de la catégorie) ; déclaré dans [[detachements]] (indemnite_fonction)."
 
 [[code]]
+code = "201227"
+libelle = "IND. PROFESSEUR PRINCIPAL"
+libelle_officiel = "Indemnité de professeur principal"
+ir = "1227"
+rappel = true
+categorie = "revenu"
+imposable = true
+source = "DGFiP, annexe 14 B 2026 (copie AMUE), ligne 516, « Décret n° 93-55 du 15 janvier 1993 [article 5, alinéa 2] » ; INGRES lignes 1189-1190 (fin au 2024-08-31, IMPOSA 1) ; BJ janvier 2026 ligne 995 « D71 884 DU 22/11/1971 D93 55 DU 15/01/1993 A/C 09/2005 »"
+note = "Indemnité de professeur principal des agrégés (décret 93-55, art. 5, al. 2), recodifiée 202569 au 1er septembre 2024 d'après INGRES ; encore portée par un bulletin d'octobre 2024 : la lecture doit connaître les deux."
+
+[[code]]
 code = "201228"
 libelle = "I.S.O.E. PART MODULABLE"
 libelle_officiel = "Indemnité de suivi et d'orientation des élèves (part modulable)"

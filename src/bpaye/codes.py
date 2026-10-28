@@ -95,12 +95,15 @@ CATEGORIES: dict[str, str] = lit_toml(CODES_TOML)["categories"]
 # les additionne, l'écart de montant restant visible.
 # - ISOE modulable, recodée 202566 au 1/9/2024 d'après INGRES, encore portée sous 201228 par
 #   un bulletin d'agrégé d'août 2026 ;
+# - indemnité de professeur principal des agrégés, recodée 202569 au 1/9/2024 d'après INGRES,
+#   encore portée sous 201227 par un bulletin d'octobre 2024 ;
 # - indemnité compensatrice de CSG : 202206 pour un agent en activité au 31/12/2017, 202209
 #   pour un agent recruté ou réintégré depuis (annexe 14 B ; décret 2017-1889) ; bpaye émet
 #   202209, le montant venant d'agent.toml ;
 # - transfert primes/points : 604970 en catégorie A, 604972 en catégorie C, que la paie a
 #   appliqué à un agrégé en 2019 (BJ janvier 2026).
 CODES_EQUIVALENTS: tuple[frozenset[str], ...] = (
+    frozenset({"201227", "202569"}),
     frozenset({"201228", "202566"}),
     frozenset({"202206", "202209"}),
     frozenset({"604970", "604972"}),

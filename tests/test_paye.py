@@ -500,7 +500,9 @@ def test_isoe_modulable_lue_sous_l_un_ou_l_autre_code(configuration):
     assert [ligne.valeur_reel for ligne in bulletin if ligne.code == 202566] == [124.82]
 
 
-@pytest.mark.parametrize("groupe", [{"201228", "202566"}, {"202206", "202209"}, {"604970", "604972"}])
+@pytest.mark.parametrize(
+    "groupe", [{"201227", "202569"}, {"201228", "202566"}, {"202206", "202209"}, {"604970", "604972"}]
+)
 def test_codes_d_une_meme_ligne(groupe):
     from bpaye.codes import equivalents
 
