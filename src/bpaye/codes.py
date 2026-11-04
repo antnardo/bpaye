@@ -17,6 +17,7 @@ __all__ = [
     "COLLES",
     "CONTRIBUTION_SOLIDARITE",
     "FMD",
+    "HEURES_PONCTUELLES",
     "HSA",
     "HSE",
     "HSE_ACCOMPAGNEMENT",
@@ -31,12 +32,16 @@ __all__ = [
     "PRELEVEMENT_SOURCE",
     "RAFP",
     "RDT",
+    "REGULARISATION_ACOMPTE",
+    "REGULARISATION_PENSION",
     "RESIDENCE",
     "SFT",
     "SURVEILLANCE",
     "TPP",
     "TRAITEMENT",
     "TRAITEMENT_NBI",
+    "VACATION_FORMATION",
+    "VACATION_PILOTAGE",
     "equivalents",
     "load_codes",
 ]
@@ -69,6 +74,27 @@ CONTRIBUTION_SOLIDARITE = 555010
 RAFP = 501080
 PRELEVEMENT_SOURCE = 558000
 TPP = 604970
+VACATION_FORMATION = 201339  # décret 2010-235
+VACATION_PILOTAGE = 201856  # actions à pilotage national, décret 2014-1394
+REGULARISATION_PENSION = 604000  # la pension civile d'un rappel
+REGULARISATION_ACOMPTE = 800001  # un acompte versé sans bulletin, repris
+
+# Payées à l'heure, au gré des besoins : la carrière ne les prévoit pas, l'agent les
+# déclare (Paye.colle, Paye.hse, Paye.surveillance, Paye.vacation) ou la comparaison les
+# prend au bulletin (comparaison.compare_mois).
+HEURES_PONCTUELLES = frozenset(
+    {
+        COLLES,
+        HSE,
+        HSE_ACCOMPAGNEMENT,
+        HSE_REMPLACEMENT,
+        HSE_REUSSITE,
+        HSE_SUPPLEANCES,
+        SURVEILLANCE,
+        VACATION_FORMATION,
+        VACATION_PILOTAGE,
+    }
+)
 
 
 def load_codes(path: Path = CODES_TOML) -> dict[str, dict]:

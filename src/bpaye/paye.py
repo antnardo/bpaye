@@ -34,9 +34,12 @@ from bpaye.codes import (
     PRELEVEMENT_SOURCE,
     RAFP,
     RDT,
+    REGULARISATION_PENSION,
     RESIDENCE,
     SFT,
     TRAITEMENT,
+    VACATION_FORMATION,
+    VACATION_PILOTAGE,
     equivalents,
 )
 from bpaye.colles import Colle, Colles
@@ -743,12 +746,17 @@ class Paye:
     # Rémunérations à l'heure, au taux de chaque formation ou action : vacations de
     # formation (décret 2010-235), actions à pilotage national (décret 2014-1394).
     CODES_VACATION: ClassVar[dict[int, str]] = {
-        201339: "Vacations de formation",
-        201856: "Actions à pilotage national",
+        VACATION_FORMATION: "Vacations de formation",
+        VACATION_PILOTAGE: "Actions à pilotage national",
     }
 
     def vacation(
-        self, paiement_date: tuple[int, int], heures: float, taux: float, code: int = 201339, comm: str = ""
+        self,
+        paiement_date: tuple[int, int],
+        heures: float,
+        taux: float,
+        code: int = VACATION_FORMATION,
+        comm: str = "",
     ) -> None:
         """``heures`` à ``taux`` € l'heure, payées le mois ``paiement_date`` : le taux est
         celui de la formation ou de l'action, que l'agent lit sur son ordre de mission."""
@@ -936,7 +944,12 @@ class Paye:
                 classe="INDEM",
             )
             self.addligne(pyear, pmois, rappel_residence)
-        ligne_pc = Ligne(truncate(charges_du, 2), "Régulation cotisation PC" + lib, code=604000, classe="PC")
+        ligne_pc = Ligne(
+            truncate(charges_du, 2),
+            "Régulation cotisation PC" + lib,
+            code=REGULARISATION_PENSION,
+            classe="PC",
+        )
         self.addligne(pyear, pmois, ligne_pc, newcharge=True)
 
     def gipa(self, annee: int, paiement_date: tuple[int, int]) -> None:
