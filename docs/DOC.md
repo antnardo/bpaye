@@ -491,10 +491,34 @@ selection.somme().calcul, selection.somme().reel
 `reel` vient des bulletins, rappels compris ; un avertissement dit quand des mois manquent.
 `paye.select(lambda b: b.net_imposable, 2025)` somme une grandeur calculée, sans lecture.
 
-Comparer mois par mois et rubrique par rubrique, c'est ce que fait
-`examples/verifier.py` (voir le README) : les écarts restants désignent ce que la carrière
-ne dit pas encore (une colle déclarée, une promotion payée en retard : section
-précédente), ou une erreur de la paie.
+Comparer un mois rubrique par rubrique, c'est `comparaison.compare_mois`, qu'emploie
+`examples/verifier.py` (voir le README) :
+
+```python
+from bpaye.comparaison import compare_mois
+
+comparaison = compare_mois(paye, lu, 2026, 10)   # lu : le bulletin de l'employeur du mois
+for e in comparaison.imprevus:
+    print(e.code, e.libelle, e.calcul, e.bulletin, e.nature)
+comparaison.net_du, comparaison.net_percu, comparaison.conforme
+```
+
+Trois différences de rangement entre la paie et bpaye sont réglées avant la comparaison.
+
+- Les heures ponctuelles du bulletin (colles, HSE, surveillances, vacations :
+  `codes.HEURES_PONCTUELLES`) sont ajoutées au calcul, où elles portent CSG et impôt, et
+  restent hors de la comparaison.
+- Les rappels imprimés sur le bulletin vont à leur code. Ceux d'une promotion, payés par
+  décompte, ne se comparent qu'en total (`rappel_calcul`, `rappel_bulletin`). La
+  régularisation de pension (604000) compte avec la pension.
+- Les codes équivalents n'en font qu'un.
+
+Un écart est **induit** (`e.induit`) quand il ne fait que suivre un écart de revenu : la
+CSG, la CRDS et l'impôt d'une prime absente. Le bulletin est recalculé, sur une copie,
+avec les revenus lus ; ce qui retrouve alors son montant est induit. Les autres écarts
+(`comparaison.imprevus`) désignent ce que la carrière ne dit pas encore (une promotion
+payée en retard : section précédente), ou une erreur de la paie. `taux_ir_lu` et
+`imposable_lu` disent si un écart d'impôt vient du taux ou de l'assiette.
 
 Pour les colles, un écart s'accompagne de ce que le montant du bulletin représente en heures
 (`colles.decrit_colles`) : les nombres entiers d'heures à un seul code, avec le sens du

@@ -16,8 +16,9 @@ from pathlib import Path
 
 from bpaye import Fonctionnaire, Paye, charge_dossier
 from bpaye.bulletins import trouve_bulletins
-from bpaye.codes import ALL_CODES, equivalents
+from bpaye.codes import COLLES
 from bpaye.colles import decrit_colles
+from bpaye.comparaison import compare_mois
 from bpaye.format import MOIS
 from bpaye.pdf import BulletinLu, ecart_totaux, extract_bulletin, find_pdfs
 
@@ -58,31 +59,27 @@ def lire(dossier: Path, annee: int, agent: Fonctionnaire | None = None) -> dict[
 
 def comparer(agent: Fonctionnaire, annee: int, lus: dict[int, BulletinLu]) -> None:
     """Pour chaque mois, les rubriques où le calcul de bpaye et le bulletin de l'employeur
-    diffèrent ; les bulletins d'autres employeurs ne se comparent pas."""
+    diffèrent (bpaye.comparaison) ; les bulletins d'autres employeurs ne se comparent pas.
+    Un écart « induit » ne fait que suivre un écart de revenu (la CSG d'une prime absente)."""
     paye = Paye(agent)
     paye.generate_annees(annee)
 
     print(f"\n== Calcul et bulletin, rubrique par rubrique ({agent.nom})")
     for mois, lu in sorted(lus.items()):
-        calcul: dict[str, float] = {}
-        for ligne in paye(annee, mois):
-            code = min(equivalents(f"{ligne.code:06d}"))  # un code par ligne (201228 et 202566)
-            calcul[code] = calcul.get(code, 0.0) + abs(ligne.valeur)
-        lus_codes = {min(equivalents(cle[:6])) for cle in lu if cle[:1].isdigit()}
-        ecarts = []
-        for code in sorted(set(calcul) | lus_codes):
-            if code in ALL_CODES and ALL_CODES[code]["cat"] not in ("revenu", "retenue"):
-                continue  # cotisations patronales et lignes de synthèse : hors calcul
-            reel = sum(abs(lu.get(c, 0.0)) + abs(lu.get(c + "_R", 0.0)) for c in equivalents(code))
-            if abs(calcul.get(code, 0.0) - reel) > 0.005:
-                libelle = ALL_CODES[code]["libelle"] if code in ALL_CODES else ""
-                ecarts.append(
-                    f"{code} {libelle[:24]:24} calcul {calcul.get(code, 0.0):9.2f}  bulletin {reel:9.2f}"
-                )
-                if code == "200207" and reel:  # ce que le montant du bulletin représente en heures
-                    ecarts.append("       " + decrit_colles(reel, dt.date(annee, mois, 1)))
-        print(f"  {MOIS[mois - 1]:9}  " + ("identique" if not ecarts else f"{len(ecarts)} écart(s)"))
-        for ligne in ecarts:
+        comparaison = compare_mois(paye, lu, annee, mois)
+        lignes = [
+            f"{e.code} {e.libelle[:24]:24} calcul {e.calcul:9.2f}  bulletin {e.bulletin:9.2f}"
+            + ("  induit" if e.induit else "")
+            for e in comparaison.ecarts
+        ]
+        if comparaison.ecart_rappel:
+            lignes.append(f"rappels par décompte, bulletin − calcul : {comparaison.ecart_rappel:+.2f}")
+        for code, montant in comparaison.ponctuels.items():
+            if code == COLLES:  # ce que le montant du bulletin représente en heures
+                lignes.append("colles : " + decrit_colles(montant, dt.date(annee, mois, 1)))
+        etat = "identique" if comparaison.conforme else f"{len(comparaison.imprevus)} écart(s)"
+        print(f"  {MOIS[mois - 1]:9}  {etat}")
+        for ligne in lignes:
             print(f"             {ligne}")
 
 

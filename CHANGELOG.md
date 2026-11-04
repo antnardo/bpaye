@@ -7,6 +7,14 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et la
 
 ### Ajouté
 
+- **Comparaison d'un mois** (`bpaye.comparaison.compare_mois`) : le bulletin de
+  l'employeur contre son calcul, rubrique par rubrique. Les heures ponctuelles sont prises
+  au bulletin (`codes.HEURES_PONCTUELLES`), les rappels par décompte comparés en total, la
+  régularisation de pension comptée avec la pension. Les écarts qui ne font que suivre un
+  revenu (CSG, impôt d'une prime absente) sont marqués induits. `examples/verifier.py`
+  s'en sert.
+- **Codes nommés** : `VACATION_FORMATION`, `VACATION_PILOTAGE`, `REGULARISATION_PENSION`,
+  `REGULARISATION_ACOMPTE`.
 - **Retards de la Défense** : `[defense]` a son propre calendrier dans `academies.toml`
   (HSA et majoration d'octobre et de novembre payées en décembre, IFP à son mois), relevé
   sur des bulletins papier de 2017 et 2018 ; une rubrique peut avoir plusieurs mois en
