@@ -10,7 +10,7 @@ from bpaye import charge_agent, load_agent
 from bpaye.classes import Ligne, ListeLignes
 from bpaye.indemnite_residence import calc_indemnite_residence
 from bpaye.mgen import mgen_part_employeur
-from bpaye.paye import CODE_RAPPEL_TRAITEMENT, Bulletin, Paye, signe_bpaye
+from bpaye.paye import CODE_RAPPEL, CODE_RAPPEL_TRAITEMENT, Bulletin, Paye, signe_bpaye
 from bpaye.pdf import BulletinLu, EmployeurLu
 from bpaye.point import calc_traitement_brut, traitement_plein, valeur_point
 from bpaye.prevision import nets_prevus
@@ -276,6 +276,60 @@ def test_promotion_payee_en_retard_a_temps_partiel_rappelle_la_fraction(configur
     attendu = 2 * (calc_traitement_brut(indice, jour) - calc_traitement_brut(indice - 50, jour)) * 0.5
     rappel = sum(ligne.valeur for ligne in paye(2026, 11) if ligne.code == 999998)
     assert rappel == pytest.approx(attendu, abs=0.02)
+
+
+def _rappel_residence(bulletin):
+    return sum(
+        ligne.valeur
+        for ligne in bulletin
+        if ligne.code == CODE_RAPPEL and ligne.lib.startswith("Rappel d'indemnité de résidence")
+    )
+
+
+class TestRappelIndemniteResidence:
+    def _payes(self, configuration):
+        a_temps, en_retard = _paye(configuration, 1, 6), _paye(configuration, 1, 6)
+        indice = en_retard.fonctionnaire.indice(dt.date(2025, 1, 31))
+        en_retard.retard_indice((2025, 1), (2025, 3), indice=indice - 50)
+        return a_temps, en_retard, indice
+
+    def test_promotion_en_retard_paie_l_indemnite_de_l_ancien_indice(self, configuration):
+        a_temps, en_retard, indice = self._payes(configuration)
+        jour = dt.date(2025, 1, 31)
+        assert _valeur(en_retard(2025, 1), 102000) == calc_indemnite_residence(
+            1, calc_traitement_brut(indice - 50, jour), valeur_point(jour)
+        )
+        assert _valeur(en_retard(2025, 1), 102000) < _valeur(a_temps(2025, 1), 102000)
+
+    def test_promotion_en_retard_rappelle_3_pourcent_de_l_ecart_tronque(self, configuration):
+        # Décompte de juillet 2021 : 3 % de 220,25 = 6,60 par mois, tronqué.
+        _, en_retard, indice = self._payes(configuration)
+        jour = dt.date(2025, 1, 31)
+        ecart = calc_traitement_brut(indice, jour) - calc_traitement_brut(indice - 50, jour)
+        assert _rappel_residence(en_retard(2025, 3)) == pytest.approx(2 * truncate(0.03 * ecart, 2))
+
+    def test_rappel_rattrape_l_indemnite_due_au_centime(self, configuration):
+        a_temps, en_retard, _ = self._payes(configuration)
+        percu = sum(_valeur(en_retard(2025, m), 102000) for m in (1, 2)) + _rappel_residence(
+            en_retard(2025, 3)
+        )
+        du = sum(_valeur(a_temps(2025, m), 102000) for m in (1, 2))
+        assert percu == pytest.approx(du, abs=0.02)
+
+    def test_rappel_entre_dans_les_assiettes_csg_et_rafp(self, configuration):
+        a_temps, en_retard, _ = self._payes(configuration)
+        paiement, reference = en_retard(2025, 3), a_temps(2025, 3)
+        rappels = paiement.total(CODE_RAPPEL)
+        assert _rappel_residence(paiement) > 0
+        traitement = paiement.total(CODE_RAPPEL_TRAITEMENT)
+        assert paiement.assiette_csg - reference.assiette_csg == pytest.approx(rappels + traitement)
+        assert paiement.assiette_rafp - reference.assiette_rafp == pytest.approx(rappels)
+
+    def test_zone_3_sans_rappel(self, configuration):
+        _, agent = configuration
+        agent.write_text(agent.read_text(encoding="utf-8").replace("zone = 1", "zone = 3"), encoding="utf-8")
+        _, en_retard, _ = self._payes(configuration)
+        assert _rappel_residence(en_retard(2025, 3)) == 0
 
 
 def test_select_d_une_fonction_qui_echoue_le_fait_savoir(configuration):
@@ -559,6 +613,17 @@ def test_rappel_d_un_echelon_pris_en_cours_de_mois_au_centime_de_la_paie(configu
     t_nouveau = calc_traitement_brut(nouveau, changement)
     attendu = round(truncate(t_nouveau * 23 / 30, 2) - truncate(t_ancien * 23 / 30, 2), 2)
     assert round(rappel.valeur, 2) == attendu
+
+
+def test_rappel_d_indemnite_d_un_echelon_pris_en_cours_de_mois_sur_le_rappel(configuration):
+    # Décompte de juillet 2021, septembre 2020 : 3 % de 168,86 = 5,06.
+    paye, fonc, changement = _paye_echelon_le_8(configuration)
+    _, ancien, _ = fonc.changement_d_indice(changement)
+    mois = (changement.year, changement.month)
+    paiement = (changement.year + (changement.month + 2) // 12, (changement.month + 2) % 12 + 1)
+    paye.retard_indice(mois, paiement, indice=ancien, every=False)
+    rappel = paye(*paiement).total(CODE_RAPPEL_TRAITEMENT)
+    assert _rappel_residence(paye(*paiement)) == pytest.approx(truncate(0.03 * rappel, 2))
 
 
 def test_rappels_d_une_rubrique_arrondis_depuis_leurs_montants_exacts(configuration):

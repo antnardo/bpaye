@@ -76,6 +76,12 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et la
 
 ### Corrigé
 
+- `Paye.retard_statut` (`retard_indice`, `retard_sft`) rappelle aussi l'indemnité de
+  résidence : les mois d'attente la portent sur le traitement de l'ancien indice, et le mois
+  du paiement en rappelle le taux de la zone sur l'écart de traitement, tronqué mois par
+  mois comme les décomptes (art. 9 du décret 85-1148). Le rappel entre dans les assiettes
+  de la CSG et de la RAFP, comme l'indemnité du mois. Retrouve au centime les décomptes de
+  juillet 2021, novembre 2023 et avril 2026.
 - `Paye.erreur` sur une retenue : la ligne garde la classe de sa catégorie (pension, RAFP,
   impôt, charge) et son signe, au lieu d'une indemnité positive.
 - Code 202476 (ISAE part fonctionnelle, le Pacte des professeurs des écoles), que bpaye

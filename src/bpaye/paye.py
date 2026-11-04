@@ -45,7 +45,11 @@ from bpaye.fonctionnaire import Fonctionnaire
 from bpaye.gipa import gipa as ligne_gipa
 from bpaye.hsa import hsa, hsa_majo, hse, hsi, surveillance
 from bpaye.indemnite_comp_csg import indemnite_comp_csg
-from bpaye.indemnite_residence import indemnite_residence
+from bpaye.indemnite_residence import (
+    base_indemnite_residence,
+    indemnite_residence,
+    rappel_indemnite_residence,
+)
 from bpaye.indemnites import (
     forfait_mobilite_durable,
     indemnite_detachement,
@@ -75,6 +79,7 @@ from bpaye.point import (
     traitement_indiciaire,
     traitement_nbi,
     traitement_plein,
+    valeur_point,
 )
 from bpaye.sft import sft, sft_du_mois
 from bpaye.temps_partiel import reduit, taux_surcotisation
@@ -832,6 +837,7 @@ class Paye:
         pdate = dt.date(pyear, pmois, 1)
         du_traitement: float = 0
         du_sft: float = 0
+        du_residence: float = 0
         charges_du: float = 0
         while dt.date(year, mois, 1) < pdate:
             # parcoure tous les mois jusqu'à régulation
@@ -861,6 +867,12 @@ class Paye:
                     classe="INDEM",
                 )
             )
+            # L'indemnité de résidence perçue, sur le traitement de l'ancien indice
+            # (indemnite_residence.py, art. 9 du décret 85-1148).
+            zone = self.fonctionnaire.residence(jour)
+            if bulletin.get_all_fromcode(RESIDENCE):
+                bulletin.pop(RESIDENCE)
+            bulletin.append(indemnite_residence(self.fonctionnaire, jour, self.bareme, plein_retard + nbi))
             bulletin.generate_charges()  # pension et cotisations sur ce qui a été perçu
             pc_retard = bulletin(PENSION).valeur
             # cumuls :
@@ -876,12 +888,21 @@ class Paye:
                 du_part = truncate(nouveau * (30 - jours) / 30, 2)
                 percu_part = truncate(brut_retard * (30 - jours) / 30, 2)
                 du_traitement += du_part - percu_part
+                # Le rappel d'indemnité, sur le seul rappel de traitement (décompte de juillet
+                # 2021 : 3 % de 168,86 = 5,06) ; le plancher de l'art. 9 n'y est pas appliqué,
+                # aucun décompte d'un traitement sous le plancher n'ayant été lu.
+                du_residence += rappel_indemnite_residence(zone, du_part - percu_part, self.bareme)
                 charges_du += (
                     pension_civile(du_part, jour, self.bareme).valeur
                     - pension_civile(percu_part, jour, self.bareme).valeur
                 )
             else:
                 du_traitement += ligne_brut.valeur - brut_retard
+                pt = valeur_point(jour, self.bareme)
+                ecart_base = base_indemnite_residence(
+                    traitement_plein(self.fonctionnaire, jour, self.bareme), pt, jour, self.bareme
+                ) - base_indemnite_residence(plein_retard + nbi, pt, jour, self.bareme)
+                du_residence += rappel_indemnite_residence(zone, reduit(ecart_base, fraction), self.bareme)
                 charges_du += pc_due - pc_retard
             du_sft += sft_du - sft_retard
             # incrémentation
@@ -893,7 +914,12 @@ class Paye:
         year, mois = original_date
         lib = f" {year}-{mois} - {pyear}-{pmois} (ind. {indice_retard}/{n_enfants_retard} enf.)"
         # Le rappel de traitement relève le plafond de la RAFP (traitement perçu) sans
-        # entrer dans son assiette ; celui du SFT entre dans l'assiette, comme le SFT.
+        # entrer dans son assiette ; ceux du SFT et de l'indemnité de résidence entrent dans
+        # les assiettes de la CSG et de la RAFP, comme le SFT et l'indemnité du mois : la RAFP
+        # porte sur les revenus de l'assiette de la CSG, « à l'exception de ceux qui entrent
+        # dans l'assiette de calcul des pensions » (décret 2004-569, art. 2, version du
+        # 17/4/2024), et l'indemnité n'y entre pas. La CSG du décompte de juillet 2021 le
+        # confirme : 6,8 % × 98,25 % × 64,46 = 4,31, l'écart du calcul sans ce rappel.
         rappel_traitement = Ligne(
             du_traitement, "Rappel de traitement" + lib, code=CODE_RAPPEL_TRAITEMENT, classe="INDEM"
         )
@@ -902,6 +928,14 @@ class Paye:
             self.addligne(
                 pyear, pmois, Ligne(du_sft, "Rappel de SFT" + lib, code=CODE_RAPPEL, classe="INDEM")
             )
+        if du_residence:
+            rappel_residence = Ligne(
+                round(du_residence, 2),
+                "Rappel d'indemnité de résidence" + lib,
+                code=CODE_RAPPEL,
+                classe="INDEM",
+            )
+            self.addligne(pyear, pmois, rappel_residence)
         ligne_pc = Ligne(truncate(charges_du, 2), "Régulation cotisation PC" + lib, code=604000, classe="PC")
         self.addligne(pyear, pmois, ligne_pc, newcharge=True)
 
