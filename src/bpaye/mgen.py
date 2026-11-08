@@ -10,17 +10,18 @@ CODES
   720580  MGEN PART EMPLOYEUR    participation patronale 37,70 €      pour information
 
 ──────────────────────────────────────────────────────────────
-PART SOLIDAIRE (720577) : LA FORMULE DE LA PAIE (docs/mgen.md)
+PART SOLIDAIRE (720577) : LE DÛ, PAS LA FORMULE DE LA PAIE (docs/mgen.md)
 ──────────────────────────────────────────────────────────────
-Le contrat MGEN – CNP qui fixe la formule n'a pas été trouvé ; bpaye reprend celle qui
-retrouve les bulletins (mai à septembre 2026) :
+Un taux appliqué à la rémunération soumise à CSG-CRDS, dans la limite du PMSS (FAQ MGEN
+du contrat collectif santé, docs/mgen.md) :
 
-    coeff = (MIN(brut − TPP, PMSS + TPP) + TPP) / BrutMoyen
+    coeff = MIN(brut − TPP, PMSS) / BrutMoyen
 
 brut : la rémunération brute du mois (éléments à payer), pas le seul traitement
-indiciaire. Le TPP y compte deux fois ; on attendrait MIN(brut − TPP, PMSS) / BrutMoyen, soit 0,47 €
-de moins par mois au-delà du plafond (exemple fictif : 29,63 € au lieu de 29,16 € pour
-brut = 4 100 €).
+indiciaire ; brut − TPP est l'assiette de la CSG avant abattement. La paie (PAY18E V4.2)
+calcule MIN(brut − TPP, PMSS + TPP) + TPP : le TPP y compte deux fois, soit 0,47 €
+de trop par mois au-delà du plafond, 0,24 € en deçà (exemple fictif : 29,63 € au lieu de
+29,16 € pour brut = 4 100 €). bpaye calcule le dû ; l'écart signale l'erreur.
 
 ──────────────────────────────────────────────────────────────
 CSG/CRDS – TRAITEMENT DE LA PART PATRONALE 720580
@@ -59,13 +60,14 @@ def mgen_part_employeur(date: dt.date, bareme: Bareme = BAREME) -> float:
 
 
 def _part_solidaire(brut: float, date: dt.date, bareme: Bareme = BAREME) -> float:
-    """720577 : la formule de la paie, TPP compté deux fois (docs/mgen.md)."""
+    """720577 : un taux sur la rémunération soumise à CSG (brut − TPP), plafonnée au PMSS
+    (docs/mgen.md)."""
     base = bareme.au("mgen.taux_solidaire_base", date) * bareme.au("mgen.base", date)
     if base == 0.0:
         return 0.0
     pmss = bareme.au("pmss", date)
     tpp = bareme.au("transfertpp", date)  # mensuel (annuel ÷ 12)
-    coeff = (min(brut - tpp, pmss + tpp) + tpp) / bareme.au("mgen.brut_moyen", date)
+    coeff = min(brut - tpp, pmss) / bareme.au("mgen.brut_moyen", date)
     return round(base * coeff, 2)
 
 

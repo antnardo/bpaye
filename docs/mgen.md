@@ -9,9 +9,11 @@ les parts variables étant « calculées sur la base de votre rémunération men
 page lue le 17 octobre 2026). bpaye en imprime quatre : la participation employeur (720580), imprimée
 « pour information », n'entre que dans l'assiette de la CSG et de la CRDS.
 
-Le contrat qui fixe les formules n'a pas été trouvé en ligne. Les formules de bpaye sont
-celles qui retrouvent au centime les bulletins PAY18E V4.2 de 2026 : c'est ce que fait la
-paie, pas ce que dit un texte. Les montants de cette page sont fictifs.
+Le contrat de l'Éducation nationale n'a pas été trouvé en ligne. La part solidaire suit
+la règle que donne la FAQ du contrat collectif santé MGEN de même construction, celui du
+ministère de l'Europe et des Affaires étrangères (ci-dessous) ; les autres parts sont
+celles qui retrouvent au centime les bulletins PAY18E V4.2 de 2026. Les montants de cette
+page sont fictifs.
 
 ## Les cinq lignes
 
@@ -31,30 +33,52 @@ hors-taxe est donné par (`taux.toml`, `mgen.taux_taxe`).
 
 ## La part solidaire (720577)
 
-bpaye calcule :
+La FAQ des agents du contrat collectif MGEN du ministère des Affaires étrangères (MGEN,
+octobre 2025, question 71,
+<https://www.mgen.fr/sites/default/files/2025-10/MEAE_AEFE_FAQ_Sant%C3%A9_Agents.pdf>)
+dit de la part solidaire qu'elle s'obtient « en appliquant un taux à l'assiette de sa
+rémunération soumise à CSG-CRDS dans la limite d'un plafond mensuel de Sécurité sociale »,
+primes et heures supplémentaires comprises (questions 77, 78 et 81). Le contrat de
+l'Éducation nationale a la même structure (cotisation d'équilibre partagée 50/20/30) ;
+qu'il ait la même assiette est plausible, non vérifié sur son texte.
+
+bpaye calcule donc :
 
 ```text
-coefficient = (MIN(brut - TPP, PMSS + TPP) + TPP) / brut moyen
+coefficient = MIN(brut - TPP, PMSS) / brut moyen
 720577      = arrondi(30 % × (`taux.toml`, `mgen.base`) × coefficient, 2)
 ```
 
 où `brut` est la rémunération brute du mois (les éléments à payer, hors remboursements de
-frais ; pas le seul traitement indiciaire : un bulletin sous le plafond le montre), `PMSS` le plafond mensuel de la
-sécurité sociale (4 005 € en 2026), `TPP` le transfert primes-points mensuel (389 / 12 =
-32,42 €) et `brut moyen` le brut mensuel moyen des agents de l’EN (3 107 € en
-2024, valeur utilisée pour 2026), obtenu de source syndicale : aucun texte lu
+frais), `brut − TPP` l'assiette de la CSG avant abattement (`docs/csg.md`), `PMSS` le
+plafond mensuel de la sécurité sociale (4 005 € en 2026), `TPP` le transfert primes-points
+mensuel (389 / 12 = 32,42 €) et `brut moyen` le brut mensuel moyen des agents de l'EN
+(3 107 € en 2024, valeur utilisée pour 2026), obtenu de source syndicale : aucun texte lu
 ne le donne.
 
 Pour une rémunération brute de 4 100 € :
 
 ```text
-MIN(4 100,00 - 32,42 ; 4 005 + 32,42) + 32,42 = 4 037,42 + 32,42 = 4 069,84
-0,3 × 75,40 × 4 069,84 / 3 107 = 29,629…  → 29,63 €
+MIN(4 100,00 - 32,42 ; 4 005) = 4 005,00
+0,3 × 75,40 × 4 005,00 / 3 107 = 29,157…  → 29,16 €
 ```
 
-Le TPP y compte deux fois : une fois dans le plafond, une fois ajouté. On attendrait
-plutôt un traitement net du TPP, plafonné au PMSS, soit `MIN(brut − TPP, PMSS)`
-(29,16 € dans cet exemple) ; aucun texte lu ne tranche.
+### Ce que fait la paie
+
+Les bulletins PAY18E V4.2 de 2026 suivent une autre formule, qui les retrouve au centime :
+
+```text
+coefficient = (MIN(brut - TPP, PMSS + TPP) + TPP) / brut moyen
+```
+
+Le TPP y compte deux fois : une fois dans le plafond, une fois ajouté. Sous le plafond,
+l'assiette est le brut, TPP compris (0,24 € de trop par mois) ; au-delà, le plafond est
+relevé de deux TPP (29,63 € au lieu de 29,16 € dans l'exemple, 0,47 € de trop). bpaye
+calcule le dû : la comparaison au bulletin montre cet écart sur 720577, et les retenues
+qui en dépendent (720578, 720579, impôt) suivent.
+
+Ce qui est attendu, ce qui est observé sur les bulletins et les lectures possibles :
+[`mgen_part_solidaire.md`](mgen_part_solidaire.md).
 
 ## Si la paie change de formule
 

@@ -84,6 +84,11 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et la
 
 ### Corrigé
 
+- **MGEN, part solidaire (720577)** : un taux sur la rémunération soumise à CSG (brut −
+  TPP), plafonnée au PMSS, comme le dit la FAQ MGEN du contrat collectif santé
+  (`docs/mgen.md`). bpaye reprenait la formule de la paie, qui compte le TPP deux fois
+  (0,24 € par mois de trop sous le plafond, 0,47 € au-delà) : l'écart au bulletin signale
+  désormais cette erreur (`docs/mgen_part_solidaire.md`).
 - `Paye.retard_statut` (`retard_indice`, `retard_sft`) rappelle aussi l'indemnité de
   résidence : les mois d'attente la portent sur le traitement de l'ancien indice, et le mois
   du paiement en rappelle le taux de la zone sur l'écart de traitement, tronqué mois par
