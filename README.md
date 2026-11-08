@@ -324,11 +324,26 @@ Le guide complet, avec chaque clé des fichiers et chaque rubrique calculée, es
   [« Limites »](docs/DOC.md#9-limites)).
 - **Les contractuels**, dont l'indice dépend de l'académie, et **l'enseignement privé**,
   qui relève d'autres cotisations.
-- **La part solidaire de la PSC santé** : bpaye reproduit la formule des bulletins, qui
-  plafonne l'assiette au PMSS plus deux TPP ; le contrat de l'Éducation nationale, qui
-  dirait le dû, n'a pas été lu ([`docs/mgen_part_solidaire.md`](docs/mgen_part_solidaire.md)).
-- **Le calendrier de la paie** (l'IFP de septembre payée en octobre, les HSA d'octobre en
-  novembre) vient de bulletins réels, non d'un texte.
+
+Quatre points du calcul restent douteux, faute d'un texte qui tranche :
+
+- **La part solidaire de la PSC santé** (720577) : bpaye reproduit la formule des
+  bulletins, qui plafonne l'assiette au PMSS plus deux TPP, quand la FAQ MGEN d'un contrat
+  voisin la plafonne au PMSS (0,47 € par mois de plus). Le brut moyen qui la module, et
+  la cotisation de 2027 et 2028, sont de source syndicale ; les remboursements de frais
+  sont supposés hors de l'assiette
+  ([`docs/mgen_part_solidaire.md`](docs/mgen_part_solidaire.md)).
+- **Le plafond d'exonération des heures supplémentaires en 2020 et 2021** : la loi
+  2020-473 (art. 4) le porte à 7 500 € pour les heures faites entre le 16 mars 2020 et
+  « le dernier jour de l'état d'urgence sanitaire », sans dire lequel ; bpaye garde
+  5 000 €. Des bulletins de 2021 exonèrent 7 500 € : si le second état d'urgence
+  (octobre 2020 - juin 2021) compte, c'est bpaye qui se trompe.
+- **L'IFP suit la paie, pas le texte** : indexé depuis l'arrêté de 1999, le montant serait
+  inférieur de 0,07 % ; bpaye part du premier montant payé relevé
+  ([`docs/indexation.md`](docs/indexation.md)).
+- **Les règles relevées sur des bulletins** : le calendrier de la paie (l'IFP de septembre
+  payée en octobre, les HSA d'octobre en novembre) et le passage, en février 2026, d'une
+  assiette de CSG tronquée à une assiette arrondie ([`docs/csg.md`](docs/csg.md)).
 
 ## Développement
 

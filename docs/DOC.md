@@ -723,8 +723,14 @@ Chaque montant est dans `taux.toml` avec sa source ; chaque indice et chaque dur
   les HSA d'octobre et l'IFP de septembre payées le mois suivant (`academies.toml`,
   relevé à Paris et prêté aux autres académies), et le passage, en février 2026, d'une assiette de CSG
   tronquée à une assiette arrondie (`charges.NOUVEAU_LOGICIEL_PAIE`).
-- La part solidaire de la PSC santé n'est vérifiée qu'au-dessus du plafond de la
-  sécurité sociale.
+- La part solidaire de la PSC santé reproduit la paie, vérifiée au centime au-dessus et
+  au-dessous du plafond de la sécurité sociale ; son plafond (PMSS + 2 × TPP) n'est écrit
+  nulle part ([`mgen_part_solidaire.md`](mgen_part_solidaire.md)).
+- Le plafond d'exonération des heures supplémentaires porté à 7 500 € pendant l'état
+  d'urgence sanitaire (loi 2020-473, art. 4,
+  <https://www.legifrance.gouv.fr/jorf/article_jo/JORFARTI000041820871>) n'est pas
+  appliqué : bpaye garde 5 000 € en 2020 et 2021, quand des bulletins de 2021 exonèrent
+  7 500 €. La fin de l'état d'urgence visée reste à établir.
 - Les données marquées MANQUANT dans `docs/verification/` : chaires supérieures avant
   2010 ; texte de l'arrêté de 1957 sur la durée des chevrons (1 an, lu dans une décision
   du Conseil d'État qui le cite) ; plafonds de transport avant août 2016 ; taux de la
