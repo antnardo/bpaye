@@ -325,7 +325,7 @@ Le guide complet, avec chaque clé des fichiers et chaque rubrique calculée, es
 - **Les contractuels**, dont l'indice dépend de l'académie, et **l'enseignement privé**,
   qui relève d'autres cotisations.
 
-Quatre points du calcul restent douteux, faute d'un texte qui tranche :
+Trois points du calcul restent douteux, faute d'un texte qui tranche :
 
 - **La part solidaire de la PSC santé** (720577) : bpaye reproduit la formule des
   bulletins, qui plafonne l'assiette au PMSS plus deux TPP, quand la FAQ MGEN d'un contrat
@@ -341,9 +341,14 @@ Quatre points du calcul restent douteux, faute d'un texte qui tranche :
 - **L'IFP suit la paie, pas le texte** : indexé depuis l'arrêté de 1999, le montant serait
   inférieur de 0,07 % ; bpaye part du premier montant payé relevé
   ([`docs/indexation.md`](docs/indexation.md)).
-- **Les règles relevées sur des bulletins** : le calendrier de la paie (l'IFP de septembre
-  payée en octobre, les HSA d'octobre en novembre) et le passage, en février 2026, d'une
-  assiette de CSG tronquée à une assiette arrondie ([`docs/csg.md`](docs/csg.md)).
+
+Les règles d'arrondi, enfin, ont toutes été retrouvées empiriquement, sur des bulletins :
+aucun texte ne les donne. C'est le cas du passage, en février 2026, d'une assiette de CSG
+tronquée au centime à une assiette arrondie, quand la paie change de logiciel
+([`docs/csg.md`](docs/csg.md)), comme des arrondis de la PSC santé
+([`docs/mgen.md`](docs/mgen.md)) et de l'indexation de l'ISOE et de l'IFP
+([`docs/indexation.md`](docs/indexation.md)). Un bulletin d'un autre logiciel de paie
+pourrait s'en écarter d'un centime.
 
 ## Développement
 
