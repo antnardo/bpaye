@@ -304,10 +304,9 @@ class Bulletin(ListeLignes):
         if self.hs_brut > 0 and (reduction := reduc_cotis_hs(self.hs_brut, self.brut * 12, date, b)):
             self.append(reduction)
         # La part solidaire suit la rémunération brute du mois, pas le seul traitement
-        # indiciaire : sur un bulletin d'août 2026 sous le plafond, la paie prend les
-        # 3 403,54 € d'éléments à payer, pas le traitement de 2 692,76 €
-        # (docs/mgen_part_solidaire.md). Les remboursements de frais n'en sont pas, supposé :
-        # ce bulletin n'en a pas.
+        # indiciaire (bulletin d'août 2026 sous le plafond : 24,78 € sur 3 403,54 € d'éléments
+        # à payer, 19,60 € sur le traitement de 2 692,76 €). Les remboursements de frais n'en
+        # sont pas, supposé : ce bulletin n'en a pas.
         frais = self.frais_exoneres
         for ligne in mgen_charges(self.revenus - frais, date, b):
             self.append(ligne)

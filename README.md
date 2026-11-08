@@ -196,9 +196,9 @@ for mois in nets_prevus(carriere, agent, (2026, 8), 3):
 
 ```text
 Somme [200364] réel=—  calcul=2428.56 € (0/12 mois PDF)
-2026 8 2755.85
-2026 9 2167.26
-2026 10 2167.26
+2026 8 2755.62
+2026 9 2167.01
+2026 10 2167.02
 ```
 
 En septembre 2026, l'agente passe à 80 % : la prévision le montre. Ce que la carrière ne
@@ -324,10 +324,8 @@ Le guide complet, avec chaque clé des fichiers et chaque rubrique calculée, es
   [« Limites »](docs/DOC.md#9-limites)).
 - **Les contractuels**, dont l'indice dépend de l'académie, et **l'enseignement privé**,
   qui relève d'autres cotisations.
-- **La part solidaire de la PSC santé** : bpaye la calcule sur la rémunération soumise à
-  CSG, plafonnée au PMSS, d'après la FAQ du contrat MGEN d'un autre ministère ; la paie
-  s'en écarte de 0,24 à 0,47 € par mois, et le contrat de l'Éducation nationale reste à lire
-  ([`docs/mgen_part_solidaire.md`](docs/mgen_part_solidaire.md)).
+- **La part solidaire de la PSC santé sous le plafond de la sécurité sociale** : aucun
+  bulletin ne la vérifie encore ([`docs/mgen.md`](docs/mgen.md)).
 - **Le calendrier de la paie** (l'IFP de septembre payée en octobre, les HSA d'octobre en
   novembre) vient de bulletins réels, non d'un texte.
 
