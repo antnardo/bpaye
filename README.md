@@ -324,8 +324,9 @@ Le guide complet, avec chaque clé des fichiers et chaque rubrique calculée, es
   [« Limites »](docs/DOC.md#9-limites)).
 - **Les contractuels**, dont l'indice dépend de l'académie, et **l'enseignement privé**,
   qui relève d'autres cotisations.
-- **La part solidaire de la PSC santé sous le plafond de la sécurité sociale** : aucun
-  bulletin ne la vérifie encore ([`docs/mgen.md`](docs/mgen.md)).
+- **La part solidaire de la PSC santé** : bpaye reproduit la formule des bulletins, qui
+  plafonne l'assiette au PMSS plus deux TPP ; le contrat de l'Éducation nationale, qui
+  dirait le dû, n'a pas été lu ([`docs/mgen_part_solidaire.md`](docs/mgen_part_solidaire.md)).
 - **Le calendrier de la paie** (l'IFP de septembre payée en octobre, les HSA d'octobre en
   novembre) vient de bulletins réels, non d'un texte.
 

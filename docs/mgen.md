@@ -54,7 +54,8 @@ MIN(4 100,00 - 32,42 ; 4 005 + 32,42) + 32,42 = 4 037,42 + 32,42 = 4 069,84
 
 Le TPP y compte deux fois : une fois dans le plafond, une fois ajouté. On attendrait
 plutôt un traitement net du TPP, plafonné au PMSS, soit `MIN(brut − TPP, PMSS)`
-(29,16 € dans cet exemple) ; aucun texte lu ne tranche.
+(29,16 € dans cet exemple). Ce qui est attendu, ce qui est observé sur les bulletins et
+les lectures possibles : [`mgen_part_solidaire.md`](mgen_part_solidaire.md).
 
 ## Si la paie change de formule
 

@@ -65,6 +65,13 @@ def _part_solidaire(brut: float, date: dt.date, bareme: Bareme = BAREME) -> floa
         return 0.0
     pmss = bareme.au("pmss", date)
     tpp = bareme.au("transfertpp", date)  # mensuel (annuel ÷ 12)
+    # MIN(brut − TPP, PMSS + TPP) + TPP vaut MIN(brut, PMSS + 2 × TPP) : sous le plafond,
+    # l'assiette est le brut entier, TPP compris ; au-delà, elle est plafonnée à PMSS plus
+    # deux TPP (4 069,84 € en 2026), et non au PMSS. Les bulletins de 2026 l'imposent au
+    # centime (29,63 € au-delà du plafond, au lieu de 29,16 € au PMSS), mais aucun texte ne
+    # dit ce plafond : la FAQ MGEN d'un contrat voisin plafonne au PMSS la rémunération
+    # soumise à CSG. Probable erreur de la paie, reproduite tant que le contrat de l'EN
+    # n'est pas lu (docs/mgen_part_solidaire.md).
     coeff = (min(brut - tpp, pmss + tpp) + tpp) / bareme.au("mgen.brut_moyen", date)
     return round(base * coeff, 2)
 
